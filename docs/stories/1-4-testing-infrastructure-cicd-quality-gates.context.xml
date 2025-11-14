@@ -1,0 +1,327 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>4</storyId>
+    <title>Testing Infrastructure &amp; CI/CD Quality Gates</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-14</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-4-testing-infrastructure-cicd-quality-gates.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>automated testing and CI/CD quality gates</iWant>
+    <soThat>I can catch bugs early and maintain code quality as the project scales</soThat>
+    <tasks>
+      <task id="1" acs="1.4.1, 1.4.2">
+        <title>Install and Configure Jest + React Testing Library</title>
+        <summary>Install Jest, React Testing Library, and configure jest.config.js with coverage thresholds (70%) and npm test scripts</summary>
+      </task>
+      <task id="2" acs="1.4.4">
+        <title>Create Example Unit Test for Utility Function</title>
+        <summary>Create lib/utils.test.ts testing the cn() utility function for class name merging</summary>
+      </task>
+      <task id="3" acs="1.4.4">
+        <title>Create Example Component Test for Button</title>
+        <summary>Create components/ui/button.test.tsx testing Button component variants, onClick, and accessibility</summary>
+      </task>
+      <task id="4" acs="1.4.2">
+        <title>Configure ESLint and Prettier Scripts</title>
+        <summary>Verify npm run lint works and optionally configure Prettier formatting</summary>
+      </task>
+      <task id="5" acs="1.4.3">
+        <title>Create GitHub Actions CI Workflow</title>
+        <summary>Create .github/workflows/ci.yml running lint, test, and build on every PR and push to main</summary>
+      </task>
+      <task id="6" acs="1.4.5">
+        <title>Verify Coverage Threshold and CI Integration</title>
+        <summary>Run test:coverage locally, verify ≥70% coverage, and confirm CI enforces threshold</summary>
+      </task>
+      <task id="7" acs="1.4.4">
+        <title>Document Testing Patterns</title>
+        <summary>Add comments to example tests showing best practices for utility and component testing</summary>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1.4.1">
+      <title>Test Framework Configuration</title>
+      <requirements>
+        <requirement>Jest installed and configured with jest.config.js</requirement>
+        <requirement>React Testing Library installed</requirement>
+        <requirement>Coverage thresholds set to 70% (lines, statements, functions, branches)</requirement>
+        <requirement>Test environment set to jsdom</requirement>
+        <requirement>Coverage collection configured for app/**, components/**, lib/** (excluding tests and configs)</requirement>
+      </requirements>
+    </criterion>
+    <criterion id="1.4.2">
+      <title>NPM Scripts</title>
+      <requirements>
+        <requirement>npm test - Run all unit tests</requirement>
+        <requirement>npm run test:watch - Watch mode for development</requirement>
+        <requirement>npm run test:coverage - Generate coverage report</requirement>
+        <requirement>npm run lint - ESLint check</requirement>
+        <requirement>npm run format - Prettier format (optional)</requirement>
+      </requirements>
+    </criterion>
+    <criterion id="1.4.3">
+      <title>GitHub Actions Workflow</title>
+      <requirements>
+        <requirement>.github/workflows/ci.yml created</requirement>
+        <requirement>Runs on every PR and push to main</requirement>
+        <requirement>Executes: npm run lint, npm test, npm run build</requirement>
+        <requirement>Blocks merge if any step fails</requirement>
+        <requirement>Steps run in sequence (lint → test → build)</requirement>
+      </requirements>
+    </criterion>
+    <criterion id="1.4.4">
+      <title>Example Tests</title>
+      <requirements>
+        <requirement>Unit test for utility function (lib/utils.ts cn helper)</requirement>
+        <requirement>Component test for Button (shadcn/ui)</requirement>
+        <requirement>All tests pass in CI/CD pipeline</requirement>
+      </requirements>
+    </criterion>
+    <criterion id="1.4.5">
+      <title>Coverage Threshold</title>
+      <requirements>
+        <requirement>Coverage threshold configured (70% minimum)</requirement>
+        <requirement>Coverage report excludes test files and config files</requirement>
+        <requirement>Coverage report generated in coverage/ directory</requirement>
+        <requirement>CI fails if coverage below threshold</requirement>
+      </requirements>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Story 1.4: Testing Infrastructure &amp; CI/CD Quality Gates</section>
+        <snippet>Comprehensive specification for Story 1.4 including all acceptance criteria (AC-1.4.1 through AC-1.4.5), detailed design for Jest configuration with Next.js preset, GitHub Actions CI pipeline workflow, and testing standards. Establishes 70% coverage threshold enforced in CI.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Test Strategy Summary - Testing Approach</section>
+        <snippet>Testing pyramid for Epic 1: 70% unit tests (Jest + RTL), 20% integration tests, 10% E2E (Playwright configured but tests deferred to Epic 2). All tests must run in CI/CD pipeline, pass 100% before merge, execute in under 2 minutes, and be deterministic.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Continuous Integration (CI) Pipeline</section>
+        <snippet>GitHub Actions workflow runs on every push and pull request. Quality gates: ESLint (0 errors), Prettier formatting, TypeScript strict mode compilation, Jest tests with ≥70% coverage, and successful Next.js build. Coverage reports uploaded to GitHub artifacts.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>Technology Stack - Testing</section>
+        <snippet>Testing stack: Jest + React Testing Library (RTL) + Playwright for component tests and E2E critical flows. Coverage target: 70%. Deployment via Vercel + GitHub Actions with auto-deploy and preview PRs.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>Testing Strategy</section>
+        <snippet>Testing philosophy emphasizes 70% coverage target with focus on high-value scenarios. Unit tests use Jest + RTL for pure utility functions and components. CI execution via GitHub Actions with sequential steps: lint, test, build. Manual testing checklist includes verifying GitHub Actions shows green checkmark and coverage ≥70%.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>lib/utils.ts</path>
+        <kind>utility</kind>
+        <symbol>cn</symbol>
+        <lines>4-6</lines>
+        <reason>Primary test target for AC-1.4.4 - utility function test example. Pure function merging class names using clsx and tailwind-merge.</reason>
+      </artifact>
+      <artifact>
+        <path>components/ui/button.tsx</path>
+        <kind>component</kind>
+        <symbol>Button</symbol>
+        <lines>43-57</lines>
+        <reason>Primary test target for AC-1.4.4 - component test example. shadcn/ui Button with variant props (default, destructive, outline, secondary, ghost, link) and size props.</reason>
+      </artifact>
+      <artifact>
+        <path>components/layout/Header.tsx</path>
+        <kind>component</kind>
+        <symbol>Header</symbol>
+        <lines>8-50</lines>
+        <reason>Client component with useState for mobile menu toggle and useEffect for Escape key handling. Good candidate for advanced component testing (state management, keyboard events, ARIA).</reason>
+      </artifact>
+      <artifact>
+        <path>components/layout/Footer.tsx</path>
+        <kind>component</kind>
+        <symbol>Footer</symbol>
+        <lines>all</lines>
+        <reason>Server component with dynamic year calculation. Simple component for testing server component rendering patterns.</reason>
+      </artifact>
+      <artifact>
+        <path>package.json</path>
+        <kind>config</kind>
+        <symbol>dependencies</symbol>
+        <lines>all</lines>
+        <reason>Existing dependencies to build upon: Next.js 16, React 19, TypeScript, Tailwind CSS 4. Will add Jest, React Testing Library, and testing dependencies.</reason>
+      </artifact>
+      <artifact>
+        <path>tsconfig.json</path>
+        <kind>config</kind>
+        <symbol>compilerOptions</symbol>
+        <lines>all</lines>
+        <reason>TypeScript strict mode configuration. Tests must maintain strict type safety. Path aliases (@/*) must be mapped in jest.config.js.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem>Node.js / npm</ecosystem>
+      <manifest>package.json</manifest>
+      <existing>
+        <framework>
+          <name>Next.js</name>
+          <version>16.0.1</version>
+          <purpose>React framework - requires 'next/jest' preset for testing</purpose>
+        </framework>
+        <framework>
+          <name>React</name>
+          <version>19.2.0</version>
+          <purpose>UI library - requires React Testing Library for component tests</purpose>
+        </framework>
+        <framework>
+          <name>TypeScript</name>
+          <version>^5</version>
+          <purpose>Type safety - tests must use TypeScript strict mode</purpose>
+        </framework>
+        <framework>
+          <name>Tailwind CSS</name>
+          <version>^4</version>
+          <purpose>Styling framework - may need mocking in tests</purpose>
+        </framework>
+        <library>
+          <name>@radix-ui/react-slot</name>
+          <version>^1.2.4</version>
+          <purpose>Used by Button component - may need mocking</purpose>
+        </library>
+        <library>
+          <name>class-variance-authority</name>
+          <version>^0.7.1</version>
+          <purpose>Used by Button variants - needed for variant testing</purpose>
+        </library>
+        <library>
+          <name>clsx</name>
+          <version>^2.1.1</version>
+          <purpose>Used by cn() utility - dependency for utility function tests</purpose>
+        </library>
+        <library>
+          <name>tailwind-merge</name>
+          <version>^3.4.0</version>
+          <purpose>Used by cn() utility - dependency for utility function tests</purpose>
+        </library>
+        <library>
+          <name>lucide-react</name>
+          <version>^0.553.0</version>
+          <purpose>Icon library used in Header - may need mocking in component tests</purpose>
+        </library>
+      </existing>
+      <toBeAdded>
+        <testDependency>
+          <name>jest</name>
+          <purpose>Test runner - AC-1.4.1</purpose>
+        </testDependency>
+        <testDependency>
+          <name>@types/jest</name>
+          <purpose>TypeScript definitions for Jest</purpose>
+        </testDependency>
+        <testDependency>
+          <name>jest-environment-jsdom</name>
+          <purpose>Browser-like environment for React component testing - AC-1.4.1</purpose>
+        </testDependency>
+        <testDependency>
+          <name>@testing-library/react</name>
+          <purpose>React component testing utilities - AC-1.4.1</purpose>
+        </testDependency>
+        <testDependency>
+          <name>@testing-library/jest-dom</name>
+          <purpose>Custom matchers for DOM testing (toBeInTheDocument, etc.)</purpose>
+        </testDependency>
+        <testDependency>
+          <name>@testing-library/user-event</name>
+          <purpose>User interaction simulation for component tests</purpose>
+        </testDependency>
+        <testDependency>
+          <name>@testing-library/dom</name>
+          <purpose>DOM testing utilities base library</purpose>
+        </testDependency>
+      </toBeAdded>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>CRITICAL: Next.js 16 requires specific Jest configuration. Must use 'next/jest' preset via createJestConfig function to ensure proper Next.js support and avoid configuration issues.</constraint>
+    <constraint>TypeScript strict mode must be maintained in all test files. All tests must be type-safe with proper type annotations.</constraint>
+    <constraint>Coverage threshold: 70% minimum for lines, statements, functions, and branches. Enforced in CI - builds fail if threshold not met.</constraint>
+    <constraint>Coverage collection must exclude: test files (*.test.ts, *.test.tsx), config files (*.config.js, *.config.ts), type definitions (*.d.ts), build output (.next/, coverage/, dist/).</constraint>
+    <constraint>All tests must run in under 2 minutes total runtime to maintain fast CI feedback loop.</constraint>
+    <constraint>Tests must be deterministic - no random failures, no flaky tests. 100% pass rate required before merge.</constraint>
+    <constraint>Path aliases (@/*) configured in tsconfig.json must be mapped in jest.config.js using moduleNameMapper for proper import resolution in tests.</constraint>
+    <constraint>jest-dom must be configured in jest.setup.js to enable custom matchers (toBeInTheDocument, toHaveClass, etc.) for better test assertions.</constraint>
+    <constraint>Component tests should focus on user behavior, not implementation details. Use React Testing Library's "query by role" pattern for accessibility-focused testing.</constraint>
+    <constraint>GitHub Actions workflow must run lint, test, and build in sequence (not parallel) as each step validates different quality aspects.</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>cn</name>
+      <kind>function</kind>
+      <signature>function cn(...inputs: ClassValue[]): string</signature>
+      <path>lib/utils.ts</path>
+      <description>Utility function that merges class names using clsx and tailwind-merge. Handles conditional classes and resolves Tailwind CSS class conflicts.</description>
+    </interface>
+    <interface>
+      <name>ButtonProps</name>
+      <kind>type</kind>
+      <signature>interface ButtonProps extends React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt;, VariantProps&lt;typeof buttonVariants&gt; { asChild?: boolean }</signature>
+      <path>components/ui/button.tsx</path>
+      <description>Button component props interface. Supports variant (default, destructive, outline, secondary, ghost, link), size (default, sm, lg, icon), and asChild for composition.</description>
+    </interface>
+    <interface>
+      <name>NPM Scripts</name>
+      <kind>npm commands</kind>
+      <signature>npm test, npm run test:watch, npm run test:coverage, npm run lint, npm run format</signature>
+      <path>package.json</path>
+      <description>Required npm scripts for testing and quality checks. Must be configured in AC-1.4.2.</description>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Testing stack: Jest (test runner) + React Testing Library (component testing) with 70% minimum coverage threshold enforced in CI. All tests must use TypeScript strict mode for type safety. Tests should focus on user behavior rather than implementation details, using RTL's "query by role" pattern for accessibility-focused assertions. Tests must be deterministic (no random failures) and run in under 2 minutes total. Next.js 16 integration via 'next/jest' preset. Custom matchers enabled through @testing-library/jest-dom (toBeInTheDocument, toHaveClass, toBeVisible, etc.). Coverage collection configured for app/**, components/**, lib/** directories, excluding test files, config files, and build output.
+    </standards>
+    <locations>
+      <location>lib/*.test.ts</location>
+      <location>lib/**/*.test.ts</location>
+      <location>components/**/*.test.tsx</location>
+      <location>app/**/*.test.tsx</location>
+      <location>coverage/</location>
+    </locations>
+    <ideas>
+      <testIdea ac="1.4.4">
+        <target>lib/utils.ts - cn() function</target>
+        <approach>Unit test with multiple test cases: (1) merges class names correctly, (2) handles conditional classes (using boolean conditions), (3) removes conflicting Tailwind classes (e.g., text-base vs text-red-500). Pure function testing - straightforward assertions on output given inputs.</approach>
+      </testIdea>
+      <testIdea ac="1.4.4">
+        <target>components/ui/button.tsx - Button component</target>
+        <approach>Component test using RTL: (1) renders with default props and children text, (2) applies variant className correctly (test at least default and secondary variants), (3) handles onClick event (use jest.fn() mock), (4) keyboard accessible (Tab to focus, Enter/Space to activate). Use screen.getByRole('button') for accessible queries.</approach>
+      </testIdea>
+      <testIdea ac="1.4.4">
+        <target>components/layout/Header.tsx - Header component (optional advanced example)</target>
+        <approach>Client component with state: (1) mobile menu toggle state (click hamburger, verify menu visibility), (2) Escape key closes menu (fireEvent.keyDown), (3) ARIA attributes correct (aria-label, aria-expanded), (4) navigation links render. Good example of testing useState, useEffect, and keyboard events.</approach>
+      </testIdea>
+      <testIdea ac="1.4.5">
+        <target>Coverage threshold enforcement</target>
+        <approach>Configure jest.config.js with coverageThreshold global settings (70% for lines, statements, functions, branches). Test enforcement by temporarily setting threshold to 100% and verifying CI fails, then restore to 70% and verify CI passes.</approach>
+      </testIdea>
+      <testIdea ac="1.4.3">
+        <target>GitHub Actions CI workflow</target>
+        <approach>Create .github/workflows/ci.yml with sequential steps: checkout, setup Node.js 20, npm ci, npm run lint, npm test (with --coverage flag), npm run build. Verify workflow triggers on push and pull_request events. Confirm quality gates block merge on failure.</approach>
+      </testIdea>
+    </ideas>
+  </tests>
+</story-context>
