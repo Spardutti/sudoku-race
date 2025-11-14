@@ -1,0 +1,244 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>3</storyId>
+    <title>Core App Routing &amp; Layout Structure</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-14</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-3-core-app-routing-layout-structure.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>clean navigation and consistent layout across all pages</iWant>
+    <soThat>I can easily access the daily puzzle and understand the site structure</soThat>
+    <tasks>
+### Task 1: Create Root Layout with Meta Tags (AC: 1.3.2)
+- Create `/app/layout.tsx` with TypeScript
+- Define HTML structure, meta tags, page title
+- Configure typography CSS variables in `globals.css`
+- Add Header and Footer components to layout
+
+### Task 2: Create Navigation Header Component (AC: 1.3.3)
+- Create `/components/layout/Header.tsx` with TypeScript
+- Add "Sudoku Daily" branding and desktop navigation links
+- Implement responsive mobile menu with hamburger icon
+- Test mobile breakpoints
+
+### Task 3: Create Footer Component (AC: 1.3.4)
+- Create `/components/layout/Footer.tsx` with TypeScript
+- Add copyright notice and attribution
+- Add placeholder links for Privacy/Terms
+- Apply newspaper styling
+
+### Task 4: Create Route Pages (AC: 1.3.1)
+- Create home page `/app/page.tsx` with placeholder
+- Create OAuth callback route `/app/auth/callback/route.ts`
+- Create profile page `/app/profile/page.tsx`
+- Create leaderboard page `/app/leaderboard/page.tsx`
+
+### Task 5: Create Custom 404 Page (AC: 1.3.5)
+- Create `/app/not-found.tsx` with TypeScript
+- Add newspaper-style "Page Not Found" message
+- Apply brand aesthetic styling
+
+### Task 6: Verify Routing and Navigation (AC: All)
+- Test all routes load without errors
+- Test layout persistence and mobile responsiveness
+- Check console for errors
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+AC-1.3.1: Route Structure
+- Routes exist and render: /, /auth/callback, /profile, /leaderboard
+- All routes accessible via browser navigation
+- No console errors when navigating
+
+AC-1.3.2: Root Layout
+- /app/layout.tsx includes HTML structure, meta tags, typography
+- Newspaper aesthetic typography (Merriweather serif, Inter sans-serif)
+- Layout persists across page navigation
+
+AC-1.3.3: Navigation Header Component
+- Header with "Sudoku Daily" branding and navigation links
+- Responsive mobile menu (hamburger &lt; 768px)
+- Accessible keyboard navigation
+
+AC-1.3.4: Footer Component
+- Links to Privacy/Terms, attribution, copyright
+- Footer positioned at bottom of viewport
+- Newspaper aesthetic styling
+
+AC-1.3.5: 404 Page
+- Custom 404 page with "Page Not Found" message
+- Link back to home page
+- Follows brand aesthetic
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic 1 - Story 1.3 Definition</title>
+        <section>Story 1.3: Core App Routing &amp; Layout Structure</section>
+        <snippet>Implements clean navigation and consistent layout across all pages. Creates Next.js App Router structure with routes (/, /auth/callback, /profile, /leaderboard), root layout with newspaper aesthetic typography, navigation header with mobile menu, and footer component. Uses Next.js App Router layout system with reusable Header/Footer components in /components/layout/. Mobile-first responsive design (320px-767px primary) with newspaper aesthetic: black &amp; white base with spot color (#1a73e8 for links).</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Story 1.3: Core App Routing &amp; Layout Structure - Implementation Details</section>
+        <snippet>Directory Structure: /app (Next.js 16 App Router) includes layout.tsx (root layout with meta tags, fonts), page.tsx (home page placeholder), /auth/callback/route.ts (OAuth callback foundation), /profile/page.tsx, /leaderboard/page.tsx. Components: /components/layout/ includes Header.tsx (navigation with mobile menu), Footer.tsx (site footer). Layout Components: Header with newspaper-style branding, navigation links (Today's Puzzle, Leaderboard, Profile), responsive hamburger menu for mobile (320px-767px). Root Layout includes HTML structure with proper meta tags (SEO foundation), Google Fonts preloading (Merriweather, Inter), Tailwind CSS imported, persistent layout with Header and Footer.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Frontend Structure</title>
+        <section>App Router Structure &amp; Styling</section>
+        <snippet>Using Next.js 16 App Router (not Pages Router) for RSC support and improved performance. Component Organization: /components/layout/ for shared layouts, /components/ui/ for design system primitives. Styling: Tailwind CSS 4 with custom newspaper aesthetic customization. Root layout at app/layout.tsx includes metadata and providers. Meta Tags &amp; OpenGraph configured in root layout using Next.js Metadata API for SEO.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements - Design System &amp; UX Principles</title>
+        <section>Newspaper Aesthetic &amp; Responsive Design</section>
+        <snippet>Visual Personality: Classic Newspaper Meets Modern Social. Design Philosophy: Radical simplicity, newspaper aesthetic (classic, trustworthy, no clutter), respect the player. Visual Language: Black &amp; white base with spot color (single accent color for CTAs), serif typography for headers (newspaper style - authoritative, classic), sans-serif for UI elements (readability). Responsive Design: Mobile-first with breakpoints - Mobile: 320px-767px (primary), Tablet: 768px-1024px, Desktop: 1025px+. Typography Scale: Display (48px+), Heading (24-32px), Body (16px), UI (14px). Color Palette: Primary #000000 (black), Background #FFFFFF (white), Spot Blue #1a73e8 (interactive elements), Neutral Grays for secondary text. Accessibility: Keyboard navigation (arrow keys, number keys, tab), screen reader support, WCAG AA color contrast (4.5:1 for text, 3:1 for UI).</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>app/layout.tsx</path>
+        <kind>layout</kind>
+        <symbol>RootLayout</symbol>
+        <lines>1-34</lines>
+        <reason>Existing root layout - needs enhancement with Header/Footer and newspaper fonts (Merriweather/Inter instead of Geist)</reason>
+      </artifact>
+      <artifact>
+        <path>app/page.tsx</path>
+        <kind>page</kind>
+        <symbol>Home</symbol>
+        <lines>1-12</lines>
+        <reason>Existing home page with basic "Sudoku Daily" branding - can be enhanced or replaced with placeholder per AC-1.3.1</reason>
+      </artifact>
+      <artifact>
+        <path>lib/supabase.ts</path>
+        <kind>client</kind>
+        <symbol>supabase</symbol>
+        <lines>1-13</lines>
+        <reason>Supabase client from Story 1.2 - available for OAuth callback route (Epic 3 foundation)</reason>
+      </artifact>
+      <artifact>
+        <path>tailwind.config.ts</path>
+        <kind>config</kind>
+        <symbol>config</symbol>
+        <lines>18-23</lines>
+        <reason>Tailwind config with font family CSS variables already defined (--font-serif, --font-sans) - ready for Merriweather/Inter integration</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <dependencies>
+          <package name="@supabase/supabase-js" version="^2.81.1"/>
+          <package name="next" version="16.0.1"/>
+          <package name="react" version="19.2.0"/>
+          <package name="react-dom" version="19.2.0"/>
+        </dependencies>
+        <devDependencies>
+          <package name="@tailwindcss/postcss" version="^4"/>
+          <package name="@types/node" version="^20"/>
+          <package name="@types/react" version="^19"/>
+          <package name="@types/react-dom" version="^19"/>
+          <package name="dotenv" version="^17.2.3"/>
+          <package name="eslint" version="^9"/>
+          <package name="eslint-config-next" version="16.0.1"/>
+          <package name="eslint-config-prettier" version="^10.1.8"/>
+          <package name="prettier" version="^3.6.2"/>
+          <package name="supabase" version="^2.58.5"/>
+          <package name="tailwindcss" version="^4"/>
+          <package name="tsx" version="^4.20.6"/>
+          <package name="typescript" version="^5"/>
+        </devDependencies>
+      </node>
+      <frameworks>
+        <framework>Next.js 16 (App Router, React Server Components)</framework>
+        <framework>React 19</framework>
+        <framework>Tailwind CSS 4</framework>
+        <framework>TypeScript 5</framework>
+        <framework>Supabase (client SDK + CLI)</framework>
+      </frameworks>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+1. MUST use Next.js 16 App Router (not Pages Router) - Server Components by default
+2. Use 'use client' directive ONLY where interactivity needed (e.g., Header mobile menu toggle)
+3. TypeScript strict mode enforced - all components must be type-safe
+4. Import patterns: Use path alias @/components/..., @/lib/...
+5. Font loading strategy: Google Fonts (Merriweather serif, Inter sans-serif) with preload and font-display: swap
+6. Mobile menu accessibility: ARIA attributes (aria-label, aria-expanded), keyboard navigation (Tab, Enter, Escape)
+7. OAuth callback route MUST be Route Handler (/app/auth/callback/route.ts) with GET export, NOT a page
+8. Responsive breakpoints: Mobile &lt;768px (hamburger menu), Tablet 768-1024px, Desktop 1025px+
+9. Color palette: Black (#000000), White (#FFFFFF), Spot Blue (#1a73e8) per newspaper aesthetic
+10. Component structure: /components/layout/ for Header/Footer, /components/ui/ for design system (Story 1.5)
+11. Accessibility: WCAG AA compliance (4.5:1 contrast for text, keyboard navigation, focus indicators)
+12. Layout persistence: Header and Footer must persist across all pages via root layout
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>Supabase Client</name>
+      <kind>Module export</kind>
+      <signature>export const supabase = createClient&lt;Database&gt;(supabaseUrl, supabaseAnonKey)</signature>
+      <path>lib/supabase.ts</path>
+      <usage>Import in OAuth callback route for future auth implementation (Epic 3)</usage>
+    </interface>
+    <interface>
+      <name>Tailwind CSS Variables</name>
+      <kind>CSS configuration</kind>
+      <signature>fontFamily: { serif: ["var(--font-serif)", "Georgia", "serif"], sans: ["var(--font-sans)", "system-ui", "sans-serif"] }</signature>
+      <path>tailwind.config.ts</path>
+      <usage>Use CSS variables for fonts - define --font-serif and --font-sans in layout.tsx with Google Fonts</usage>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Based on Tech-Spec Epic 1 and story Dev Notes, testing infrastructure will be set up in Story 1.4 with Jest and React Testing Library. Coverage thresholds: 70% minimum for MVP, with higher thresholds for UI components (80%+) and layout components like Header/Footer (70%+). Tests should be co-located with components (e.g., components/layout/Header.test.tsx) or in __tests__ directories. Accessibility testing required: keyboard navigation, ARIA attributes, WCAG AA color contrast. Manual testing includes responsive design verification at mobile (375px), tablet (768px), and desktop (1024px+) breakpoints.</standards>
+    <locations>
+      <location>components/layout/__tests__/ or components/layout/*.test.tsx</location>
+      <location>app/__tests__/ for route/layout integration tests</location>
+      <location>CI/CD: GitHub Actions pipeline (Story 1.4)</location>
+    </locations>
+    <ideas>
+AC-1.3.1-route-structure:
+  - All routes render without errors (/, /profile, /leaderboard, /auth/callback)
+  - 404 page renders for invalid routes
+  - OAuth callback redirects to home
+
+AC-1.3.2-root-layout:
+  - Layout includes correct meta tags (title, description, viewport)
+  - Google Fonts (Merriweather, Inter) loaded with preload
+  - Layout persists across page navigation (Header/Footer visible)
+  - Tailwind CSS styles applied globally
+
+AC-1.3.3-navigation-header:
+  - Header renders on all pages
+  - Navigation links render and navigate correctly
+  - Mobile menu toggle works (opens/closes on click)
+  - Hamburger icon visible only on mobile (&lt;768px)
+  - Desktop nav visible only on desktop (≥768px)
+  - ARIA attributes present (aria-label, aria-expanded)
+  - Keyboard navigation works (Tab, Enter, Escape closes menu)
+  - Menu closes when link clicked
+
+AC-1.3.4-footer:
+  - Footer renders on all pages
+  - Footer contains Privacy/Terms links
+  - Footer contains attribution and copyright with current year
+  - Footer positioned at bottom of viewport
+
+AC-1.3.5-404-page:
+  - Custom 404 page renders with newspaper aesthetic
+  - 404 page includes link back to home
+  - Link navigation works from 404 to home
+    </ideas>
+  </tests>
+</story-context>
