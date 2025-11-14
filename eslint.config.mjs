@@ -13,9 +13,6 @@ const eslintConfig = defineConfig([
       "react-you-might-not-need-an-effect": reactYouMightNotNeedAnEffect,
     },
     rules: {
-      "react-you-might-not-need-an-effect/useMemo": "warn",
-      "react-you-might-not-need-an-effect/useCallback": "warn",
-      "react-you-might-not-need-an-effect/useState": "warn",
       // React Compiler rules - help identify code that prevents optimization
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
@@ -28,6 +25,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Testing artifacts:
+    "coverage/**",
+    "jest.config.js",
   ]),
 ]);
 
