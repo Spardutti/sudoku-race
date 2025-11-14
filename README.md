@@ -107,7 +107,7 @@ This application is deployed on Vercel with automatic deployments:
 - **Production:** Deployed from `main` branch
 - **Preview:** Automatic preview deployments for feature branches
 
-Production URL: [To be added after deployment]
+Production URL: https://sudoku-race.vercel.app/
 
 ## Code Quality
 
