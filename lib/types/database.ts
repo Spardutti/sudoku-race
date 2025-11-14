@@ -1,8 +1,3 @@
-// Database Types for Supabase
-// Generated manually from schema in supabase/migrations/001_initial_schema.sql
-// TODO: After Supabase project is set up, regenerate with:
-// npx supabase gen types typescript --project-id [project-id] > lib/types/database.ts
-
 export type Json =
   | string
   | number
@@ -11,150 +6,198 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
+  }
   public: {
     Tables: {
-      users: {
-        Row: {
-          id: string
-          email: string
-          username: string
-          oauth_provider: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          email: string
-          username: string
-          oauth_provider: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          email?: string
-          username?: string
-          oauth_provider?: string
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      puzzles: {
-        Row: {
-          id: string
-          puzzle_date: string
-          puzzle_data: Json
-          difficulty: string
-          solution: Json
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          puzzle_date: string
-          puzzle_data: Json
-          difficulty: string
-          solution: Json
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          puzzle_date?: string
-          puzzle_data?: Json
-          difficulty?: string
-          solution?: Json
-          created_at?: string
-        }
-      }
       completions: {
         Row: {
-          id: string
-          user_id: string | null
-          puzzle_id: string | null
-          completion_time_seconds: number | null
           completed_at: string | null
-          is_guest: boolean | null
           completion_data: Json | null
+          completion_time_seconds: number | null
+          id: string
+          is_guest: boolean | null
+          puzzle_id: string | null
           solve_path: Json | null
           started_at: string
+          user_id: string | null
         }
         Insert: {
-          id?: string
-          user_id?: string | null
-          puzzle_id?: string | null
-          completion_time_seconds?: number | null
           completed_at?: string | null
-          is_guest?: boolean | null
           completion_data?: Json | null
+          completion_time_seconds?: number | null
+          id?: string
+          is_guest?: boolean | null
+          puzzle_id?: string | null
           solve_path?: Json | null
           started_at?: string
+          user_id?: string | null
         }
         Update: {
-          id?: string
-          user_id?: string | null
-          puzzle_id?: string | null
-          completion_time_seconds?: number | null
           completed_at?: string | null
-          is_guest?: boolean | null
           completion_data?: Json | null
+          completion_time_seconds?: number | null
+          id?: string
+          is_guest?: boolean | null
+          puzzle_id?: string | null
           solve_path?: Json | null
           started_at?: string
+          user_id?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "completions_puzzle_id_fkey"
+            columns: ["puzzle_id"]
+            isOneToOne: false
+            referencedRelation: "puzzles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "completions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leaderboards: {
         Row: {
+          completion_time_seconds: number
           id: string
           puzzle_id: string | null
-          user_id: string | null
           rank: number
-          completion_time_seconds: number
           submitted_at: string
+          user_id: string | null
         }
         Insert: {
+          completion_time_seconds: number
           id?: string
           puzzle_id?: string | null
-          user_id?: string | null
           rank: number
-          completion_time_seconds: number
           submitted_at?: string
+          user_id?: string | null
         }
         Update: {
+          completion_time_seconds?: number
           id?: string
           puzzle_id?: string | null
-          user_id?: string | null
           rank?: number
-          completion_time_seconds?: number
           submitted_at?: string
+          user_id?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "leaderboards_puzzle_id_fkey"
+            columns: ["puzzle_id"]
+            isOneToOne: false
+            referencedRelation: "puzzles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leaderboards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      puzzles: {
+        Row: {
+          created_at: string
+          difficulty: string
+          id: string
+          puzzle_data: Json
+          puzzle_date: string
+          solution: Json
+        }
+        Insert: {
+          created_at?: string
+          difficulty: string
+          id?: string
+          puzzle_data: Json
+          puzzle_date: string
+          solution: Json
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string
+          id?: string
+          puzzle_data?: Json
+          puzzle_date?: string
+          solution?: Json
+        }
+        Relationships: []
       }
       streaks: {
         Row: {
-          id: string
-          user_id: string | null
           current_streak: number
-          longest_streak: number
-          last_completion_date: string
           freeze_available: boolean | null
+          id: string
+          last_completion_date: string
           last_freeze_reset_date: string | null
+          longest_streak: number
+          user_id: string | null
         }
         Insert: {
-          id?: string
-          user_id?: string | null
           current_streak?: number
-          longest_streak?: number
-          last_completion_date: string
           freeze_available?: boolean | null
+          id?: string
+          last_completion_date: string
           last_freeze_reset_date?: string | null
+          longest_streak?: number
+          user_id?: string | null
         }
         Update: {
-          id?: string
-          user_id?: string | null
           current_streak?: number
-          longest_streak?: number
-          last_completion_date?: string
           freeze_available?: boolean | null
+          id?: string
+          last_completion_date?: string
           last_freeze_reset_date?: string | null
+          longest_streak?: number
+          user_id?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "streaks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          oauth_provider: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          oauth_provider: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          oauth_provider?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -166,5 +209,131 @@ export interface Database {
     Enums: {
       [_ in never]: never
     }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const

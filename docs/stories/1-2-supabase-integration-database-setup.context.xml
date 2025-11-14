@@ -1,0 +1,254 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Supabase Integration & Database Setup</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-14</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-2-supabase-integration-database-setup.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>Supabase connected with database schema and authentication configured</iWant>
+    <soThat>I can store user data, puzzle state, and handle OAuth authentication</soThat>
+    <tasks>
+### Task 1: Create Supabase Project and Install Dependencies (AC: 1.2.1)
+- Create Supabase project via https://supabase.com (free tier)
+- Install Supabase JavaScript client (`npm install @supabase/supabase-js`)
+- Update environment variables in `.env.local`
+- Update `.env.local` in Vercel deployment
+
+### Task 2: Create Supabase Client Utilities (AC: 1.2.1)
+- Create `/lib/supabase.ts` with Supabase client initialization
+- Import `createClient` from `@supabase/supabase-js`
+- Initialize client with URL and anon key from environment variables
+- Export client for use throughout application
+- Test connection
+
+### Task 3: Create Database Migration File (AC: 1.2.2, 1.2.3, 1.2.4)
+- Create directory structure: `/supabase/migrations/`
+- Create migration file: `001_initial_schema.sql`
+- Define all 5 tables: users, puzzles, completions, leaderboards, streaks
+- Create indexes for performance optimization
+
+### Task 4: Enable Row Level Security (AC: 1.2.3)
+- Add RLS enable statements to migration file for all tables
+- Create RLS policies for users, puzzles, completions, leaderboards, streaks
+
+### Task 5: Execute Database Migration (AC: 1.2.2, 1.2.3, 1.2.4)
+- Open Supabase SQL Editor in dashboard
+- Execute migration SQL
+- Verify all tables, indexes, and RLS policies created
+
+### Task 6: Configure OAuth Providers (AC: 1.2.5)
+- Enable Google OAuth
+- Enable GitHub OAuth
+- Enable Apple OAuth (optional for MVP)
+- Configure redirect URLs
+
+### Task 7: Create TypeScript Types (AC: 1.2.1, 1.2.6)
+- Install Supabase CLI: `npm install -D supabase`
+- Generate types from database schema
+- Create `/lib/types/database.ts`
+- Update Supabase client with typed client
+
+### Task 8: Verification & Testing (AC: All)
+- Test database queries from application
+- Verify OAuth configuration
+- Document setup in README
+- Commit migration file to version control
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### AC-1.2.1: Supabase Project Setup
+- Supabase project created (free tier)
+- `@supabase/supabase-js` installed
+- Supabase URL and anon key in environment variables
+- Supabase client utility created (`/lib/supabase.ts`)
+- Connection tested and verified
+
+### AC-1.2.2: Database Schema Creation
+- All 5 tables created: users, puzzles, completions, leaderboards, streaks
+- Users table: id, email, username, oauth_provider, created_at, updated_at
+- Puzzles table: id, puzzle_date, puzzle_data, difficulty, solution, created_at
+- Completions table: id, user_id, puzzle_id, completion_time_seconds, completed_at, is_guest, completion_data, solve_path, started_at
+- Leaderboards table: id, puzzle_id, user_id, rank, completion_time_seconds, submitted_at
+- Streaks table: id, user_id, current_streak, longest_streak, last_completion_date, freeze_available, last_freeze_reset_date
+
+### AC-1.2.3: Row Level Security (RLS)
+- RLS enabled on all tables
+- RLS policies created:
+  - Users can read/update own data only
+  - Puzzles publicly readable
+  - Leaderboards publicly readable
+  - Completions restricted to owning user
+  - Streaks restricted to owning user
+
+### AC-1.2.4: Database Indexes
+- Index on `puzzles.puzzle_date`
+- Index on `leaderboards.puzzle_id, completion_time_seconds`
+- Index on `completions.user_id`
+- Index on `completions.puzzle_id`
+- Index on `streaks.user_id`
+
+### AC-1.2.5: Supabase Auth Configuration
+- OAuth providers enabled (Google, GitHub, Apple) in Supabase dashboard
+- Redirect URLs configured for development and production
+
+### AC-1.2.6: Database Documentation
+- Database migration file created (`/supabase/migrations/001_initial_schema.sql`)
+- Migration file committed to version control
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>1.2 Supabase Integration Module (lines 155-173)</section>
+        <snippet>Defines Supabase client initialization pattern with typed Database client, environment variable configuration (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY), and export pattern for application-wide usage.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Database Schema (lines 289-435)</section>
+        <snippet>Complete SQL schemas for all 5 tables (users, puzzles, completions, leaderboards, streaks) with RLS policies, indexes, and foreign key constraints. Includes critical security note: puzzles.solution field NEVER exposed to client.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>AC-1.2 Acceptance Criteria (lines 1035-1077)</section>
+        <snippet>Authoritative acceptance criteria for Story 1.2: Supabase project setup, all 5 tables created, RLS enabled with policies, indexes created, OAuth providers configured (Google/GitHub/Apple), redirect URLs, migration file committed to version control.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>Database Schema (lines 609-793)</section>
+        <snippet>Database architecture details: tables with UUID primary keys, JSONB for puzzle_data/solution, indexes on frequently queried columns (puzzle_date, user_id, puzzle_id), RLS policies enforcing data isolation, foreign key CASCADE deletes for data integrity.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>Security Architecture (lines 892-1000)</section>
+        <snippet>Security requirements: RLS enabled on all tables, auth.uid() function in policies for user data isolation, puzzles.solution stored server-side only (anti-cheat), OAuth-only authentication (no passwords), httpOnly cookies for session management.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Technical Requirements</section>
+        <snippet>Database requirements: Supabase PostgreSQL for relational data, Row Level Security for user data protection, support for 1,000 DAU scale, real-time subscriptions for leaderboards (200 concurrent connections on free tier).</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>app/layout.tsx</path>
+        <kind>component</kind>
+        <symbol>RootLayout</symbol>
+        <lines>1-35</lines>
+        <reason>Existing root layout from Story 1-1. Story 1-2 does not modify this file, but should be aware of project structure and TypeScript conventions established here.</reason>
+      </artifact>
+      <artifact>
+        <path>package.json</path>
+        <kind>config</kind>
+        <symbol>dependencies</symbol>
+        <lines>12-16</lines>
+        <reason>Current dependencies: Next.js 16, React 19. Story 1-2 will add @supabase/supabase-js to dependencies and supabase CLI to devDependencies.</reason>
+      </artifact>
+      <artifact>
+        <path>lib/</path>
+        <kind>directory</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>Directory exists but is currently empty. Story 1-2 will create lib/supabase.ts (Supabase client initialization).</reason>
+      </artifact>
+      <artifact>
+        <path>types/</path>
+        <kind>directory</kind>
+        <symbol>N/A</symbol>
+        <lines>N/A</lines>
+        <reason>Directory exists but is currently empty. Story 1-2 will create types/database.ts (auto-generated Supabase types).</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="next">^16.0.1</package>
+        <package name="react">^19.2.0</package>
+        <package name="react-dom">^19.2.0</package>
+        <package name="@supabase/supabase-js">TO BE ADDED (^2.39.0)</package>
+      </node>
+      <node_dev>
+        <package name="typescript">^5</package>
+        <package name="tailwindcss">^4</package>
+        <package name="eslint">^9</package>
+        <package name="prettier">^3.6.2</package>
+        <package name="supabase">TO BE ADDED (CLI for type generation)</package>
+      </node_dev>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>TypeScript strict mode enabled - all code must be fully typed with no 'any' types</constraint>
+    <constraint>Environment variables for client-side use MUST be prefixed with NEXT_PUBLIC_ (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)</constraint>
+    <constraint>Supabase anon key is safe to expose client-side - RLS policies protect data access</constraint>
+    <constraint>RLS policies MUST use auth.uid() function to enforce user data isolation</constraint>
+    <constraint>CRITICAL: puzzles.solution field must NEVER be exposed to client - only for server-side validation (anti-cheat)</constraint>
+    <constraint>Database migration file must be idempotent - use IF NOT EXISTS for production safety</constraint>
+    <constraint>All tables must use UUID primary keys (uuid_generate_v4())</constraint>
+    <constraint>Foreign key constraints must use ON DELETE CASCADE for data integrity</constraint>
+    <constraint>Indexes required on all frequently queried columns (puzzle_date, user_id, puzzle_id)</constraint>
+    <constraint>OAuth redirect URLs must be configured for both development (localhost:3000) and production environments</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>Supabase Client</name>
+      <kind>module export</kind>
+      <signature>export const supabase: SupabaseClient&lt;Database&gt;</signature>
+      <path>lib/supabase.ts</path>
+    </interface>
+    <interface>
+      <name>Database Type</name>
+      <kind>TypeScript type</kind>
+      <signature>export type Database = { public: { Tables: { users: {...}, puzzles: {...}, completions: {...}, leaderboards: {...}, streaks: {...} } } }</signature>
+      <path>types/database.ts</path>
+    </interface>
+    <interface>
+      <name>Supabase Environment Variables</name>
+      <kind>environment config</kind>
+      <signature>NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY</signature>
+      <path>.env.local</path>
+    </interface>
+    <interface>
+      <name>Database Schema Migration</name>
+      <kind>SQL migration</kind>
+      <signature>CREATE TABLE users/puzzles/completions/leaderboards/streaks with RLS policies and indexes</signature>
+      <path>supabase/migrations/001_initial_schema.sql</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+Testing framework: Jest + React Testing Library (configured in Story 1.4). For Story 1-2, testing is primarily manual verification with minimal automated tests. TypeScript strict mode provides compile-time type safety. Focus on integration testing (Supabase connection) rather than unit tests for database configuration.
+
+Testing deferred to Story 1.4: Full Jest configuration, unit test examples, CI/CD pipeline with coverage thresholds (70% minimum).
+
+Manual verification critical for Story 1-2: Supabase dashboard checks (tables created, RLS enabled, indexes visible), OAuth provider configuration verified, test database queries from application.
+    </standards>
+    <locations>
+      <location>Tests will be co-located with source files (e.g., lib/supabase.test.ts next to lib/supabase.ts)</location>
+      <location>Manual verification via Supabase dashboard (https://supabase.com/dashboard)</location>
+      <location>OAuth provider testing via Google/GitHub developer consoles</location>
+    </locations>
+    <ideas>
+      <test ac="AC-1.2.1">Integration test: Verify Supabase client can connect and query database (simple SELECT query on empty table)</test>
+      <test ac="AC-1.2.1">Type safety test: Ensure Database type is correctly imported and used in Supabase client</test>
+      <test ac="AC-1.2.2">Manual verification: Check all 5 tables exist in Supabase Table Editor with correct schemas</test>
+      <test ac="AC-1.2.3">Manual verification: Verify RLS enabled badge on all tables in Supabase dashboard</test>
+      <test ac="AC-1.2.3">SQL test: Run test queries from Supabase SQL Editor to verify RLS policies block unauthorized access</test>
+      <test ac="AC-1.2.4">Manual verification: Check Database → Indexes in Supabase dashboard for all 5 indexes created</test>
+      <test ac="AC-1.2.5">Manual verification: Test OAuth flow with Google (redirect to Google login, callback works)</test>
+      <test ac="AC-1.2.6">Git verification: Confirm migration file is tracked in version control (git ls-files supabase/migrations/)</test>
+    </ideas>
+  </tests>
+</story-context>
