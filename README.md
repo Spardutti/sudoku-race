@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sudoku Race
+
+A competitive daily Sudoku puzzle game with real-time leaderboards and social sharing features.
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **React:** 19.2.0
+- **TypeScript:** 5.x (Strict mode enabled)
+- **Styling:** Tailwind CSS 4
+- **Database:** Supabase (PostgreSQL)
+- **Deployment:** Vercel
+- **Code Quality:** ESLint + Prettier
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20.x or later
+- npm or yarn package manager
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/your-username/sudoku-race.git
+cd sudoku-race
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Set up environment variables:
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+**Note:** Supabase credentials will be obtained in Story 1.2 when the database is set up.
+
+### Development
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Security Note:** Never commit `.env.local` to version control. The `.env*` pattern is included in `.gitignore`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+/app                    # Next.js App Router
+  /layout.tsx          # Root layout
+  /page.tsx            # Home page
+  /globals.css         # Global styles with Tailwind
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+/components            # React components
+  /layout/             # Header, Footer
+  /ui/                 # Design system components
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+/lib                   # Utility functions
+  /supabase.ts         # Supabase client
+  /utils.ts            # Helper functions
+
+/types                 # TypeScript type definitions
+  /database.ts         # Supabase types
+  /index.ts            # App-wide types
+
+/public                # Static assets
+  /fonts/              # Custom fonts
+  /images/             # Logos, OG images
+
+/docs                  # Project documentation
+```
+
+## Deployment
+
+This application is deployed on Vercel with automatic deployments:
+
+- **Production:** Deployed from `main` branch
+- **Preview:** Automatic preview deployments for feature branches
+
+Production URL: [To be added after deployment]
+
+## Code Quality
+
+This project uses:
+
+- **TypeScript Strict Mode** for type safety
+- **ESLint** with Next.js recommended rules
+- **Prettier** for consistent code formatting
+
+Run quality checks before committing:
+
+```bash
+npm run lint
+npm run format
+```
+
+## Contributing
+
+1. Create a feature branch from `main`
+2. Make your changes
+3. Run linting and formatting
+4. Commit your changes
+5. Push and create a Pull Request
+
+## License
+
+MIT

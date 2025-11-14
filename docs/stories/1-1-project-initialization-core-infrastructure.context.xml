@@ -1,0 +1,200 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Project Initialization & Core Infrastructure</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-14</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-1-project-initialization-core-infrastructure.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>a fully configured Next.js 16 project with TypeScript, deployment pipeline, and core dependencies</iWant>
+    <soThat>I can build features on a solid foundation with rapid deployment capabilities</soThat>
+    <tasks>
+      <task id="1" acs="1.1.1, 1.1.4">
+        <title>Initialize Next.js 16 Project</title>
+        <subtasks>
+          <subtask>Run `npx create-next-app@latest sudoku-race` with TypeScript, ESLint, Tailwind CSS, App Router</subtask>
+          <subtask>Verify Next.js 16 and React 19 versions in package.json</subtask>
+          <subtask>Enable TypeScript strict mode in tsconfig.json</subtask>
+          <subtask>Create directory structure: /components, /lib, /types, /public</subtask>
+          <subtask>Initialize Git repository with git init</subtask>
+          <subtask>Create/verify .gitignore includes node_modules/, .next/, .env*.local</subtask>
+        </subtasks>
+      </task>
+      <task id="2" acs="1.1.1">
+        <title>Configure Code Quality Tools</title>
+        <subtasks>
+          <subtask>Configure ESLint with Next.js recommended rules and TypeScript strict rules</subtask>
+          <subtask>Install and configure Prettier with .prettierrc file</subtask>
+          <subtask>Add npm scripts for lint and format</subtask>
+        </subtasks>
+      </task>
+      <task id="3" acs="1.1.1">
+        <title>Configure Tailwind CSS 4</title>
+        <subtasks>
+          <subtask>Verify Tailwind CSS 4 installed</subtask>
+          <subtask>Create tailwind.config.ts with newspaper aesthetic preparation</subtask>
+          <subtask>Configure content paths for app and components directories</subtask>
+          <subtask>Verify Tailwind directives in app/globals.css</subtask>
+        </subtasks>
+      </task>
+      <task id="4" acs="1.1.2">
+        <title>Set Up Environment Variables</title>
+        <subtasks>
+          <subtask>Create .env.local with Supabase URL and anon key placeholders</subtask>
+          <subtask>Verify .env*.local in .gitignore</subtask>
+          <subtask>Create README.md with environment setup instructions</subtask>
+        </subtasks>
+      </task>
+      <task id="5" acs="1.1.3, 1.1.5">
+        <title>Deploy to Vercel</title>
+        <subtasks>
+          <subtask>Create Hello World page at /app/page.tsx with newspaper aesthetic</subtask>
+          <subtask>Commit initial code to Git</subtask>
+          <subtask>Create GitHub repository and push code</subtask>
+          <subtask>Connect project to Vercel and configure automatic deployments</subtask>
+          <subtask>Add environment variables in Vercel dashboard</subtask>
+          <subtask>Verify deployment loads correctly on production URL</subtask>
+        </subtasks>
+      </task>
+      <task id="6" acs="All">
+        <title>Verification & Documentation</title>
+        <subtasks>
+          <subtask>Test setup locally: npm install, npm run dev, npm run lint, npm run build</subtask>
+          <subtask>Verify TypeScript strict mode enforced</subtask>
+          <subtask>Document setup in README.md with tech stack and deployment info</subtask>
+        </subtasks>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1.1.1" title="Next.js Project Configuration">
+      <item>Next.js 16 project initialized with React 19</item>
+      <item>TypeScript strict mode enabled (tsconfig.json)</item>
+      <item>Tailwind CSS 4 installed and configured</item>
+      <item>ESLint and Prettier configured with Next.js recommended rules</item>
+      <item>Git repository initialized with .gitignore configured</item>
+    </criterion>
+    <criterion id="1.1.2" title="Environment Management">
+      <item>.env.local file created with Supabase placeholders</item>
+      <item>.env.local added to .gitignore</item>
+      <item>Environment variable documentation in README</item>
+    </criterion>
+    <criterion id="1.1.3" title="Vercel Deployment">
+      <item>Project connected to Vercel</item>
+      <item>Automatic deployments on push to main branch</item>
+      <item>Preview deployments for feature branches</item>
+      <item>Environment variables configured in Vercel dashboard</item>
+    </criterion>
+    <criterion id="1.1.4" title="Project Structure">
+      <item>Directory structure created: /app, /components, /lib, /types, /public</item>
+    </criterion>
+    <criterion id="1.1.5" title="Hello World Deployment">
+      <item>Basic "Hello World" page renders at /</item>
+      <item>Page successfully deployed to Vercel production</item>
+      <item>Production URL accessible and loads correctly</item>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Project Structure and Configuration</section>
+        <snippet>Defines complete directory structure, configuration files (next.config.js, tailwind.config.ts, tsconfig.json, .eslintrc.json, jest.config.js), and deployment architecture using Vercel with automatic deployments and environment variable management.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Acceptance Criteria - Story 1.1</section>
+        <snippet>Complete acceptance criteria for Next.js project configuration, environment management, Vercel deployment, project structure, and Hello World deployment. Includes TypeScript strict mode, Tailwind CSS 4, ESLint/Prettier, and Git repository initialization.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Frontend Layer</section>
+        <snippet>Next.js 16 App Router (NOT Pages Router) for RSC support, TypeScript strict mode enforced, Tailwind CSS 4 for utility-first styling with newspaper aesthetic theme. Component organization: /components/layout for shared layouts, /components/ui for design system primitives.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Deployment Architecture</section>
+        <snippet>Vercel deployment with Progressive Deployment pattern - main branch to production, feature branches to preview URLs. Environment variables managed via Vercel dashboard. Edge network CDN for global static asset delivery.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics Breakdown</title>
+        <section>Story 1.1 Technical Notes</section>
+        <snippet>Use Next.js 16 with App Router (not Pages Router). Enable TypeScript strict mode for type safety. Configure Tailwind CSS with newspaper aesthetic variables (prepare for Story 1.5). Set up environment variables for Supabase (will be used in Story 1.2). Vercel free tier sufficient for MVP.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Technical Requirements</section>
+        <snippet>Mobile-first responsive design (320px to desktop), WCAG AA accessibility compliance, Next.js 16 framework with React 19, TypeScript for type safety, Tailwind CSS for styling, Vercel hosting platform with automatic deployments.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <!-- No existing code artifacts for Story 1.1 - this is project initialization -->
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="next" version="^16.0.0">Next.js framework (App Router)</package>
+        <package name="react" version="^19.0.0">React library</package>
+        <package name="react-dom" version="^19.0.0">React DOM renderer</package>
+        <package name="typescript" version="^5.3.0">TypeScript compiler</package>
+        <package name="tailwindcss" version="^4.0.0">Tailwind CSS utility framework</package>
+        <package name="eslint" version="^8.56.0">ESLint linter</package>
+        <package name="eslint-config-next" version="^16.0.0">Next.js ESLint configuration</package>
+        <package name="prettier" version="^3.2.0">Prettier code formatter</package>
+        <package name="@types/node" version="^20.0.0">TypeScript type definitions for Node.js</package>
+        <package name="@types/react" version="^19.0.0">TypeScript type definitions for React</package>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>MUST use Next.js 16 App Router (NOT Pages Router) for React Server Components support</constraint>
+    <constraint>TypeScript strict mode MUST be enabled in tsconfig.json for type safety</constraint>
+    <constraint>Tailwind CSS 4 MUST be configured with newspaper aesthetic theme preparation (colors defined in Story 1.5)</constraint>
+    <constraint>All environment variables MUST be prefixed with NEXT_PUBLIC_ for client-side access or kept server-side only</constraint>
+    <constraint>.env.local MUST be in .gitignore - NEVER commit secrets to version control</constraint>
+    <constraint>Vercel deployment MUST have automatic deployments enabled (main → production, branches → preview)</constraint>
+    <constraint>Project structure MUST follow architecture: /app (App Router), /components (React components), /lib (utilities), /types (TypeScript definitions), /public (static assets)</constraint>
+    <constraint>ESLint and Prettier MUST be configured for code quality and consistency</constraint>
+    <constraint>Git repository MUST be initialized with proper .gitignore (node_modules/, .next/, .env*.local)</constraint>
+    <constraint>Hello World page MUST use newspaper aesthetic styling (serif font, black text) - foundation for Story 1.5 design system</constraint>
+    <constraint>README.md MUST document environment variables and setup instructions for new developers</constraint>
+  </constraints>
+
+  <interfaces>
+    <!-- No interfaces for Story 1.1 - this is infrastructure setup -->
+  </interfaces>
+
+  <tests>
+    <standards>
+      Story 1.1 is infrastructure setup with no feature code, therefore no automated tests are required. Manual verification is sufficient: verify npm run build succeeds, npm run lint passes, TypeScript compiles with strict mode, production deployment is accessible, and no console errors in browser DevTools. Testing infrastructure (Jest, React Testing Library, CI/CD pipeline) will be added in Story 1.4.
+    </standards>
+    <locations>
+      <!-- Testing infrastructure to be created in Story 1.4 -->
+      <!-- Future location: __tests__/ or *.test.ts files co-located with source -->
+    </locations>
+    <ideas>
+      <idea ac="1.1.1">Manual: Verify Next.js 16 and React 19 versions in package.json</idea>
+      <idea ac="1.1.1">Manual: Run `tsc --noEmit` to verify TypeScript strict mode catches type errors</idea>
+      <idea ac="1.1.1">Manual: Run `npm run lint` to verify ESLint configuration works</idea>
+      <idea ac="1.1.2">Manual: Check .env.local exists and is in .gitignore</idea>
+      <idea ac="1.1.3">Manual: Verify Vercel production URL loads Hello World page</idea>
+      <idea ac="1.1.3">Manual: Test automatic deployment by pushing to main branch</idea>
+      <idea ac="1.1.4">Manual: Verify directory structure exists (ls -R to check /app, /components, /lib, /types, /public)</idea>
+      <idea ac="1.1.5">Manual: Open production URL in browser, verify no console errors, test mobile responsiveness at 320px width</idea>
+      <idea ac="All">Manual: Run complete build process: npm install && npm run build && verify success</idea>
+    </ideas>
+  </tests>
+</story-context>
