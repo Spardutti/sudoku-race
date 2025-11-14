@@ -1,6 +1,6 @@
 # Story 1.2: Supabase Integration & Database Setup
 
-Status: review
+Status: in-progress
 Epic: Epic 1 - Foundation & Infrastructure
 Date Created: 2025-11-14
 
@@ -265,6 +265,12 @@ So that I can **store user data, puzzle state, and handle OAuth authentication**
   - [x] `git add supabase/migrations/001_initial_schema.sql`
   - [x] `git commit -m "Add initial database schema with RLS policies"`
 
+### Review Follow-ups (AI)
+
+- [ ] [AI-Review][Med] Add INSERT/UPDATE policies for `leaderboards` table (AC #1.2.3)
+- [ ] [AI-Review][Med] Add INSERT/UPDATE policies for `streaks` table (AC #1.2.3)
+- [ ] [AI-Review][Med] Clarify `users` table INSERT policy strategy (AC #1.2.3)
+
 ## Dev Notes
 
 ### Architecture Alignment
@@ -523,3 +529,252 @@ Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
 **UNCHANGED (Referenced but not modified):**
 - `.env.local` - Already exists with placeholder values (user needs to update with actual keys)
 - `.gitignore` - Already configured to ignore .env.local
+
+---
+
+## Senior Developer Review (AI)
+
+### Reviewer
+Spardutti
+
+### Date
+2025-11-14
+
+### Outcome
+**CHANGES REQUESTED** - Implementation is very solid with all acceptance criteria technically met, but 3 MEDIUM severity RLS policy gaps exist that will block core functionality (leaderboards and streaks). These must be addressed before story completion.
+
+### Summary
+
+This story implements the database foundation exceptionally well with proper schema design, comprehensive RLS policies, performance indexes, and TypeScript type safety. The migration file is production-ready with idempotent operations and clear documentation. However, systematic validation revealed **missing RLS INSERT/UPDATE policies** for `users`, `leaderboards`, and `streaks` tables that will prevent core application functionality from working.
+
+**Strengths:**
+- Excellent database schema design with proper foreign keys and CASCADE deletes
+- Comprehensive RLS policies for data isolation (SELECT operations)
+- All 5 performance indexes created correctly
+- TypeScript types properly generated from live schema
+- Migration file is idempotent and well-documented
+- Connection tested and verified
+- All commits are well-structured with clear messages
+
+**Critical Gaps:**
+- Missing INSERT policy for `users` table (may block OAuth user creation if not handled by service role)
+- Missing INSERT/UPDATE policies for `leaderboards` table (WILL block leaderboard submissions)
+- Missing INSERT/UPDATE policies for `streaks` table (WILL block streak functionality)
+
+### Key Findings
+
+#### HIGH Severity Issues
+None - all critical acceptance criteria are implemented.
+
+#### MEDIUM Severity Issues
+
+**1. [MED] Missing INSERT policy for `users` table**
+- **Location:** supabase/migrations/001_initial_schema.sql:107-113
+- **Issue:** RLS policies for `users` table only include SELECT (line 107-109) and UPDATE (line 111-113). No INSERT policy exists.
+- **Impact:** If application code attempts to manually insert users (beyond Supabase Auth's automatic user creation), it will fail with RLS violation.
+- **Note:** Supabase Auth service uses the service role key which bypasses RLS, so OAuth user creation should work. However, any custom user creation logic will be blocked.
+- **Recommendation:** If custom user creation is needed, add INSERT policy. Otherwise, document that user creation is exclusively handled by Supabase Auth.
+
+**2. [MED] Missing INSERT/UPDATE policies for `leaderboards` table**
+- **Location:** supabase/migrations/001_initial_schema.sql:137-139
+- **Issue:** Only SELECT policy exists for leaderboards (line 137-139: "Leaderboards are publicly readable"). No INSERT or UPDATE policies.
+- **Impact:** Users cannot submit leaderboard entries. Story 4.1 (Global Daily Leaderboard) will fail when attempting to insert leaderboard records.
+- **Severity:** MEDIUM - Blocks future epic functionality
+- **Required Fix:** Add policies:
+  ```sql
+  CREATE POLICY "Users can insert own leaderboard entries"
+    ON leaderboards FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+  CREATE POLICY "Service can update leaderboard ranks"
+    ON leaderboards FOR UPDATE
+    USING (true); -- Or restrict to service role
+  ```
+
+**3. [MED] Missing INSERT/UPDATE policies for `streaks` table**
+- **Location:** supabase/migrations/001_initial_schema.sql:143-145
+- **Issue:** Only SELECT policy exists for streaks (line 143-145: "Users can read own streaks"). No INSERT or UPDATE policies.
+- **Impact:** Users cannot create or update streak records. Story 6.1 (Streak Tracking System) will fail when attempting to create/update streaks.
+- **Severity:** MEDIUM - Blocks future epic functionality
+- **Required Fix:** Add policies:
+  ```sql
+  CREATE POLICY "Users can insert own streaks"
+    ON streaks FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+  CREATE POLICY "Users can update own streaks"
+    ON streaks FOR UPDATE
+    USING (auth.uid() = user_id);
+  ```
+
+#### LOW Severity Issues
+
+**4. [LOW] No DELETE policies defined**
+- **Location:** supabase/migrations/001_initial_schema.sql:101-145
+- **Issue:** No explicit DELETE policies exist for any table.
+- **Impact:** Users cannot delete their own data (completions, streaks, etc.). Foreign key CASCADE deletes handle referential integrity, but user-initiated deletions may be needed.
+- **Severity:** LOW - Can be added in future stories when delete functionality is needed
+- **Note:** This is acceptable for MVP scope
+
+**5. [LOW] Environment variable validation at module load time**
+- **Location:** lib/supabase.ts:7-11
+- **Issue:** Missing environment variables cause module to throw error at load time rather than providing graceful degradation.
+- **Impact:** Entire app fails if Supabase env vars are missing. This is actually a good fail-fast approach for development, but production might benefit from better error handling.
+- **Severity:** LOW - Current behavior is acceptable for database-dependent app
+- **Note:** Consider adding health check endpoint in future
+
+### Acceptance Criteria Coverage
+
+| AC # | Description | Status | Evidence |
+|------|-------------|--------|----------|
+| AC-1.2.1 | Supabase Project Setup | ✅ IMPLEMENTED | Supabase project created (user confirmed), package installed (package.json:13), client utility created (lib/supabase.ts:1-13), connection tested (user confirmed) |
+| AC-1.2.2 | Database Schema Creation | ✅ IMPLEMENTED | All 5 tables created: users (001_initial_schema.sql:11-18), puzzles (lines 22-29), completions (lines 33-44), leaderboards (lines 48-56), streaks (lines 60-69) |
+| AC-1.2.3 | Row Level Security (RLS) | ✅ IMPLEMENTED | RLS enabled (001_initial_schema.sql:95-99), policies created (lines 107-145) for all tables |
+| AC-1.2.4 | Database Indexes | ✅ IMPLEMENTED | All 5 indexes created: puzzles.puzzle_date (line 76), leaderboards composite (line 85), completions.user_id (line 79), completions.puzzle_id (line 82), streaks.user_id (line 88) |
+| AC-1.2.5 | Supabase Auth Configuration | ✅ IMPLEMENTED | Google OAuth enabled (user confirmed), redirect URLs configured (user confirmed), GitHub/Apple deferred to future stories |
+| AC-1.2.6 | Database Documentation | ✅ IMPLEMENTED | Migration file created (supabase/migrations/001_initial_schema.sql), committed to version control (git commit 25a71f3, 37901b0) |
+
+**Summary:** 6 of 6 acceptance criteria fully implemented ✅
+
+**Note on RLS Policies:** While RLS is enabled and SELECT policies are comprehensive, INSERT/UPDATE policies for leaderboards and streaks are missing. This represents incomplete implementation of AC-1.2.3's intent (full RLS protection), hence the CHANGES REQUESTED outcome.
+
+### Task Completion Validation
+
+| Task | Marked As | Verified As | Evidence |
+|------|-----------|-------------|----------|
+| Task 1: Create Supabase Project | ✅ Complete | ✅ VERIFIED | User confirmed project created, package.json shows @supabase/supabase-js@2.81.1 installed (line 13), env vars set (user confirmed) |
+| Task 2: Create Supabase Client Utilities | ✅ Complete | ✅ VERIFIED | lib/supabase.ts exists with proper client initialization (lines 1-13), typed with Database interface (line 2), exports supabase client (line 13) |
+| Task 3: Create Database Migration File | ✅ Complete | ✅ VERIFIED | supabase/migrations/001_initial_schema.sql exists with all 5 tables defined (lines 11-69), indexes created (lines 76-88), structure created (directory verified) |
+| Task 4: Enable Row Level Security | ✅ Complete | ✅ VERIFIED | RLS enabled on all tables (001_initial_schema.sql:95-99), policies created for all tables (lines 107-145) - **NOTE: Missing INSERT/UPDATE policies for some tables** |
+| Task 5: Execute Database Migration | ✅ Complete | ✅ VERIFIED | User confirmed execution in Supabase SQL Editor, tables visible in dashboard (user confirmed), RLS enabled badges visible (user confirmed) |
+| Task 6: Configure OAuth Providers | ✅ Partial | ⚠️ PARTIAL | Google OAuth configured (user confirmed), redirect URLs set (user confirmed), **GitHub/Apple deferred** (acceptable for MVP scope) |
+| Task 7: Create TypeScript Types | ✅ Complete | ✅ VERIFIED | Supabase CLI installed (package.json:28), types generated (lib/types/database.ts lines 1-339), Database type properly structured with all 5 tables, client updated to use typed interface (lib/supabase.ts:2) |
+| Task 8: Verification & Testing | ✅ Complete | ✅ VERIFIED | Connection test passed (user ran test successfully), queries executed successfully (test output confirmed), RLS policies verified (test confirmed), migration committed (git log shows commits 25a71f3, 37901b0) |
+
+**Summary:** 8 of 8 completed tasks verified ✅ (1 partial - GitHub/Apple OAuth deferred, which is acceptable)
+
+**No false completions found.** All tasks marked complete have evidence of implementation.
+
+### Test Coverage and Gaps
+
+**Current Test Status:**
+- ✅ Connection testing performed (ad-hoc test script executed successfully)
+- ✅ RLS policy validation confirmed (user verified public tables accessible)
+- ⏭️ Unit/integration tests deferred to Story 1.4 (Testing Infrastructure)
+
+**Test Coverage Notes:**
+- Story 1.4 is dedicated to testing infrastructure setup
+- Current connection testing is appropriate for database setup story
+- Deferral of comprehensive testing is intentional and documented
+
+**Recommended Tests for Future Stories:**
+1. RLS policy enforcement tests (verify users can't access other users' data)
+2. INSERT/UPDATE policy tests for leaderboards and streaks (once policies added)
+3. Foreign key CASCADE delete tests
+4. Index performance verification tests
+5. OAuth user creation flow tests
+
+### Architectural Alignment
+
+**Tech Stack Detected:**
+- Next.js 16.0.1 (React 19.2.0)
+- TypeScript 5 (strict mode enabled)
+- Supabase Client 2.81.1
+- Tailwind CSS 4
+
+**Architecture Compliance:**
+- ✅ Supabase PostgreSQL for relational data (docs/architecture.md)
+- ✅ Row Level Security enabled on all tables
+- ✅ UUID primary keys with uuid_generate_v4()
+- ✅ JSONB for flexible puzzle data storage
+- ✅ Foreign key CASCADE deletes for referential integrity
+- ✅ Indexes on frequently queried columns (puzzle_date, user_id, puzzle_id)
+- ✅ TypeScript strict mode maintained
+- ✅ Environment variables properly prefixed with NEXT_PUBLIC_ for client-side usage
+
+**Design Patterns:**
+- ✅ Typed Supabase client pattern (Database interface)
+- ✅ Idempotent migrations (IF NOT EXISTS clauses)
+- ✅ auth.uid() pattern for RLS policies
+- ✅ Separation of completions and leaderboards for query optimization
+
+**No architecture violations found.**
+
+### Security Notes
+
+**Security Strengths:**
+- ✅ RLS enabled on all tables prevents unauthorized data access
+- ✅ auth.uid() function enforces user data isolation
+- ✅ Puzzles.solution stored server-side only (never exposed to client per design)
+- ✅ OAuth-only authentication (no password storage)
+- ✅ Environment variables properly managed (.env.local in .gitignore)
+- ✅ Supabase anon key safe to expose (protected by RLS)
+- ✅ Foreign key constraints prevent orphaned records
+
+**Security Concerns:**
+- ⚠️ Missing INSERT policies could be a security gap if not intentional
+- ⚠️ No explicit DELETE policies (users cannot delete their own data)
+- Note: Both are LOW severity for current scope but should be addressed in future
+
+**OWASP Top 10 Compliance:**
+- ✅ A01 (Broken Access Control): RLS policies enforce proper access control
+- ✅ A02 (Cryptographic Failures): No sensitive data exposure (solution field protected)
+- ✅ A03 (Injection): PostgreSQL with parameterized queries (Supabase client handles this)
+- ✅ A07 (Identification and Authentication): OAuth-based authentication configured
+
+### Best-Practices and References
+
+**Supabase Best Practices:**
+- ✅ Using Supabase client v2.81.1 (latest stable)
+- ✅ Type generation from live schema ([Supabase TypeScript docs](https://supabase.com/docs/guides/api/generating-types))
+- ✅ RLS policies using auth.uid() ([Supabase RLS docs](https://supabase.com/docs/guides/auth/row-level-security))
+- ✅ Environment variables with NEXT_PUBLIC_ prefix for client-side ([Next.js env docs](https://nextjs.org/docs/app/building-your-application/configuring/environment-variables))
+
+**PostgreSQL Best Practices:**
+- ✅ UUID primary keys for distributed systems
+- ✅ Indexes on foreign keys and frequently queried columns
+- ✅ JSONB for flexible schema (puzzle_data, solution)
+- ✅ TIMESTAMPTZ for timezone-aware timestamps
+- ✅ IF NOT EXISTS for idempotent migrations
+
+**Next.js/TypeScript Best Practices:**
+- ✅ TypeScript strict mode enabled
+- ✅ Type-safe database client
+- ✅ Fail-fast environment variable validation
+
+**References:**
+- [Supabase RLS Policies Guide](https://supabase.com/docs/guides/auth/row-level-security)
+- [PostgreSQL RLS Documentation](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)
+- [Supabase TypeScript Support](https://supabase.com/docs/guides/api/generating-types)
+- [Next.js Environment Variables](https://nextjs.org/docs/app/building-your-application/configuring/environment-variables)
+
+### Action Items
+
+#### Code Changes Required:
+
+- [ ] [Med] Add INSERT/UPDATE policies for `leaderboards` table (AC #1.2.3) [file: supabase/migrations/001_initial_schema.sql:137-139]
+  - Add: `CREATE POLICY "Users can insert own leaderboard entries" ON leaderboards FOR INSERT WITH CHECK (auth.uid() = user_id);`
+  - Add: `CREATE POLICY "Service can update leaderboard ranks" ON leaderboards FOR UPDATE USING (true);`
+  - **Impact:** Required for Story 4.1 (Global Daily Leaderboard) functionality
+
+- [ ] [Med] Add INSERT/UPDATE policies for `streaks` table (AC #1.2.3) [file: supabase/migrations/001_initial_schema.sql:143-145]
+  - Add: `CREATE POLICY "Users can insert own streaks" ON streaks FOR INSERT WITH CHECK (auth.uid() = user_id);`
+  - Add: `CREATE POLICY "Users can update own streaks" ON streaks FOR UPDATE USING (auth.uid() = user_id);`
+  - **Impact:** Required for Story 6.1 (Streak Tracking System) functionality
+
+- [ ] [Med] Clarify `users` table INSERT policy strategy (AC #1.2.3) [file: supabase/migrations/001_initial_schema.sql:107-113]
+  - **Option A:** Add INSERT policy if manual user creation is needed: `CREATE POLICY "Service can insert users" ON users FOR INSERT WITH CHECK (true);`
+  - **Option B:** Document that user creation is exclusively handled by Supabase Auth service role (which bypasses RLS)
+  - Recommended: Option B for security (rely on Supabase Auth), but add comment in migration file explaining this design decision
+
+#### Advisory Notes:
+
+- Note: Consider adding DELETE policies in future stories when user data deletion functionality is implemented (GDPR compliance may require this)
+- Note: Connection test was successful but consider adding a health check endpoint for production monitoring (can be added in Story 1.6 - Error Tracking & Monitoring)
+- Note: GitHub and Apple OAuth providers were intentionally deferred (Google is sufficient for MVP) - document when these should be enabled (likely Story 3.2 or later)
+- Note: Migration file is idempotent and production-ready - excellent work on the IF NOT EXISTS clauses
+- Note: TypeScript types should be regenerated whenever schema changes in future stories (run `npx supabase gen types typescript --project-id [id] > lib/types/database.ts`)
+
+### Change Log Entry
+
+- **2025-11-14:** Senior Developer Review notes appended - CHANGES REQUESTED (3 MEDIUM severity RLS policy gaps identified)
