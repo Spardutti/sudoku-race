@@ -2,11 +2,25 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import prettierConfig from "eslint-config-prettier";
+import reactYouMightNotNeedAnEffect from "eslint-plugin-react-you-might-not-need-an-effect";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   prettierConfig,
+  {
+    plugins: {
+      "react-you-might-not-need-an-effect": reactYouMightNotNeedAnEffect,
+    },
+    rules: {
+      "react-you-might-not-need-an-effect/useMemo": "warn",
+      "react-you-might-not-need-an-effect/useCallback": "warn",
+      "react-you-might-not-need-an-effect/useState": "warn",
+      // React Compiler rules - help identify code that prevents optimization
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
