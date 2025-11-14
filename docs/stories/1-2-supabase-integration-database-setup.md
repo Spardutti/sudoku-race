@@ -1,6 +1,6 @@
 # Story 1.2: Supabase Integration & Database Setup
 
-Status: review
+Status: done
 Epic: Epic 1 - Foundation & Infrastructure
 Date Created: 2025-11-14
 
