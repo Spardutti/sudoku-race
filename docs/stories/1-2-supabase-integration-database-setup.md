@@ -1,6 +1,6 @@
 # Story 1.2: Supabase Integration & Database Setup
 
-Status: in-progress
+Status: review
 Epic: Epic 1 - Foundation & Infrastructure
 Date Created: 2025-11-14
 
@@ -267,9 +267,9 @@ So that I can **store user data, puzzle state, and handle OAuth authentication**
 
 ### Review Follow-ups (AI)
 
-- [ ] [AI-Review][Med] Add INSERT/UPDATE policies for `leaderboards` table (AC #1.2.3)
-- [ ] [AI-Review][Med] Add INSERT/UPDATE policies for `streaks` table (AC #1.2.3)
-- [ ] [AI-Review][Med] Clarify `users` table INSERT policy strategy (AC #1.2.3)
+- [x] [AI-Review][Med] Add INSERT/UPDATE policies for `leaderboards` table (AC #1.2.3)
+- [x] [AI-Review][Med] Add INSERT/UPDATE policies for `streaks` table (AC #1.2.3)
+- [x] [AI-Review][Med] Clarify `users` table INSERT policy strategy (AC #1.2.3)
 
 ## Dev Notes
 
@@ -521,6 +521,7 @@ Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
 - `lib/supabase.ts` - Supabase client initialization with typed Database interface
 - `lib/types/database.ts` - TypeScript type definitions for database schema
 - `supabase/migrations/001_initial_schema.sql` - Complete database schema with tables, indexes, and RLS policies
+- `supabase/migrations/002_add_missing_rls_policies.sql` - Patch migration adding missing INSERT/UPDATE policies (code review follow-up)
 
 **MODIFIED Files:**
 - `package.json` - Added @supabase/supabase-js dependency, added supabase CLI to devDependencies
@@ -778,3 +779,4 @@ None - all critical acceptance criteria are implemented.
 ### Change Log Entry
 
 - **2025-11-14:** Senior Developer Review notes appended - CHANGES REQUESTED (3 MEDIUM severity RLS policy gaps identified)
+- **2025-11-14:** Review follow-ups completed - Added missing RLS INSERT/UPDATE policies for leaderboards and streaks tables, documented users table policy strategy (migration 002 applied)

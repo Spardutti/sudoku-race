@@ -104,6 +104,8 @@ ALTER TABLE streaks ENABLE ROW LEVEL SECURITY;
 
 -- Users Table Policies
 -- Users can only read and update their own data
+-- NOTE: User INSERT is handled exclusively by Supabase Auth service role (bypasses RLS)
+-- No INSERT policy needed - OAuth providers create users via service role key
 CREATE POLICY "Users can read own data"
   ON users FOR SELECT
   USING (auth.uid() = id);
@@ -138,8 +140,24 @@ CREATE POLICY "Leaderboards are publicly readable"
   ON leaderboards FOR SELECT
   USING (true);
 
+CREATE POLICY "Users can insert own leaderboard entries"
+  ON leaderboards FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own leaderboard entries"
+  ON leaderboards FOR UPDATE
+  USING (auth.uid() = user_id);
+
 -- Streaks Table Policies
--- Users can only read their own streak data
+-- Users can only read and modify their own streak data
 CREATE POLICY "Users can read own streaks"
   ON streaks FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own streaks"
+  ON streaks FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own streaks"
+  ON streaks FOR UPDATE
   USING (auth.uid() = user_id);
