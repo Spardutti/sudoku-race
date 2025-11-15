@@ -1,0 +1,344 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>6</storyId>
+    <title>Error Tracking & Monitoring Setup</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-15</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-6-error-tracking-monitoring-setup.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>comprehensive error tracking and monitoring infrastructure</iWant>
+    <soThat>I can quickly identify and fix issues, ensure reliability, and maintain high performance for users</soThat>
+    <tasks>
+      <task id="1">Install and Configure Sentry</task>
+      <task id="2">Integrate Vercel Analytics and Web Vitals</task>
+      <task id="3">Implement Structured Logging System</task>
+      <task id="4">Add Real-Time Connection Health Monitoring</task>
+      <task id="5">Configure Monitoring Dashboards and Alerts</task>
+      <task id="6">Implement Error Handling Patterns</task>
+      <task id="7">Integration Testing and Verification</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-1.6.1">
+      <title>Error Tracking Integration (Sentry)</title>
+      <requirements>
+        - Sentry SDK installed and configured (@sentry/nextjs)
+        - Sentry initialization in lib/monitoring/sentry.ts
+        - Error tracking for: client-side JS errors, Server Action failures, API routes, real-time connection errors
+        - Error context includes: userId, puzzleId, action name, stack trace
+        - Noisy errors filtered (ResizeObserver loop errors)
+        - Error severity levels configured (critical, high, medium, low)
+      </requirements>
+    </criterion>
+    <criterion id="AC-1.6.2">
+      <title>Performance Monitoring (Vercel Analytics + Web Vitals)</title>
+      <requirements>
+        - Vercel Analytics integrated (@vercel/analytics)
+        - Web Vitals tracking implemented (web-vitals package)
+        - Core Web Vitals monitored: LCP &lt;2.5s, FID &lt;100ms, CLS &lt;0.1
+        - Custom metrics tracked: puzzle completion, leaderboard load, real-time latency
+        - Performance data sent to /api/analytics endpoint
+      </requirements>
+    </criterion>
+    <criterion id="AC-1.6.3">
+      <title>Structured Logging System</title>
+      <requirements>
+        - Structured logger utility (lib/utils/logger.ts)
+        - Log levels: debug, info, warn, error
+        - JSON-formatted logs with context (userId, puzzleId, timestamp)
+        - Logs include: puzzle completions, auth events, real-time status, Server Action errors
+        - Logs exclude: PII, solutions, sensitive data
+        - Output: Console (dev), Vercel Logs (production)
+      </requirements>
+    </criterion>
+    <criterion id="AC-1.6.4">
+      <title>Real-Time Connection Health Monitoring</title>
+      <requirements>
+        - Real-time health monitoring (lib/monitoring/realtime-health.ts)
+        - Monitor events: connected, error, CHANNEL_ERROR
+        - Connection failures logged to Sentry
+        - Metrics tracked: connection success rate (&gt;95%), latency (&lt;1s), disconnection patterns
+      </requirements>
+    </criterion>
+    <criterion id="AC-1.6.5">
+      <title>Monitoring Dashboard &amp; Alerts (Configuration Only)</title>
+      <requirements>
+        - Key metrics documented: uptime, API error rate, P95 response time, real-time success, DAU, completion rate
+        - Alert thresholds documented: critical (DB failures, auth down), high (error rate &gt;2%), low (completion &lt;40%)
+        - Monitoring accessible via: Sentry, Vercel, Supabase dashboards
+      </requirements>
+    </criterion>
+    <criterion id="AC-1.6.6">
+      <title>Error Handling Patterns</title>
+      <requirements>
+        - Error categories defined: user errors, network errors, server errors, validation errors
+        - Result&lt;T, E&gt; type implemented for Server Actions
+        - Error handling examples in architecture.md
+        - Errors never expose stack traces to users
+      </requirements>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Monitoring &amp; Observability</title>
+        <section>Error Tracking (lines 1355-1407)</section>
+        <snippet>Sentry integration for client and server errors. Filter noisy errors (ResizeObserver). Error severity levels (critical, high, medium, low). Context includes userId, puzzleId, action.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Performance Monitoring</title>
+        <section>Performance Monitoring (lines 1408-1450)</section>
+        <snippet>Vercel Analytics + Web Vitals (LCP, FID, CLS). Custom metrics: puzzle completion, leaderboard load. Sample rate 10% for performance transactions.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Logging Strategy</title>
+        <section>Logging Strategy (lines 1489-1545)</section>
+        <snippet>Structured JSON logging with timestamp. Log levels: debug, info, warn, error. No PII logged (sanitize email, IP). Vercel Logs 7-day retention.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Alerting Strategy</title>
+        <section>Alerting Strategy (lines 1546-1576)</section>
+        <snippet>Critical alerts: DB failures, auth down. High-priority: error rate &gt;2%, response time &gt;1s. Low-priority: completion rate &lt;40%, signups down.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Tech Spec</title>
+        <section>Infrastructure &amp; Foundation</section>
+        <snippet>Epic 1 establishes foundation for monitoring. Story 1.6-1.9 approved additions for error tracking, rate limiting, SEO, migrations.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements - Non-Functional Requirements</title>
+        <section>Performance (lines 863-895), Security (lines 897-939), Reliability (lines 991-1033)</section>
+        <snippet>Performance targets: &lt;2s load, &gt;90 Lighthouse. Security: server-side validation, anti-cheat. Reliability: &gt;99.5% uptime, error tracking.</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-4-testing-infrastructure-cicd-quality-gates.md</path>
+        <title>Story 1.4 - Testing Infrastructure</title>
+        <section>Testing setup from previous story</section>
+        <snippet>Jest + RTL configured. Coverage threshold 70%. CI workflow: lint → test → build. Test scripts available.</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-5-design-system-foundations-newspaper-aesthetic.md</path>
+        <title>Story 1.5 - Design System</title>
+        <section>Dev Agent Record - Learnings</section>
+        <snippet>Build successful. TypeScript strict mode working. ESLint validation passes. Component patterns established.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>lib/utils.ts</path>
+        <kind>utility</kind>
+        <symbol>cn (classname utility)</symbol>
+        <lines>1-6</lines>
+        <reason>Reference for utility function patterns. Logger can follow similar structure.</reason>
+      </artifact>
+      <artifact>
+        <path>lib/utils.test.ts</path>
+        <kind>test</kind>
+        <symbol>cn tests</symbol>
+        <lines>all</lines>
+        <reason>Example of comprehensive unit testing pattern for utilities. Apply to logger tests.</reason>
+      </artifact>
+      <artifact>
+        <path>lib/types/database.ts</path>
+        <kind>types</kind>
+        <symbol>Database types</symbol>
+        <lines>all</lines>
+        <reason>Type definitions location. Add Result&lt;T, E&gt; type here or in separate lib/types/result.ts.</reason>
+      </artifact>
+      <artifact>
+        <path>lib/supabase.ts</path>
+        <kind>client</kind>
+        <symbol>createClient</symbol>
+        <lines>all</lines>
+        <reason>Supabase client creation. Real-time health monitoring will use this client for subscriptions.</reason>
+      </artifact>
+      <artifact>
+        <path>jest.config.js</path>
+        <kind>config</kind>
+        <symbol>Jest configuration</symbol>
+        <lines>all</lines>
+        <reason>Testing infrastructure already configured. Use for logger and monitoring utility tests.</reason>
+      </artifact>
+      <artifact>
+        <path>package.json</path>
+        <kind>config</kind>
+        <symbol>dependencies, scripts</symbol>
+        <lines>all</lines>
+        <reason>Will add new dependencies: @sentry/nextjs, @vercel/analytics, web-vitals.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <existing>
+          <package name="next" version="16.0.1" />
+          <package name="react" version="19.2.0" />
+          <package name="@supabase/supabase-js" version="^2.81.1" />
+          <package name="jest" version="^30.2.0" dev="true" />
+          <package name="@testing-library/react" version="^16.3.0" dev="true" />
+          <package name="@testing-library/jest-dom" version="^6.9.1" dev="true" />
+        </existing>
+        <toInstall>
+          <package name="@sentry/nextjs" version="latest" reason="Error tracking and performance monitoring" />
+          <package name="@vercel/analytics" version="latest" reason="Vercel Analytics integration" />
+          <package name="web-vitals" version="latest" reason="Core Web Vitals tracking" />
+        </toInstall>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint id="logging-no-pii">
+      <title>No PII in Logs</title>
+      <description>CRITICAL: Never log personally identifiable information (GDPR compliance). Log user IDs only, never email addresses or IP addresses.</description>
+    </constraint>
+    <constraint id="sentry-filtering">
+      <title>Sentry Error Filtering</title>
+      <description>CRITICAL: Filter noisy browser errors (ResizeObserver, Non-Error promise rejection) in beforeSend hook to avoid alert fatigue.</description>
+    </constraint>
+    <constraint id="performance-sample-rate">
+      <title>Performance Monitoring Sample Rate</title>
+      <description>CRITICAL: Use 10% sample rate (tracesSampleRate: 0.1) for performance transactions. 100% for error tracking.</description>
+    </constraint>
+    <constraint id="structured-json-logs">
+      <title>Structured JSON Logging</title>
+      <description>All logs MUST be JSON-formatted with timestamp, level, message, and context for parsing and searching.</description>
+    </constraint>
+    <constraint id="project-relative-paths">
+      <title>Project-Relative Paths Only</title>
+      <description>All file paths in logs and errors MUST be project-relative (e.g., "lib/utils/logger.ts" not "/home/.../lib/utils/logger.ts").</description>
+    </constraint>
+    <constraint id="result-type-pattern">
+      <title>Result Type for Server Actions</title>
+      <description>All Server Actions MUST return Result&lt;T, E&gt; type for consistent error handling. Never throw exceptions across client/server boundary.</description>
+    </constraint>
+    <constraint id="error-user-messages">
+      <title>User-Friendly Error Messages</title>
+      <description>CRITICAL: Never expose stack traces to users. Show encouraging, actionable messages based on error category (user, network, server, validation).</description>
+    </constraint>
+    <constraint id="testing-coverage">
+      <title>Test Coverage Requirements</title>
+      <description>Maintain 70% overall coverage (from Story 1.4). Focus on utilities (logger, error handlers) with 90%+ coverage.</description>
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>Result&lt;T, E&gt;</name>
+      <kind>TypeScript type</kind>
+      <signature>
+        type Result&lt;T, E = Error&gt; =
+          | { success: true; data: T }
+          | { success: false; error: E }
+      </signature>
+      <path>lib/types/result.ts (new file)</path>
+      <description>Discriminated union for Server Action return values. Provides type-safe error handling.</description>
+    </interface>
+    <interface>
+      <name>Logger</name>
+      <kind>utility interface</kind>
+      <signature>
+        interface Logger {
+          info(message: string, context?: LogContext): void
+          warn(message: string, context?: LogContext): void
+          error(message: string, error: Error, context?: LogContext): void
+          debug(message: string, context?: LogContext): void
+        }
+      </signature>
+      <path>lib/utils/logger.ts (new file)</path>
+      <description>Structured logging interface. All methods output JSON with timestamp, level, message, context.</description>
+    </interface>
+    <interface>
+      <name>Sentry.init</name>
+      <kind>external SDK</kind>
+      <signature>
+        Sentry.init({
+          dsn: string,
+          environment: string,
+          tracesSampleRate: number,
+          beforeSend: (event, hint) =&gt; event | null
+        })
+      </signature>
+      <path>lib/monitoring/sentry.ts (new file)</path>
+      <description>Sentry initialization with error filtering and performance monitoring configuration.</description>
+    </interface>
+    <interface>
+      <name>Web Vitals Tracking</name>
+      <kind>performance monitoring</kind>
+      <signature>
+        onCLS(callback: (metric) =&gt; void)
+        onFID(callback: (metric) =&gt; void)
+        onLCP(callback: (metric) =&gt; void)
+      </signature>
+      <path>lib/monitoring/web-vitals.ts (new file)</path>
+      <description>Web Vitals callbacks for Core Web Vitals tracking (CLS, FID, LCP).</description>
+    </interface>
+    <interface>
+      <name>Supabase Realtime Channel</name>
+      <kind>real-time subscription</kind>
+      <signature>
+        channel.on('system', { event: 'connected' | 'error' }, callback)
+      </signature>
+      <path>lib/monitoring/realtime-health.ts (new file)</path>
+      <description>Supabase real-time system event monitoring for connection health tracking.</description>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing infrastructure established in Story 1.4. Jest + React Testing Library configured with 70% coverage threshold enforced in CI. Test utilities (not just components) with comprehensive unit tests. Co-locate tests with source files (.test.ts suffix). Focus on pure functions and integration tests for Server Actions.
+    </standards>
+    <locations>
+      - lib/utils/*.test.ts (utility tests)
+      - lib/monitoring/*.test.ts (monitoring utility tests)
+      - Manual testing via Sentry/Vercel dashboards
+      - CI: .github/workflows/ci.yml (lint → test → build)
+    </locations>
+    <ideas>
+      <idea ac="AC-1.6.1">
+        Test: Sentry error filtering
+        - Verify ResizeObserver errors filtered out
+        - Verify context includes userId, action name
+        - Mock Sentry.captureException
+      </idea>
+      <idea ac="AC-1.6.3">
+        Test: Structured logger
+        - Verify JSON format with timestamp, level, message
+        - Verify context merging (userId, puzzleId)
+        - Verify no PII logged (mock with email, verify sanitized)
+        - Test all log levels (info, warn, error, debug)
+      </idea>
+      <idea ac="AC-1.6.6">
+        Test: Result type pattern
+        - Test Server Action returning success
+        - Test Server Action returning error
+        - Verify type discrimination works (TypeScript)
+      </idea>
+      <idea ac="AC-1.6.2">
+        Manual test: Web Vitals
+        - Complete puzzle, verify metrics sent
+        - Check Vercel Analytics dashboard
+        - Verify LCP, FID, CLS tracked
+      </idea>
+      <idea ac="AC-1.6.4">
+        Manual test: Real-time health
+        - Subscribe to leaderboard
+        - Disconnect network, verify error logged
+        - Reconnect, verify success logged
+        - Check Sentry for connection errors
+      </idea>
+    </ideas>
+  </tests>
+</story-context>
