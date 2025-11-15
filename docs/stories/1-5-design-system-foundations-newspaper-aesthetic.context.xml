@@ -1,0 +1,403 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>5</storyId>
+    <title>Design System Foundations (Newspaper Aesthetic)</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-15</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-5-design-system-foundations-newspaper-aesthetic.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>designer/developer</asA>
+    <iWant>a design system with newspaper aesthetic components and styles</iWant>
+    <soThat>I can build consistent, brand-aligned UI quickly across all features</soThat>
+    <tasks>
+      <task id="1" acs="1.5.1, 1.5.2">
+        <description>Configure Tailwind CSS with Design Tokens</description>
+        <subtasks>
+          <subtask>Create /lib/design-tokens.ts with newspaper aesthetic token definitions</subtask>
+          <subtask>Update tailwind.config.ts to extend theme with custom tokens</subtask>
+          <subtask>Verify Tailwind build succeeds with custom configuration</subtask>
+          <subtask>Test responsive breakpoints render correctly</subtask>
+        </subtasks>
+      </task>
+      <task id="2" acs="1.5.3, 1.5.4, 1.5.5">
+        <description>Create Button Component</description>
+        <subtasks>
+          <subtask>Update existing components/ui/button.tsx to use newspaper aesthetic variants</subtask>
+          <subtask>Define ButtonProps interface with variants (primary, secondary, ghost)</subtask>
+          <subtask>Implement newspaper aesthetic styling (black/white base, spot blue accent)</subtask>
+          <subtask>Add accessible attributes and keyboard support</subtask>
+          <subtask>Create comprehensive unit tests with >70% coverage</subtask>
+        </subtasks>
+      </task>
+      <task id="3" acs="1.5.3, 1.5.4, 1.5.5">
+        <description>Create Card Component</description>
+        <subtasks>
+          <subtask>Create components/ui/card.tsx with newspaper aesthetic</subtask>
+          <subtask>Define CardProps interface</subtask>
+          <subtask>Apply clean borders and padding variants</subtask>
+          <subtask>Create unit tests with >70% coverage</subtask>
+        </subtasks>
+      </task>
+      <task id="4" acs="1.5.3, 1.5.4, 1.5.5">
+        <description>Create Input Component</description>
+        <subtasks>
+          <subtask>Create components/ui/input.tsx</subtask>
+          <subtask>Define InputProps interface with error handling</subtask>
+          <subtask>Implement focus states and accessibility features</subtask>
+          <subtask>Create unit tests with >70% coverage</subtask>
+        </subtasks>
+      </task>
+      <task id="5" acs="1.5.3, 1.5.4, 1.5.5">
+        <description>Create Typography Component</description>
+        <subtasks>
+          <subtask>Create components/ui/typography.tsx</subtask>
+          <subtask>Define TypographyProps with h1/h2/h3/body/caption variants</subtask>
+          <subtask>Implement responsive typography scaling</subtask>
+          <subtask>Create unit tests with >70% coverage</subtask>
+        </subtasks>
+      </task>
+      <task id="6" acs="1.5.6">
+        <description>Create Barrel Export and Documentation</description>
+        <subtasks>
+          <subtask>Create components/ui/index.ts barrel export</subtask>
+          <subtask>Add JSDoc comments to each component</subtask>
+          <subtask>Create example page demonstrating components (optional)</subtask>
+        </subtasks>
+      </task>
+      <task id="7" acs="1.5.5">
+        <description>Verify Accessibility Compliance</description>
+        <subtasks>
+          <subtask>Run WAVE accessibility audit on component examples</subtask>
+          <subtask>Verify color contrast ratios meet WCAG AA</subtask>
+          <subtask>Test keyboard navigation</subtask>
+          <subtask>Verify mobile tap targets ≥44x44px</subtask>
+        </subtasks>
+      </task>
+      <task id="8" acs="1.5.4">
+        <description>Integration Testing and CI/CD Verification</description>
+        <subtasks>
+          <subtask>Run full test suite locally with coverage verification</subtask>
+          <subtask>Run linting and fix ESLint errors</subtask>
+          <subtask>Run production build and verify success</subtask>
+          <subtask>Push to CI/CD and verify GitHub Actions pass</subtask>
+        </subtasks>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-1.5.1">
+      <description>Tailwind Configuration</description>
+      <conditions>
+        <condition>tailwind.config.ts includes custom color palette (black, white, spot blue, neutrals)</condition>
+        <condition>Typography scale configured (serif for headers, sans-serif for body)</condition>
+        <condition>Spacing system based on 8px grid</condition>
+        <condition>Responsive breakpoints defined (mobile 320-767px, tablet 768-1024px, desktop 1025px+)</condition>
+      </conditions>
+    </criterion>
+    <criterion id="AC-1.5.2">
+      <description>Design Tokens</description>
+      <conditions>
+        <condition>/lib/design-tokens.ts created with colors, typography, spacing scale</condition>
+        <condition>Colors: primary (#000000), background (#FFFFFF), accent (#1a73e8), success (#0f9d58), neutral (#757575)</condition>
+        <condition>Typography: Merriweather (serif), Inter (sans-serif)</condition>
+        <condition>Spacing scale based on 8px grid</condition>
+      </conditions>
+    </criterion>
+    <criterion id="AC-1.5.3">
+      <description>Reusable UI Components</description>
+      <conditions>
+        <condition>Button component with primary, secondary, ghost variants</condition>
+        <condition>Card component with newspaper aesthetic</condition>
+        <condition>Input component with focus states and error handling</condition>
+        <condition>Typography component with heading, body, caption variants</condition>
+      </conditions>
+    </criterion>
+    <criterion id="AC-1.5.4">
+      <description>Component Requirements</description>
+      <conditions>
+        <condition>Each component has TypeScript props interface</condition>
+        <condition>Accessible attributes (ARIA labels, keyboard support)</condition>
+        <condition>Responsive design (mobile-first)</condition>
+        <condition>Unit tests with coverage >70%</condition>
+      </conditions>
+    </criterion>
+    <criterion id="AC-1.5.5">
+      <description>Accessibility Standards</description>
+      <conditions>
+        <condition>Color contrast meets WCAG AA (4.5:1 for text, 3:1 for UI)</condition>
+        <condition>Mobile tap targets minimum 44x44px</condition>
+        <condition>Keyboard navigation supported</condition>
+        <condition>Screen reader compatible</condition>
+      </conditions>
+    </criterion>
+    <criterion id="AC-1.5.6">
+      <description>Documentation</description>
+      <conditions>
+        <condition>Component usage documented in JSDoc comments</condition>
+        <condition>Barrel export created at /components/ui/index.ts</condition>
+      </conditions>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>User Experience Principles - Visual Personality: Classic Newspaper Meets Modern Social</section>
+        <snippet>Black &amp; white base with spot color (single accent color for CTAs and highlights). Serif typography for headers and branding (newspaper style). Sans-serif for UI elements (readability on screens). Generous white space. Grid-based layout.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Design System Principles - Color Palette (Newspaper Aesthetic)</section>
+        <snippet>Primary: #000000 (black - text, grid). Background: #FFFFFF (white - clean canvas). Spot Color: #1a73e8 (blue - CTAs, highlights, links). Success: #0f9d58 (green - completion). Neutral: #757575 (gray - secondary text).</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Design System Principles - Typography Scale</section>
+        <snippet>Display (48px+): Puzzle number, completion time. Heading (24-32px): Section titles. Body (16-18px): Instructions, leaderboard entries. UI (14px): Buttons, labels, secondary text.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Component Patterns - shadcn/ui Approach</section>
+        <snippet>Use shadcn/ui (copy-paste components) instead of Material UI, Chakra, etc. Full control over styling for newspaper aesthetic. Built on Radix UI (accessible by default). Tailwind-based, consistent with project.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Consistency Rules - Naming Conventions</section>
+        <snippet>Components: PascalCase.tsx (e.g., SudokuGrid.tsx). Utilities: kebab-case.ts. Tests: ComponentName.test.tsx (co-located).</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Accessibility Pattern - WCAG 2.1 Level AA compliance</section>
+        <snippet>Semantic HTML, ARIA labels, keyboard navigation. Minimum 44x44px tap targets. Color contrast: 4.5:1 for text, 3:1 for UI components.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Technical Specification - Epic 1</title>
+        <section>Story 1.5: Design System Foundations</section>
+        <snippet>Establish design system with newspaper aesthetic using Tailwind CSS, create reusable UI components (Button, Card, Input, Typography), ensure WCAG AA accessibility compliance, and integrate with testing infrastructure.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Story 1.5: Design System Foundations (Newspaper Aesthetic)</section>
+        <snippet>As a designer/developer, I want a design system with newspaper aesthetic components and styles, so that I can build consistent, brand-aligned UI quickly across all features.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>tailwind.config.ts</path>
+        <kind>configuration</kind>
+        <symbol>Config</symbol>
+        <lines>1-30</lines>
+        <reason>Existing Tailwind configuration with newspaper aesthetic placeholders. Story 1.5 will populate these with actual design tokens.</reason>
+      </artifact>
+      <artifact>
+        <path>app/layout.tsx</path>
+        <kind>layout</kind>
+        <symbol>RootLayout</symbol>
+        <lines>1-45</lines>
+        <reason>Already configures Merriweather (serif) and Inter (sans) fonts via next/font. Story 1.5 components will use these font variables.</reason>
+      </artifact>
+      <artifact>
+        <path>components/ui/button.tsx</path>
+        <kind>component</kind>
+        <symbol>Button</symbol>
+        <lines>1-58</lines>
+        <reason>Existing Button component using class-variance-authority and Radix Slot. Story 1.5 will UPDATE this to use newspaper aesthetic variants instead of generic colors.</reason>
+      </artifact>
+      <artifact>
+        <path>lib/utils.ts</path>
+        <kind>utility</kind>
+        <symbol>cn</symbol>
+        <lines>1-7</lines>
+        <reason>Utility function for merging Tailwind classes with conflict resolution. All new components will use this for className merging.</reason>
+      </artifact>
+      <artifact>
+        <path>lib/utils.test.ts</path>
+        <kind>test</kind>
+        <symbol>cn utility test suite</symbol>
+        <lines>1-106</lines>
+        <reason>Demonstrates comprehensive unit testing pattern for pure functions. Story 1.5 component tests should follow similar structure and documentation style.</reason>
+      </artifact>
+      <artifact>
+        <path>jest.config.js</path>
+        <kind>configuration</kind>
+        <symbol>createJestConfig</symbol>
+        <lines>1-36</lines>
+        <reason>Jest configuration with 70% coverage threshold on lib/** and path alias mapping. All new tests will use this configuration.</reason>
+      </artifact>
+      <artifact>
+        <path>components/layout/Header.tsx</path>
+        <kind>component</kind>
+        <symbol>Header</symbol>
+        <lines>N/A</lines>
+        <reason>Existing layout component that will benefit from new design system components (Button, Typography).</reason>
+      </artifact>
+      <artifact>
+        <path>components/layout/Footer.tsx</path>
+        <kind>component</kind>
+        <symbol>Footer</symbol>
+        <lines>N/A</lines>
+        <reason>Existing layout component that will benefit from new design system components (Typography).</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="Node.js">
+        <package name="next" version="16.0.1">Next.js framework with App Router and React 19</package>
+        <package name="react" version="19.2.0">React library</package>
+        <package name="tailwindcss" version="^4">Tailwind CSS 4 for utility-first styling</package>
+        <package name="@tailwindcss/postcss" version="^4">Tailwind CSS 4 PostCSS plugin</package>
+        <package name="class-variance-authority" version="^0.7.1">CVA for component variant management</package>
+        <package name="clsx" version="^2.1.1">Utility for constructing className strings</package>
+        <package name="tailwind-merge" version="^3.4.0">Merge Tailwind classes without conflicts</package>
+        <package name="@radix-ui/react-slot" version="^1.2.4">Radix UI Slot for polymorphic components</package>
+        <package name="lucide-react" version="^0.553.0">Icon library (optional for components)</package>
+        <package name="jest" version="^30.2.0">Testing framework</package>
+        <package name="@testing-library/react" version="^16.3.0">React Testing Library for component tests</package>
+        <package name="@testing-library/jest-dom" version="^6.9.1">Custom Jest matchers for DOM</package>
+        <package name="jest-environment-jsdom" version="^30.2.0">JSDOM environment for Jest</package>
+        <package name="typescript" version="^5">TypeScript for type safety</package>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint category="architecture">Must follow existing component pattern: class-variance-authority (cva) for variants + Radix UI primitives for accessibility + Tailwind CSS for styling</constraint>
+    <constraint category="architecture">All components in /components/ui/ directory with co-located .test.tsx files</constraint>
+    <constraint category="architecture">Use existing cn() utility from lib/utils.ts for all className merging</constraint>
+    <constraint category="styling">CRITICAL: Must use newspaper aesthetic color palette: black (#000000), white (#FFFFFF), spot blue (#1a73e8), success green (#0f9d58), neutral gray (#757575)</constraint>
+    <constraint category="styling">CRITICAL: Must use existing font configuration from app/layout.tsx: Merriweather (serif) for headers, Inter (sans) for body/UI</constraint>
+    <constraint category="styling">Spacing must follow 8px grid system (8, 16, 24, 32, 40, 48, 64, 80px)</constraint>
+    <constraint category="styling">Responsive breakpoints: mobile (max 767px), tablet (768-1024px), desktop (1025px+)</constraint>
+    <constraint category="accessibility">WCAG 2.1 Level AA compliance mandatory: color contrast 4.5:1 for text, 3:1 for UI components</constraint>
+    <constraint category="accessibility">All interactive elements must meet minimum 44x44px tap target for mobile</constraint>
+    <constraint category="accessibility">Keyboard navigation required: Tab/Shift+Tab, Enter/Space for activation, Arrow keys where applicable</constraint>
+    <constraint category="accessibility">All components must have semantic HTML and ARIA attributes (role, aria-label, aria-describedby)</constraint>
+    <constraint category="testing">CRITICAL: Minimum 70% test coverage enforced on lib/** by Jest configuration</constraint>
+    <constraint category="testing">Tests must be co-located: ComponentName.test.tsx next to ComponentName.tsx</constraint>
+    <constraint category="testing">Follow testing pattern from lib/utils.test.ts: comprehensive test cases with descriptive comments</constraint>
+    <constraint category="testing">Test focus: component rendering, props, interactions, accessibility (NOT Tailwind classes or visual appearance)</constraint>
+    <constraint category="code-quality">TypeScript strict mode enabled - all components must have proper type definitions</constraint>
+    <constraint category="code-quality">ESLint must pass with 0 errors (configured with Next.js and Prettier presets)</constraint>
+    <constraint category="code-quality">Single Responsibility Principle: each component does ONE thing well</constraint>
+    <constraint category="naming">Components: PascalCase.tsx. Utilities: kebab-case.ts. Tests: ComponentName.test.tsx</constraint>
+    <constraint category="documentation">All components must have JSDoc comments with usage examples</constraint>
+    <constraint category="ci-cd">All changes must pass GitHub Actions CI pipeline: lint → test → build</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>cn utility function</name>
+      <kind>utility</kind>
+      <signature>cn(...inputs: ClassValue[]): string</signature>
+      <path>lib/utils.ts</path>
+      <usage>Use for all className merging. Handles conditional classes, Tailwind conflicts, arrays, objects.</usage>
+    </interface>
+    <interface>
+      <name>Button Component (existing - to be updated)</name>
+      <kind>react-component</kind>
+      <signature>
+        interface ButtonProps extends React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt;, VariantProps&lt;typeof buttonVariants&gt; {
+          asChild?: boolean
+        }
+      </signature>
+      <path>components/ui/button.tsx</path>
+      <usage>Current implementation uses generic color variants. Story 1.5 will UPDATE to use newspaper aesthetic variants (primary: black bg, secondary: white bg with border, ghost: transparent).</usage>
+    </interface>
+    <interface>
+      <name>Design Tokens (to be created)</name>
+      <kind>constants</kind>
+      <signature>
+        export const designTokens = {
+          colors: { primary, background, accent, success, neutral },
+          typography: { fontFamily, scale },
+          spacing: Record&lt;string, string&gt;
+        }
+      </signature>
+      <path>lib/design-tokens.ts</path>
+      <usage>Single source of truth for design system values. Import and use in tailwind.config.ts and components.</usage>
+    </interface>
+    <interface>
+      <name>Font Variables (already configured)</name>
+      <kind>css-variables</kind>
+      <signature>--font-serif, --font-sans</signature>
+      <path>app/layout.tsx</path>
+      <usage>Already configured via next/font. Use in Tailwind config as var(--font-serif) and var(--font-sans).</usage>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing infrastructure is fully operational with Jest 30.2.0 + React Testing Library 16.3.0. All tests run via npm test with coverage enforcement at 70% minimum for lib/** directory. Testing pattern established in lib/utils.test.ts demonstrates comprehensive test coverage with descriptive comments explaining each test case. Component tests should focus on: (1) rendering with various props, (2) user interactions (click, keyboard), (3) accessibility (ARIA attributes, focus states), (4) edge cases. DO NOT test Tailwind classes applied or visual appearance - trust Tailwind and use visual regression tools if needed. Tests are co-located next to components (ComponentName.test.tsx). TypeScript strict mode is enabled. ESLint configured with Next.js and Prettier presets.
+    </standards>
+    <locations>
+      <location>components/ui/*.test.tsx - Component tests co-located with components</location>
+      <location>lib/*.test.ts - Utility function tests</location>
+      <location>jest.config.js - Test configuration with coverage thresholds</location>
+      <location>jest.setup.js - Test setup file (imported by Jest)</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-1.5.3, AC-1.5.4">
+        Button Component Tests:
+        - Rendering: renders with children, accepts className, applies variant correctly
+        - Interactions: calls onClick when clicked, supports keyboard (Enter/Space)
+        - Accessibility: has button role, aria-label if provided, focus visible
+        - Variants: primary (black bg), secondary (white bg + border), ghost (transparent)
+        - Sizes: sm (36px), md (44px), lg (52px) - verify tap target size
+        - Edge cases: disabled state, asChild polymorphism
+      </idea>
+      <idea ac="AC-1.5.3, AC-1.5.4">
+        Card Component Tests:
+        - Rendering: renders children, accepts className
+        - Props: applies padding variants (sm, md, lg)
+        - Styling: has border, white background
+        - Responsive: padding adjusts on mobile
+      </idea>
+      <idea ac="AC-1.5.3, AC-1.5.4">
+        Input Component Tests:
+        - Rendering: renders with placeholder, value, onChange
+        - Error handling: displays error message when error prop provided, aria-invalid set
+        - Accessibility: has aria-label (required), aria-describedby for errors, meets 44px height
+        - Focus: focus state visible with blue accent border
+        - Types: supports text, email, password
+      </idea>
+      <idea ac="AC-1.5.3, AC-1.5.4">
+        Typography Component Tests:
+        - Rendering: renders children, applies variant styles
+        - Semantic HTML: renders as correct element (h1, h2, h3, p, span) based on 'as' prop
+        - Variants: h1 (serif, 48px), h2 (serif, 32px), h3 (serif, 24px), body (sans, 16px), caption (sans, 14px)
+        - Responsive: font sizes scale down on mobile
+        - Edge cases: accepts custom className
+      </idea>
+      <idea ac="AC-1.5.1, AC-1.5.2">
+        Design Tokens Tests (if exporting functions):
+        - Verify token values match specifications (colors, typography, spacing)
+        - If utility functions exist for token access, test those
+      </idea>
+      <idea ac="AC-1.5.5">
+        Accessibility Integration Tests:
+        - Keyboard navigation: Tab through all interactive components, Enter/Space activation
+        - Color contrast: Automated test or manual verification with tools (WAVE, Lighthouse)
+        - Tap targets: Verify min 44x44px for buttons, inputs
+        - Screen reader: Manual verification with NVDA/VoiceOver (optional but recommended)
+      </idea>
+      <idea ac="AC-1.5.6">
+        Barrel Export Tests:
+        - Verify all components exportable via import { Button, Card, Input, Typography } from '@/components/ui'
+        - Simple import test in Jest
+      </idea>
+    </ideas>
+  </tests>
+</story-context>
