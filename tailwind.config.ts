@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { designTokens } from "./lib/design-tokens";
 
 const config: Config = {
   content: [
@@ -7,20 +8,19 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // Newspaper aesthetic theme preparation
-      // Color palette will be defined in Story 1.5
+      // Newspaper aesthetic theme
       colors: {
-        // Placeholders for newspaper aesthetic colors
-        newspaper: {
-          // To be populated in Story 1.5
-        },
+        // Design system color palette
+        primary: designTokens.colors.primary,
+        background: designTokens.colors.background,
+        accent: designTokens.colors.accent,
+        success: designTokens.colors.success,
+        neutral: designTokens.colors.neutral,
       },
-      fontFamily: {
-        // Serif fonts for newspaper aesthetic
-        // Will be configured with custom fonts in Story 1.5
-        serif: ["var(--font-serif)", "Georgia", "serif"],
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-      },
+      fontFamily: designTokens.typography.fontFamily,
+      fontSize: designTokens.typography.scale,
+      spacing: designTokens.spacing,
+      screens: designTokens.screens,
     },
   },
   plugins: [],

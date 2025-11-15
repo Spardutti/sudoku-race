@@ -54,8 +54,8 @@ export function Header() {
         {/* Mobile Hamburger Button */}
         <Button
           variant="ghost"
-          size="icon"
-          className="md:hidden"
+          size="sm"
+          className="md:hidden min-w-[36px]"
           aria-label="Toggle navigation menu"
           aria-expanded={mobileMenuOpen}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
