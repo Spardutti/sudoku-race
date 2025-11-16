@@ -1,0 +1,400 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>9</storyId>
+    <title>Database Migration Tool Setup</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-9-database-migration-tool-setup.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>database migration tooling configured with Supabase CLI</iWant>
+    <soThat>I can version control schema changes, deploy them reliably, and maintain database integrity across environments</soThat>
+    <tasks>
+      <task id="1" title="Install and Configure Supabase CLI">
+        <objective>Set up Supabase CLI for local development and production migrations</objective>
+        <subtasks>
+          <subtask>Install Supabase CLI as dev dependency: npm install --save-dev supabase</subtask>
+          <subtask>Initialize Supabase project: npx supabase init</subtask>
+          <subtask>Link to remote Supabase project: npx supabase link --project-ref &lt;project-id&gt;</subtask>
+          <subtask>Update .gitignore to exclude Supabase local state (supabase/.branches, supabase/.temp)</subtask>
+          <subtask>Test connection: npx supabase status</subtask>
+          <subtask>Update package.json scripts (db:start, db:stop, db:reset, db:diff, db:push, migration:new)</subtask>
+          <subtask>Test local Supabase instance: npm run db:start</subtask>
+          <subtask>Verify local services running (Studio: http://localhost:54323)</subtask>
+        </subtasks>
+        <acceptanceCriteria>AC1</acceptanceCriteria>
+        <estimatedEffort>30-60 minutes</estimatedEffort>
+      </task>
+
+      <task id="2" title="Establish Migration Directory Structure">
+        <objective>Create migration directory and establish naming conventions</objective>
+        <subtasks>
+          <subtask>Verify supabase/migrations/ directory created by supabase init</subtask>
+          <subtask>Create migration template file: supabase/.templates/migration-template.sql</subtask>
+          <subtask>Document naming convention in README.md (format: YYYYMMDDHHMMSS_&lt;description&gt;.sql)</subtask>
+          <subtask>Add .gitkeep to supabase/migrations/ if empty</subtask>
+          <subtask>Verify directory is tracked in git</subtask>
+        </subtasks>
+        <acceptanceCriteria>AC2</acceptanceCriteria>
+        <estimatedEffort>15-30 minutes</estimatedEffort>
+      </task>
+
+      <task id="3" title="Create Initial Schema Migration">
+        <objective>Consolidate Story 1.2 manual schema into version-controlled migration</objective>
+        <subtasks>
+          <subtask>Create migration: npx supabase migration new initial_schema</subtask>
+          <subtask>Populate migration file with complete schema (users, puzzles, completions, leaderboards, streaks tables)</subtask>
+          <subtask>Add all indexes (idx_puzzles_date, idx_completions_user, idx_completions_puzzle, idx_leaderboards_puzzle_time, idx_streaks_user)</subtask>
+          <subtask>Add Row Level Security (RLS) policies for all tables</subtask>
+          <subtask>Add foreign key constraints (completions, leaderboards, streaks → users/puzzles)</subtask>
+          <subtask>Add UNIQUE constraints (puzzles.puzzle_date, completions user+puzzle, leaderboards puzzle+user, streaks.user_id)</subtask>
+          <subtask>Add triggers documentation (auto-calculate completion_time_seconds, auto-flag flagged_for_review)</subtask>
+          <subtask>Add rollback steps in comments</subtask>
+          <subtask>Verify all operations idempotent (IF NOT EXISTS)</subtask>
+        </subtasks>
+        <acceptanceCriteria>AC3</acceptanceCriteria>
+        <estimatedEffort>2-3 hours</estimatedEffort>
+      </task>
+
+      <task id="4" title="Test Migration Workflow Locally">
+        <objective>Verify migration applies correctly in local environment</objective>
+        <subtasks>
+          <subtask>Start local Supabase instance: npm run db:start</subtask>
+          <subtask>Apply migration: npm run db:reset</subtask>
+          <subtask>Verify all tables created in local Supabase Studio (http://localhost:54323)</subtask>
+          <subtask>Run schema diff: npm run db:diff (confirm no differences)</subtask>
+          <subtask>Test application against local database (npm run dev, verify connection)</subtask>
+          <subtask>Test rollback procedure (execute rollback SQL, verify revert, re-apply with db reset)</subtask>
+          <subtask>Document any issues encountered and resolutions</subtask>
+        </subtasks>
+        <acceptanceCriteria>AC4</acceptanceCriteria>
+        <estimatedEffort>1-2 hours</estimatedEffort>
+      </task>
+
+      <task id="5" title="Create Deployment &amp; Rollback Documentation">
+        <objective>Document production deployment procedures and emergency rollback</objective>
+        <subtasks>
+          <subtask>Create docs/database-migrations.md file</subtask>
+          <subtask>Write Overview section (migration tooling, workflow summary)</subtask>
+          <subtask>Write Setup section (installation, project linking, environment config)</subtask>
+          <subtask>Write Creating Migrations section (naming conventions, template, idempotent ops, rollback steps)</subtask>
+          <subtask>Write Testing Migrations section (local testing, schema validation, app testing checklist)</subtask>
+          <subtask>Write Deploying to Production section (pre-deployment checklist, deployment command, post-deployment verification)</subtask>
+          <subtask>Write Rollback Procedures section (emergency rollback steps, testing rollback, when to rollback vs forward-fix)</subtask>
+          <subtask>Write Best Practices section (incremental changes, idempotent ops, reversible migrations, testing, descriptive naming)</subtask>
+          <subtask>Write Troubleshooting section (common errors, connection issues, schema conflicts, rollback failures)</subtask>
+          <subtask>Write Examples section (adding table, column, index, RLS policy, modifying schema)</subtask>
+          <subtask>Add code examples throughout with realistic project schema</subtask>
+          <subtask>Include links to Supabase documentation</subtask>
+          <subtask>Review documentation for completeness and clarity</subtask>
+        </subtasks>
+        <acceptanceCriteria>AC5, AC6</acceptanceCriteria>
+        <estimatedEffort>2-3 hours</estimatedEffort>
+      </task>
+
+      <task id="6" title="Update Project Documentation &amp; README">
+        <objective>Integrate migration documentation into project README and setup guides</objective>
+        <subtasks>
+          <subtask>Update README.md with Supabase CLI setup (Database Migrations section, link to docs, quick start commands)</subtask>
+          <subtask>Update .env.local.example if needed (SUPABASE_PROJECT_REF, document Supabase env vars)</subtask>
+          <subtask>Add migration workflow to development setup section</subtask>
+          <subtask>Create example workflow for new developers (setup, migration creation, testing, deployment)</subtask>
+          <subtask>Link to migration documentation in relevant places (database schema, architecture, PRD/Epic references)</subtask>
+        </subtasks>
+        <acceptanceCriteria>All ACs (supporting documentation)</acceptanceCriteria>
+        <estimatedEffort>30-60 minutes</estimatedEffort>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1" title="Supabase CLI Installation &amp; Configuration">
+      <given>The project requires database migration tooling</given>
+      <when>Supabase CLI is installed and configured</when>
+      <then>
+        <requirement>Supabase CLI installed as dev dependency: npm install --save-dev supabase</requirement>
+        <requirement>Supabase project initialized: npx supabase init creates supabase/ directory</requirement>
+        <requirement>Configuration file created: supabase/config.toml with project settings</requirement>
+        <requirement>Project linked to remote Supabase instance: npx supabase link --project-ref &lt;project-id&gt;</requirement>
+        <requirement>Link configuration stored securely (not committed to git)</requirement>
+        <requirement>.gitignore updated to exclude Supabase local state files</requirement>
+      </then>
+      <verification>
+        <step>Run npx supabase status and verify connection to local/remote database</step>
+        <step>Confirm supabase/ directory structure matches expected layout</step>
+        <step>Verify .gitignore excludes .branches/, .temp/ directories</step>
+      </verification>
+    </criterion>
+
+    <criterion id="AC2" title="Migration Directory Structure &amp; Conventions">
+      <given>Database schema changes need version control</given>
+      <when>Migration directory structure is established</when>
+      <then>
+        <requirement>Directory created: supabase/migrations/</requirement>
+        <requirement>Migration naming convention documented: YYYYMMDDHHMMSS_&lt;description&gt;.sql</requirement>
+        <requirement>Migration template documented with best practices (idempotent operations, rollback steps, description header)</requirement>
+        <requirement>.gitkeep or initial migration file ensures directory is committed</requirement>
+        <requirement>Migration file permissions set correctly</requirement>
+      </then>
+      <verification>
+        <step>Directory supabase/migrations/ exists in git history</step>
+        <step>Migration template documented in docs/database-migrations.md</step>
+        <step>Naming convention clear and enforced</step>
+      </verification>
+    </criterion>
+
+    <criterion id="AC3" title="Initial Schema Migration Consolidation">
+      <given>Story 1.2 created database schema manually via Supabase dashboard</given>
+      <when>Initial schema migration is created</when>
+      <then>
+        <requirement>Migration file created: supabase/migrations/20250116000000_initial_schema.sql</requirement>
+        <requirement>Migration captures ALL tables: users, puzzles, completions, leaderboards, streaks</requirement>
+        <requirement>All indexes created: idx_puzzles_date, idx_completions_user, idx_completions_puzzle, idx_leaderboards_puzzle_time, idx_streaks_user</requirement>
+        <requirement>Row Level Security (RLS) policies included for all tables</requirement>
+        <requirement>Foreign key constraints defined (completions, leaderboards, streaks → users/puzzles)</requirement>
+        <requirement>Default values and constraints defined (NOT NULL, UNIQUE)</requirement>
+        <requirement>Triggers documented (auto-calculate completion_time_seconds, auto-flag flagged_for_review)</requirement>
+        <requirement>All operations use idempotent syntax (IF NOT EXISTS)</requirement>
+      </then>
+      <verification>
+        <step>Run npx supabase db reset on fresh database and verify schema matches production</step>
+        <step>Compare migration-created schema to Supabase dashboard schema</step>
+        <step>Confirm all RLS policies active and functional</step>
+      </verification>
+    </criterion>
+
+    <criterion id="AC4" title="Migration Testing Workflow">
+      <given>Migrations must be tested before production deployment</given>
+      <when>Local testing workflow is established</when>
+      <then>
+        <requirement>Local Supabase instance can be started: npx supabase start</requirement>
+        <requirement>Local instance includes PostgreSQL, Auth, Realtime services</requirement>
+        <requirement>Migration testing command documented: npx supabase db reset</requirement>
+        <requirement>Reset command drops local database, re-creates schema, applies all migrations, seeds test data</requirement>
+        <requirement>Schema diff command documented: npx supabase db diff</requirement>
+        <requirement>Testing checklist documented with 8 steps (create migration, test locally, verify schema, run app tests, check logs, review diff, commit, deploy)</requirement>
+      </then>
+      <verification>
+        <step>Run npx supabase start and verify all services running</step>
+        <step>Run npx supabase db reset and confirm successful migration application</step>
+        <step>Run npx supabase db diff and verify no unexpected schema differences</step>
+      </verification>
+    </criterion>
+
+    <criterion id="AC5" title="Production Deployment Guide &amp; Rollback Strategy">
+      <given>Migrations must be safely deployed to production</given>
+      <when>Deployment guide and rollback procedures are documented</when>
+      <then>
+        <requirement>Pre-deployment checklist documented (test locally, backup, schedule low-traffic window, notify team, prepare rollback)</requirement>
+        <requirement>Deployment command documented: npx supabase db push --linked</requirement>
+        <requirement>Post-deployment verification steps documented (check dashboard, verify RLS, run smoke tests, monitor logs, check health)</requirement>
+        <requirement>Rollback strategy documented with emergency rollback procedure (access SQL Editor, execute rollback SQL, verify restore, monitor)</requirement>
+        <requirement>Rollback testing included in local testing workflow</requirement>
+        <requirement>Post-rollback procedure documented</requirement>
+        <requirement>Emergency contacts and access instructions included</requirement>
+      </then>
+      <verification>
+        <step>Documentation includes complete deployment workflow</step>
+        <step>Rollback procedures tested locally</step>
+        <step>Emergency rollback accessible without code checkout</step>
+      </verification>
+    </criterion>
+
+    <criterion id="AC6" title="Migration Best Practices Documentation">
+      <given>Future developers will create database migrations</given>
+      <when>Best practices documentation is created in docs/database-migrations.md</when>
+      <then>
+        <requirement>Overview section (migration tooling, workflow summary)</requirement>
+        <requirement>Setup section (installation, initialization, linking)</requirement>
+        <requirement>Creating Migrations section (naming conventions, template, idempotent operations, rollback steps)</requirement>
+        <requirement>Testing Migrations section (local testing, schema validation, app testing checklist)</requirement>
+        <requirement>Deploying to Production section (pre-deployment checklist, deployment command, post-deployment verification)</requirement>
+        <requirement>Rollback Procedures section (emergency rollback steps, testing rollback, when to rollback vs forward-fix)</requirement>
+        <requirement>Best Practices section (one logical change per migration, idempotent operations, reversible migrations, testing, descriptive names)</requirement>
+        <requirement>Troubleshooting section (common migration errors, connection issues, schema conflicts, rollback failures)</requirement>
+        <requirement>Examples section (adding table, column, index, RLS policy, modifying schema)</requirement>
+        <requirement>All examples use realistic schema from project and include rollback steps</requirement>
+      </then>
+      <verification>
+        <step>Documentation complete and readable</step>
+        <step>All examples tested and working</step>
+        <step>Links to external Supabase documentation included</step>
+        <step>Troubleshooting section covers known issues</step>
+      </verification>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Database Migrations (lines 786-854)</section>
+        <snippet>Comprehensive migration workflow using Supabase CLI. Defines migration best practices: incremental changes, idempotent operations (IF NOT EXISTS), reversible migrations with rollback steps in comments, local testing with 'supabase db reset', production deployment during low-traffic windows (2-4am UTC).</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Technical Specification - Epic 1</title>
+        <section>Database Layer (lines 72-79)</section>
+        <snippet>Establishes database foundation with complete schema for 5 core tables (users, puzzles, completions, leaderboards, streaks), Row Level Security policies, and migration strategy with SQL migration files in version control for reproducible schema setup.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Technical Specification - Epic 1</title>
+        <section>Database Schema (lines 290-384)</section>
+        <snippet>Complete database schema definitions with SQL examples for all tables. Includes RLS policies, indexes, foreign key constraints, UNIQUE constraints, and triggers. Initial migration file referenced as /supabase/migrations/001_initial_schema.sql.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>supabase/migrations/001_initial_schema.sql</path>
+        <kind>migration</kind>
+        <symbol>initial_schema</symbol>
+        <lines>1-200</lines>
+        <reason>Existing initial schema migration created in Story 1.2. Story 1.9 should establish migration tooling and may need to validate or update this migration file.</reason>
+      </artifact>
+      <artifact>
+        <path>supabase/migrations/002_add_missing_rls_policies.sql</path>
+        <kind>migration</kind>
+        <symbol>add_missing_rls_policies</symbol>
+        <lines>1-50</lines>
+        <reason>Example of subsequent migration adding RLS policies. Demonstrates migration pattern this story will standardize.</reason>
+      </artifact>
+      <artifact>
+        <path>supabase/migrations/003_add_duplicate_check_index.sql</path>
+        <kind>migration</kind>
+        <symbol>add_duplicate_check_index</symbol>
+        <lines>1-50</lines>
+        <reason>Recent migration adding index. Shows migration workflow is already in use and needs documentation.</reason>
+      </artifact>
+      <artifact>
+        <path>package.json</path>
+        <kind>config</kind>
+        <symbol>package.json</symbol>
+        <lines>1-54</lines>
+        <reason>Contains npm scripts section where database migration scripts should be added (db:start, db:stop, db:reset, db:diff, db:push, migration:new).</reason>
+      </artifact>
+      <artifact>
+        <path>.gitignore</path>
+        <kind>config</kind>
+        <symbol>.gitignore</symbol>
+        <lines>1-50</lines>
+        <reason>Needs to be updated to exclude Supabase local state files (supabase/.branches, supabase/.temp).</reason>
+      </artifact>
+      <artifact>
+        <path>jest.config.js</path>
+        <kind>config</kind>
+        <symbol>jest.config.js</symbol>
+        <lines>1-40</lines>
+        <reason>Testing configuration for understanding test standards. 70% coverage threshold on lib/** files, Jest with React Testing Library.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="@supabase/supabase-js" version="^2.81.1" type="production">Supabase JavaScript client for database operations</package>
+        <package name="supabase" version="^2.58.5" type="dev">Supabase CLI for migrations, local development, and schema management</package>
+        <package name="jest" version="^30.2.0" type="dev">Testing framework</package>
+        <package name="@testing-library/react" version="^16.3.0" type="dev">React component testing library</package>
+        <package name="@testing-library/jest-dom" version="^6.9.1" type="dev">Jest DOM matchers</package>
+        <package name="typescript" version="^5" type="dev">TypeScript compiler</package>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architecture">Follow migration best practices from architecture.md: incremental changes (one logical change per migration), idempotent operations (IF NOT EXISTS), reversible migrations with rollback steps in comments</constraint>
+    <constraint type="testing">Achieve 70% code coverage on lib/** files (per jest.config.js). Migration scripts themselves don't require unit tests, but documentation and npm scripts should be tested manually</constraint>
+    <constraint type="documentation">Create comprehensive documentation similar to docs/seo.md and docs/rate-limiting.md patterns (clear structure, examples, troubleshooting sections)</constraint>
+    <constraint type="deployment">Production migrations must be deployed during low-traffic windows (2-4am UTC) with pre-deployment backup verification</constraint>
+    <constraint type="version-control">All migration files must be committed to git. Never make manual schema changes outside of version-controlled migrations</constraint>
+    <constraint type="security">Supabase project reference and credentials must not be committed to git. Store in .env.local or secure environment configuration</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>Supabase CLI - Migration Commands</name>
+      <kind>CLI</kind>
+      <signature>
+npx supabase init               # Initialize Supabase project
+npx supabase link --project-ref &lt;id&gt;  # Link to remote project
+npx supabase migration new &lt;name&gt;     # Create new migration
+npx supabase db reset          # Reset local DB and apply all migrations
+npx supabase db diff           # Show schema differences
+npx supabase db push --linked  # Deploy migrations to production
+npx supabase start             # Start local Supabase instance
+npx supabase stop              # Stop local instance
+npx supabase status            # Show connection status
+      </signature>
+      <path>N/A - CLI tool</path>
+    </interface>
+
+    <interface>
+      <name>NPM Scripts - Database Operations</name>
+      <kind>npm scripts</kind>
+      <signature>
+npm run db:start          # Start local Supabase
+npm run db:stop           # Stop local Supabase
+npm run db:reset          # Reset and apply migrations
+npm run db:diff           # Show schema differences
+npm run db:push           # Deploy to production
+npm run migration:new     # Create new migration
+      </signature>
+      <path>package.json</path>
+    </interface>
+
+    <interface>
+      <name>Migration File Template</name>
+      <kind>SQL template</kind>
+      <signature>
+-- Migration: &lt;Description&gt;
+-- Created: YYYY-MM-DD
+-- Author: &lt;Your Name&gt;
+-- Description: &lt;What this migration does and why&gt;
+
+-- Forward migration
+-- Add your schema changes here
+
+-- Rollback (run manually if needed)
+-- Add rollback steps as comments
+      </signature>
+      <path>supabase/.templates/migration-template.sql</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+Testing strategy follows Jest configuration with 70% coverage threshold for lib/** files. Tests use Jest with React Testing Library and @testing-library/jest-dom matchers. For infrastructure tasks like migrations, focus on comprehensive manual verification rather than unit tests: test migration application locally with 'db reset', verify schema correctness with 'db diff', test rollback procedures, and validate application functionality against local database. Story 1.8 achieved 100% coverage for critical utilities (metadata.test.ts), setting precedent for thorough testing of infrastructure code where applicable.
+    </standards>
+
+    <locations>
+      <location>__tests__/ - Integration tests</location>
+      <location>lib/**/*.test.ts - Unit tests for library code</location>
+      <location>supabase/migrations/ - Migration files (tested manually via db reset)</location>
+    </locations>
+
+    <ideas>
+      <idea ac="AC1">
+Manual verification: Run 'npx supabase status' after setup and verify successful connection to both local and remote Supabase instances. Verify .gitignore excludes supabase/.branches and supabase/.temp directories.
+      </idea>
+      <idea ac="AC2">
+Manual verification: Create test migration using 'npm run migration:new test_migration', verify file created with correct naming convention (YYYYMMDDHHMMSS_test_migration.sql), verify migration template includes idempotent operations and rollback steps.
+      </idea>
+      <idea ac="AC3">
+Manual verification: Run 'npm run db:reset' and verify all tables created (users, puzzles, completions, leaderboards, streaks) with correct indexes and RLS policies. Compare schema in local Studio to production schema using 'npm run db:diff'.
+      </idea>
+      <idea ac="AC4">
+Manual verification: Test complete local workflow: start local Supabase ('npm run db:start'), reset database ('npm run db:reset'), verify schema in Studio (http://localhost:54323), test application connection ('npm run dev'), test rollback procedure by executing rollback SQL in local SQL Editor.
+      </idea>
+      <idea ac="AC5">
+Documentation review: Verify deployment guide includes pre-deployment checklist (backup verification, low-traffic window scheduling, team notification), deployment command, post-deployment verification steps (schema check, RLS verification, smoke tests, error monitoring), and emergency rollback procedure.
+      </idea>
+      <idea ac="AC6">
+Documentation review: Verify docs/database-migrations.md includes all required sections (Overview, Setup, Creating Migrations, Testing, Deploying, Rollback, Best Practices, Troubleshooting, Examples) with realistic code examples from project schema. Verify all examples include rollback steps and demonstrate idempotent operations.
+      </idea>
+    </ideas>
+  </tests>
+</story-context>
