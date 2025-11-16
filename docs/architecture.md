@@ -540,7 +540,11 @@ const { data: { user } } = await supabase.auth.getUser()
 
 ### Error Handling
 
+**Implementation:** Story 1.6 (Error Tracking & Monitoring Setup)
+
 **Result Type Pattern:**
+
+All Server Actions MUST return `Result<T, E>` type for consistent, type-safe error handling.
 
 ```typescript
 // lib/types/result.ts
@@ -548,21 +552,128 @@ export type Result<T, E = Error> =
   | { success: true; data: T }
   | { success: false; error: E }
 
-// Usage
-const result = await completePuzzle(id, solution)
-if (result.success) {
-  // Handle success
-} else {
-  // Handle error
-  toast.error(result.error.message)
+// Helper functions
+export function isSuccess<T, E>(result: Result<T, E>): result is { success: true; data: T }
+export function isFailure<T, E>(result: Result<T, E>): result is { success: false; error: E }
+export function unwrap<T, E>(result: Result<T, E>): T // Throws if failure
+export function unwrapOr<T, E>(result: Result<T, E>, defaultValue: T): T
+```
+
+**Server Action Example:**
+
+```typescript
+// actions/puzzle.ts
+import { Result } from '@/lib/types/result'
+import { logger } from '@/lib/utils/logger'
+import { USER_ERRORS, SERVER_ERRORS } from '@/lib/constants/errors'
+
+export async function completePuzzle(
+  puzzleId: string,
+  solution: number[][]
+): Promise<Result<{ correct: boolean; rank?: number }, string>> {
+  try {
+    // Validation
+    if (!isValidSolution(solution)) {
+      return { success: false, error: USER_ERRORS.INVALID_MOVE }
+    }
+
+    // Business logic
+    const correct = checkSolution(puzzleId, solution)
+    if (!correct) {
+      logger.info('Incorrect puzzle solution', { puzzleId })
+      return { success: false, error: USER_ERRORS.INCORRECT_SOLUTION }
+    }
+
+    // Save completion
+    const rank = await saveCompletion(puzzleId, solution)
+    logger.info('Puzzle completed', { puzzleId, rank })
+
+    return { success: true, data: { correct: true, rank } }
+  } catch (error) {
+    logger.error('Failed to complete puzzle', error as Error, { puzzleId })
+    return { success: false, error: SERVER_ERRORS.INTERNAL_ERROR }
+  }
+}
+```
+
+**Client Component Example:**
+
+```typescript
+// components/puzzle/PuzzleGrid.tsx
+'use client'
+
+import { completePuzzle } from '@/actions/puzzle'
+import { toast } from '@/components/ui/toast'
+
+export function PuzzleGrid() {
+  const handleSubmit = async () => {
+    const result = await completePuzzle(puzzleId, solution)
+
+    if (result.success) {
+      // Type-safe access to success data
+      toast.success(`Correct! Your rank: #${result.data.rank}`)
+    } else {
+      // User-friendly error message (never shows stack trace)
+      toast.error(result.error)
+    }
+  }
+
+  return <button onClick={handleSubmit}>Submit</button>
 }
 ```
 
 **Error Categories:**
-- **User Errors**: Encouraging messages ("Not quite right. Keep trying!")
-- **Network Errors**: Retry-focused ("Connection lost. Retrying...")
-- **Server Errors**: Generic ("Something went wrong. Please try again.")
-- **Validation Errors**: Silent or inline feedback
+
+Error categories defined in `lib/constants/errors.ts`:
+
+| Category | UX Strategy | Examples | Message Template |
+|----------|-------------|----------|------------------|
+| **User Errors** | Encouraging, actionable | Incorrect solution, invalid move | "Not quite right. Keep trying!" |
+| **Network Errors** | Retry-focused, show retry button | API timeout, real-time disconnection | "Connection lost. Retrying..." |
+| **Server Errors** | Generic, log details for developer | Database error, unhandled exception | "Something went wrong. Please try again." |
+| **Validation Errors** | Silent or inline feedback | Invalid form input, missing field | "Please check your input and try again." |
+
+**Error Constants:**
+
+```typescript
+// lib/constants/errors.ts
+
+// User errors (encouraging)
+export const USER_ERRORS = {
+  INCORRECT_SOLUTION: "Not quite right. Keep trying!",
+  INVALID_MOVE: "That move isn't allowed. Try a different number.",
+  PUZZLE_ALREADY_COMPLETED: "You've already completed this puzzle!",
+}
+
+// Network errors (retry-focused)
+export const NETWORK_ERRORS = {
+  CONNECTION_LOST: "Connection lost. Retrying...",
+  TIMEOUT: "Request timed out. Please try again.",
+  REALTIME_DISCONNECTED: "Live updates paused. Reconnecting...",
+}
+
+// Server errors (generic, never expose stack traces)
+export const SERVER_ERRORS = {
+  INTERNAL_ERROR: "Something went wrong. Please try again.",
+  DATABASE_ERROR: "Unable to save your progress. Please try again.",
+  AUTH_ERROR: "Authentication failed. Please sign in again.",
+}
+
+// Helper functions
+export function categorizeError(error: Error): ErrorCategory
+export function getErrorMessage(category: ErrorCategory, specificMessage?: string): string
+export function shouldRetry(category: ErrorCategory): boolean
+```
+
+**Error Handling Best Practices:**
+
+1. ✅ **Never expose stack traces to users** - Use generic messages for server errors
+2. ✅ **Use Result type for Server Actions** - Type-safe error handling across client/server boundary
+3. ✅ **Log errors with context** - Include userId, puzzleId, action name in logs
+4. ✅ **Categorize errors appropriately** - User vs Network vs Server errors have different UX
+5. ✅ **Show encouraging messages** - "Not quite right" instead of "Error: Invalid input"
+6. ❌ **Don't throw exceptions across client/server boundary** - Use Result type instead
+7. ❌ **Don't log PII** - Never log email addresses, IP addresses, passwords
 
 ### Logging Strategy
 
@@ -1356,38 +1467,46 @@ jobs:
 
 ### Error Tracking
 
-**Tool:** Sentry (recommended) or Vercel Error Tracking
+**Tool:** Sentry (`@sentry/nextjs`)
 
-**Setup:**
+**Implementation:** Story 1.6 (Error Tracking & Monitoring Setup)
+
+**Configuration Files:**
+- `lib/monitoring/sentry.ts` - Sentry initialization with error filtering
+- `sentry.client.config.ts` - Client-side error tracking
+- `sentry.server.config.ts` - Server-side error tracking (Server Actions, API routes)
+- `sentry.edge.config.ts` - Edge runtime error tracking (Middleware)
+- `next.config.ts` - Wrapped with `withSentryConfig()` for build-time integration
+
+**Environment Variables:**
+- `NEXT_PUBLIC_SENTRY_DSN` - Sentry project DSN (from sentry.io dashboard)
+- `SENTRY_ORG` - Sentry organization (optional, for sourcemaps)
+- `SENTRY_PROJECT` - Sentry project name (optional, for sourcemaps)
+
+**Usage Examples:**
+
 ```typescript
-// lib/monitoring/sentry.ts
-import * as Sentry from '@sentry/nextjs'
+// Basic error capture
+import { captureException } from '@/lib/monitoring/sentry'
 
-Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-  tracesSampleRate: 0.1, // 10% of transactions for performance
-  beforeSend(event, hint) {
-    // Filter out noisy errors
-    if (event.exception?.values?.[0]?.value?.includes('ResizeObserver')) {
-      return null
-    }
-    return event
-  }
-})
-
-// Usage in Server Action
-export async function completePuzzle(puzzleId: string, solution: number[][]) {
-  try {
-    // ... logic
-  } catch (error) {
-    Sentry.captureException(error, {
-      tags: { action: 'completePuzzle' },
-      extra: { puzzleId, userId }
-    })
-    throw error
-  }
+try {
+  await completePuzzle(puzzleId)
+} catch (error) {
+  captureException(error, {
+    userId: 'user-123',
+    puzzleId: 'puzzle-456',
+    action: 'completePuzzle'
+  }, 'high')
+  throw error
 }
+
+// Set user context after login
+import { setUser } from '@/lib/monitoring/sentry'
+setUser('user-123') // All subsequent errors include user ID
+
+// Add breadcrumbs for debugging
+import { addBreadcrumb } from '@/lib/monitoring/sentry'
+addBreadcrumb('user-action', 'Started puzzle', { puzzleId: 'puzzle-456' })
 ```
 
 **What to Track:**
@@ -1395,13 +1514,25 @@ export async function completePuzzle(puzzleId: string, solution: number[][]) {
 - ✅ Real-time connection errors
 - ✅ Client-side JavaScript errors
 - ✅ API timeout errors (Supabase)
-- ❌ Don't track: User input validation errors, expected 404s
+- ❌ Don't track: User input validation errors, expected 404s, ResizeObserver errors
 
 **Error Severity Levels:**
-- **Critical**: Database connection failures, auth system down
-- **High**: Puzzle validation failures, leaderboard not updating
-- **Medium**: Real-time connection drops, slow queries
-- **Low**: UI rendering glitches, non-critical feature failures
+- **Critical**: Database connection failures, auth system down (page developer immediately)
+- **High**: Error rate >2%, response time >1s, puzzle validation failures (alert within 1 hour)
+- **Medium**: Individual errors affecting user experience, real-time connection drops
+- **Low**: UI rendering glitches, non-critical feature failures, completion rate <40%
+
+**Error Filtering:**
+Sentry filters noisy browser errors automatically:
+- ResizeObserver loop errors
+- Non-Error promise rejections
+- Browser extension errors
+- Expected analytics endpoint failures
+
+**Performance Monitoring:**
+- Sample rate: 10% of transactions (cost-effective)
+- 100% of errors captured
+- Automatic transaction tracking for Server Actions and API routes
 
 ### Performance Monitoring
 
@@ -1545,6 +1676,8 @@ logger.error('Database query failed', error, { query: 'getLeaderboard' })
 
 ### Alerting Strategy
 
+**Implementation:** Story 1.6 (Error Tracking & Monitoring Setup)
+
 **Critical Alerts (Immediate Action - PagerDuty/Email):**
 - Database connection failures (>5 in 5 minutes)
 - Auth system down (>10% failure rate)
@@ -1559,6 +1692,129 @@ logger.error('Database query failed', error, { query: 'getLeaderboard' })
 - Puzzle completion rate <40%
 - New user signups down >20% day-over-day
 - Abnormal puzzle difficulty (completion time variance)
+
+**Alert Configuration:**
+
+1. **Sentry Alerts** (configured in Sentry dashboard):
+   - Navigate to: Settings → Projects → [your-project] → Alerts
+   - Create Issue Alert:
+     - Trigger: >10 errors in 5 minutes → Critical
+     - Trigger: Error rate >2% in 15 minutes → High
+     - Actions: Email notification to developer
+   - Performance Alert:
+     - Trigger: P95 response time >1s for 10 minutes
+     - Actions: Slack notification (if configured)
+
+2. **Vercel Alerts** (configured in Vercel dashboard):
+   - Navigate to: Project Settings → Integrations → Notifications
+   - Build Failures: Email notification
+   - Deployment Errors: Email notification
+   - High Error Rate: Alert if >2% (Pro tier feature)
+
+3. **Supabase Monitoring** (configured in Supabase dashboard):
+   - Navigate to: Project → Settings → Database → Metrics
+   - Query Performance:
+     - Alert if sustained queries >100ms
+     - Monitor slow query logs
+   - Connection Pool:
+     - Alert at >80% usage
+     - Monitor connection count trends
+   - Database Size:
+     - Alert at 80% of 500MB limit (free tier)
+     - Track growth rate weekly
+
+### Monitoring Dashboards
+
+**Implementation:** Story 1.6 (Error Tracking & Monitoring Setup)
+
+**Key Metrics to Monitor:**
+
+| Metric | Target | Critical Threshold | Dashboard |
+|--------|--------|-------------------|-----------|
+| Uptime | 99.9% | <99% | Vercel, Sentry |
+| API Error Rate | <0.5% | >2% | Sentry |
+| P95 Response Time | <500ms | >1s | Sentry, Vercel |
+| Real-time Connection Success | >95% | <90% | Custom (lib/monitoring/realtime-health.ts) |
+| LCP (Largest Contentful Paint) | <2.5s | >4s | Vercel Analytics |
+| FID/INP (Interaction to Next Paint) | <100ms | >300ms | Vercel Analytics |
+| CLS (Cumulative Layout Shift) | <0.1 | >0.25 | Vercel Analytics |
+| Daily Active Users | Growing | Declining 20%+ | Vercel Analytics |
+| Puzzle Completion Rate | >60% | <40% | Custom Analytics |
+
+**Dashboard Access:**
+
+1. **Sentry Dashboard** (sentry.io):
+   - Errors & Performance: Issues → Search/Filter
+   - Error Rate: Stats → Overview
+   - Performance Transactions: Performance → Summary
+   - User Impact: Issues → User Feedback
+   - Custom Queries: Discover → Build Query
+
+2. **Vercel Dashboard** (vercel.com):
+   - Analytics: Project → Analytics Tab
+     - Core Web Vitals (LCP, FID/INP, CLS)
+     - Page views and unique visitors
+     - Top pages by traffic
+   - Logs: Project → Logs Tab
+     - Filter by log level (info, warn, error)
+     - Search by message or context
+     - 7-day retention on free tier
+   - Deployments: Project → Deployments
+     - Build status and errors
+     - Deployment logs
+
+3. **Supabase Dashboard** (supabase.com):
+   - Database Metrics: Project → Database → Performance
+     - Query execution time (>100ms flagged)
+     - Connection pool usage
+     - Database size and growth
+   - Real-time Connections: Project → Database → Realtime
+     - Active connections
+     - Channel subscriptions
+   - Table Editor: Project → Table Editor
+     - Data inspection and queries
+   - SQL Editor: Project → SQL Editor
+     - Custom queries and analytics
+
+**Monitoring Checklist:**
+
+**Daily:**
+- ✅ Check Sentry for new critical errors (5 minutes)
+- ✅ Review Vercel deployment status (2 minutes)
+- ✅ Scan Vercel Logs for error spikes (3 minutes)
+
+**Weekly:**
+- ✅ Review Vercel Analytics Core Web Vitals (10 minutes)
+- ✅ Check traffic trends and user growth (5 minutes)
+- ✅ Review Sentry performance transactions (10 minutes)
+- ✅ Check Supabase query performance (5 minutes)
+- ✅ Review and tune alert thresholds if needed (5 minutes)
+
+**Monthly:**
+- ✅ Deep dive into Sentry error patterns (30 minutes)
+- ✅ Analyze Supabase database size and growth (10 minutes)
+- ✅ Review and optimize slow queries (30 minutes)
+- ✅ Check connection pool usage trends (10 minutes)
+- ✅ Export long-term metrics (optional)
+
+**Custom Metrics Dashboard:**
+
+Real-time connection health metrics are tracked in-memory and can be accessed via:
+
+```typescript
+import { getConnectionMetrics, checkRealtimeHealth } from '@/lib/monitoring/realtime-health'
+
+// Get current metrics
+const metrics = getConnectionMetrics()
+console.log('Success Rate:', (metrics.successfulConnections / metrics.totalAttempts) * 100)
+console.log('Average Latency:', metrics.averageLatency)
+
+// Run health check
+const health = checkRealtimeHealth()
+if (!health.healthy) {
+  console.warn('Real-time health issues:', health.issues)
+}
+```
 
 ### Database Query Monitoring
 

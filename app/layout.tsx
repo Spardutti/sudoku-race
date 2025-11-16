@@ -3,6 +3,8 @@ import { Merriweather, Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { Analytics } from "@vercel/analytics/react";
+import { WebVitalsReporter } from "@/lib/monitoring/web-vitals";
 
 const merriweather = Merriweather({
   variable: "--font-serif",
@@ -38,6 +40,8 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
         </div>
+        <Analytics />
+        <WebVitalsReporter />
       </body>
     </html>
   );
