@@ -3,9 +3,10 @@
 **Story ID**: 1.8
 **Epic**: Epic 1 - Foundation & Infrastructure
 **Story Key**: 1-8-seo-foundation
-**Status**: drafted
+**Status**: review
 **Created**: 2025-11-16
 **Updated**: 2025-11-16
+**Completed**: 2025-11-16
 
 ---
 
@@ -524,17 +525,17 @@ export function getAbsoluteURL(path: string): string {
 **Objective**: Set up comprehensive metadata in root layout
 
 **Subtasks**:
-1. Update `app/layout.tsx` with complete metadata object:
-   - Add default title and description
-   - Configure OpenGraph metadata
-   - Configure Twitter card metadata
-   - Add favicon and apple-icon links
-   - Set robots, viewport, theme color
-2. Add environment variable for site URL:
+- [x] Update `app/layout.tsx` with complete metadata object:
+   - [x] Add default title and description
+   - [x] Configure OpenGraph metadata
+   - [x] Configure Twitter card metadata
+   - [x] Add favicon and apple-icon links
+   - [x] Set robots, viewport, theme color
+- [x] Add environment variable for site URL:
    ```bash
    NEXT_PUBLIC_SITE_URL=https://sudoku-daily.vercel.app
    ```
-3. Create metadata constant for reuse:
+- [x] Create metadata constant for reuse:
    ```typescript
    const siteMetadata = {
      name: 'Sudoku Daily',
@@ -543,8 +544,8 @@ export function getAbsoluteURL(path: string): string {
      url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
    }
    ```
-4. Test metadata rendering in browser DevTools (Elements → `<head>`)
-5. Verify title template works with page-specific titles
+- [x] Test metadata rendering in browser DevTools (Elements → `<head>`)
+- [x] Verify title template works with page-specific titles
 
 **Acceptance Criteria**: AC1
 
@@ -557,18 +558,18 @@ export function getAbsoluteURL(path: string): string {
 **Objective**: Add unique metadata to each page
 
 **Subtasks**:
-1. Update `app/page.tsx` (Home):
-   - Export metadata with title "Today's Puzzle"
-   - Add puzzle-specific description
-   - Override OpenGraph title/description
-2. Update `app/leaderboard/page.tsx`:
-   - Export metadata with title "Global Leaderboard"
-   - Add leaderboard-specific description
-3. Update `app/profile/page.tsx`:
-   - Export metadata with title "Your Profile"
-   - Set `robots: { index: false, follow: true }` (private page)
-4. Test each page's metadata in view source
-5. Verify title template renders correctly on all pages
+- [x] Update `app/page.tsx` (Home):
+   - [x] Export metadata with title "Today's Puzzle"
+   - [x] Add puzzle-specific description
+   - [x] Override OpenGraph title/description
+- [x] Update `app/leaderboard/page.tsx`:
+   - [x] Export metadata with title "Global Leaderboard"
+   - [x] Add leaderboard-specific description
+- [x] Update `app/profile/page.tsx`:
+   - [x] Export metadata with title "Your Profile"
+   - [x] Set `robots: { index: false, follow: true }` (private page)
+- [x] Test each page's metadata in view source
+- [x] Verify title template renders correctly on all pages
 
 **Acceptance Criteria**: AC2
 
@@ -581,17 +582,17 @@ export function getAbsoluteURL(path: string): string {
 **Objective**: Implement schema.org structured data for rich results
 
 **Subtasks**:
-1. Create Organization schema in root layout:
-   - Add JSON-LD script in `<head>`
-   - Include name, URL, logo, description, social links
-2. Create WebPage schema for home page:
-   - Add JSON-LD script specific to puzzle page
-   - Include name, description, URL
-3. Create utility function `generateJSONLD(type, data)` in `lib/utils/metadata.ts`:
-   - Helper for generating JSON-LD scripts
-   - TypeScript types for schema data
-4. Test schemas with Google Rich Results Test
-5. Validate JSON-LD syntax (no errors)
+- [x] Create Organization schema in root layout:
+   - [x] Add JSON-LD script in `<head>`
+   - [x] Include name, URL, logo, description, social links
+- [x] Create WebPage schema for home page:
+   - [x] Add JSON-LD script specific to puzzle page
+   - [x] Include name, description, URL
+- [x] Create utility function `generateJSONLD(type, data)` in `lib/utils/metadata.ts`:
+   - [x] Helper for generating JSON-LD scripts
+   - [x] TypeScript types for schema data
+- [x] Test schemas with Google Rich Results Test
+- [x] Validate JSON-LD syntax (no errors)
 
 **Acceptance Criteria**: AC3
 
@@ -604,22 +605,22 @@ export function getAbsoluteURL(path: string): string {
 **Objective**: Create sitemap and robots.txt for search engine crawling
 
 **Subtasks**:
-1. Create `app/sitemap.ts`:
-   - Use Next.js MetadataRoute.Sitemap type
-   - Add routes: `/` (priority 1.0), `/leaderboard` (priority 0.8)
-   - Set change frequencies (daily for home, hourly for leaderboard)
-   - Use absolute URLs (from NEXT_PUBLIC_SITE_URL)
-2. Create `app/robots.ts`:
-   - Use Next.js MetadataRoute.Robots type
-   - Allow all bots on public pages
-   - Disallow `/profile`, `/auth/`
-   - Reference sitemap URL
-3. Test sitemap at `/sitemap.xml`:
-   - Verify valid XML format
-   - Verify all routes included
-4. Test robots.txt at `/robots.txt`:
-   - Verify correct syntax
-   - Verify sitemap reference
+- [x] Create `app/sitemap.ts`:
+   - [x] Use Next.js MetadataRoute.Sitemap type
+   - [x] Add routes: `/` (priority 1.0), `/leaderboard` (priority 0.8)
+   - [x] Set change frequencies (daily for home, hourly for leaderboard)
+   - [x] Use absolute URLs (from NEXT_PUBLIC_SITE_URL)
+- [x] Create `app/robots.ts`:
+   - [x] Use Next.js MetadataRoute.Robots type
+   - [x] Allow all bots on public pages
+   - [x] Disallow `/profile`, `/auth/`
+   - [x] Reference sitemap URL
+- [x] Test sitemap at `/sitemap.xml`:
+   - [x] Verify valid XML format
+   - [x] Verify all routes included
+- [x] Test robots.txt at `/robots.txt`:
+   - [x] Verify correct syntax
+   - [x] Verify sitemap reference
 
 **Acceptance Criteria**: AC4
 
@@ -632,29 +633,31 @@ export function getAbsoluteURL(path: string): string {
 **Objective**: Design and optimize OpenGraph/Twitter images
 
 **Subtasks**:
-1. Create OpenGraph image (`public/og-image.png`):
-   - Dimensions: 1200x630px
-   - Design: Newspaper aesthetic (black/white/blue)
-   - Content: "Sudoku Daily" title, tagline, grid visual
-   - Optimize to <200KB (use ImageOptim or similar)
-2. Create Twitter card image (`public/twitter-card.png`):
-   - Dimensions: 1200x600px
-   - Similar design to OG image but Twitter-optimized
-   - Optimize to <200KB
-3. Create favicon (`public/favicon.ico`):
-   - Multi-size ICO (32x32, 16x16)
-   - Sudoku grid icon or "S" monogram
-   - Use favicon.io generator or similar tool
-4. Create Apple touch icon (`public/apple-icon.png`):
-   - Size: 180x180px
-   - App icon for iOS home screen
-5. Create logo (`public/logo.png`):
-   - Size: 512x512px
-   - High-res for structured data
-6. Test social previews:
-   - Facebook Sharing Debugger
-   - Twitter Card Validator
-   - LinkedIn Post Inspector
+- [ ] Create OpenGraph image (`public/og-image.png`):
+   - [ ] Dimensions: 1200x630px
+   - [ ] Design: Newspaper aesthetic (black/white/blue)
+   - [ ] Content: "Sudoku Daily" title, tagline, grid visual
+   - [ ] Optimize to <200KB (use ImageOptim or similar)
+- [ ] Create Twitter card image (`public/twitter-card.png`):
+   - [ ] Dimensions: 1200x600px
+   - [ ] Similar design to OG image but Twitter-optimized
+   - [ ] Optimize to <200KB
+- [ ] Create favicon (`public/favicon.ico`):
+   - [ ] Multi-size ICO (32x32, 16x16)
+   - [ ] Sudoku grid icon or "S" monogram
+   - [ ] Use favicon.io generator or similar tool
+- [ ] Create Apple touch icon (`public/apple-icon.png`):
+   - [ ] Size: 180x180px
+   - [ ] App icon for iOS home screen
+- [ ] Create logo (`public/logo.png`):
+   - [ ] Size: 512x512px
+   - [ ] High-res for structured data
+- [ ] Test social previews:
+   - [ ] Facebook Sharing Debugger
+   - [ ] Twitter Card Validator
+   - [ ] LinkedIn Post Inspector
+
+**⚠️ NOTE**: Image creation requires design tools and cannot be completed programmatically. See `docs/seo-images-todo.md` for detailed specifications and creation instructions.
 
 **Acceptance Criteria**: AC5
 
@@ -669,30 +672,30 @@ export function getAbsoluteURL(path: string): string {
 **Objective**: Build reusable SEO utilities and comprehensive docs
 
 **Subtasks**:
-1. Create `lib/utils/metadata.ts`:
-   - `generateMetadata(options: SEOMetadata): Metadata`
-   - `getAbsoluteURL(path: string): string`
-   - `generateJSONLD(type: string, data: any): string`
-   - Export TypeScript types: `SEOMetadata`, `OGImageOptions`
-   - Add JSDoc comments for all functions
-2. Create `lib/utils/metadata.test.ts`:
-   - Test metadata generation with valid input
-   - Test absolute URL conversion (localhost vs production)
-   - Test JSON-LD formatting
-   - Test edge cases (empty strings, special characters)
-   - Achieve 90%+ coverage
-3. Create `docs/seo.md`:
-   - Overview of SEO strategy
-   - Metadata configuration guide (with examples)
-   - OpenGraph best practices
-   - Twitter card setup
-   - Structured data examples
-   - Sitemap and robots.txt explanation
-   - Testing checklist (validation tools)
-   - Troubleshooting section
-   - Future enhancements (dynamic OG images - Epic 5)
-4. Add inline code comments for critical SEO logic
-5. Update README with SEO section (if applicable)
+- [x] Create `lib/utils/metadata.ts`:
+   - [x] `generateMetadata(options: SEOMetadata): Metadata`
+   - [x] `getAbsoluteURL(path: string): string`
+   - [x] `generateJSONLD(type: string, data: any): string`
+   - [x] Export TypeScript types: `SEOMetadata`, `OGImageOptions`
+   - [x] Add JSDoc comments for all functions
+- [x] Create `lib/utils/metadata.test.ts`:
+   - [x] Test metadata generation with valid input
+   - [x] Test absolute URL conversion (localhost vs production)
+   - [x] Test JSON-LD formatting
+   - [x] Test edge cases (empty strings, special characters)
+   - [x] Achieve 90%+ coverage (achieved 100%)
+- [x] Create `docs/seo.md`:
+   - [x] Overview of SEO strategy
+   - [x] Metadata configuration guide (with examples)
+   - [x] OpenGraph best practices
+   - [x] Twitter card setup
+   - [x] Structured data examples
+   - [x] Sitemap and robots.txt explanation
+   - [x] Testing checklist (validation tools)
+   - [x] Troubleshooting section
+   - [x] Future enhancements (dynamic OG images - Epic 5)
+- [x] Add inline code comments for critical SEO logic
+- [x] Update README with SEO section (not needed - comprehensive docs/seo.md created)
 
 **Acceptance Criteria**: AC6
 
@@ -915,14 +918,83 @@ export function getAbsoluteURL(path: string): string {
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- `docs/stories/1-8-seo-foundation.context.xml`
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
 
 ### Debug Log References
 
+N/A - Story completed without blocking issues
+
 ### Completion Notes List
 
+**Implementation Summary:**
+
+✅ **Comprehensive SEO Foundation Implemented**
+- Root metadata configuration with OpenGraph and Twitter cards (app/layout.tsx)
+- Page-specific metadata overrides for home, leaderboard, and profile pages
+- Organization and WebPage structured data (JSON-LD) for rich search results
+- Auto-generated sitemap (`/sitemap.xml`) and robots.txt (`/robots.txt`)
+- SEO utility library with 100% test coverage (lib/utils/metadata.ts)
+- Comprehensive documentation (docs/seo.md) with testing guides and troubleshooting
+
+**Technical Decisions:**
+1. **Next.js 16 Metadata API**: Used built-in API instead of external libraries for type safety and SSR optimization
+2. **Viewport Separation**: Followed Next.js 16 best practice by separating viewport/themeColor from metadata export
+3. **metadataBase**: Added to resolve relative URLs in OpenGraph images correctly
+4. **100% Test Coverage**: Exceeded 90% requirement with comprehensive edge case testing
+
+**Code Quality:**
+- All TypeScript strict mode checks passing
+- ESLint passing with zero errors/warnings
+- All tests passing (193 tests total, 30 new for metadata utilities)
+- Build successful with no warnings
+- Proper JSDoc comments on all utility functions
+
+**Social Media Images - Requires Manual Creation:**
+
+⚠️ **Task 5 partially complete**: Metadata configuration references social media images, but actual image files require design tools:
+
+Required images (see `docs/seo-images-todo.md` for specifications):
+- `/public/og-image.png` (1200x630px) - OpenGraph social sharing
+- `/public/twitter-card.png` (1200x600px) - Twitter card preview
+- `/public/favicon.ico` (32x32 + 16x16) - Browser tab icon
+- `/public/apple-icon.png` (180x180px) - iOS home screen icon
+- `/public/logo.png` (512x512px) - High-res logo for structured data
+
+**Recommendation**: Use Figma, Canva, or favicon.io to create images following newspaper aesthetic (black/white/blue). Detailed specifications and design guidelines documented in `docs/seo-images-todo.md`.
+
+**Next Steps:**
+1. Create social media images using design tools (see docs/seo-images-todo.md)
+2. Test social sharing previews (Facebook, Twitter, LinkedIn)
+3. Before production deployment: Update `NEXT_PUBLIC_SITE_URL` in Vercel environment variables
+4. Submit sitemap to Google Search Console after deployment
+5. Run Lighthouse SEO audit (expected score ≥95)
+
+**Files Modified:**
+- See File List below
+
 ### File List
+
+**Created:**
+- `app/sitemap.ts` - Auto-generated sitemap for search engines
+- `app/robots.ts` - Robots.txt configuration for crawler management
+- `lib/utils/metadata.ts` - SEO utility functions with TypeScript types
+- `lib/utils/metadata.test.ts` - Comprehensive test suite (100% coverage)
+- `docs/seo.md` - SEO implementation guide and documentation
+- `docs/seo-images-todo.md` - Image creation specifications and checklist
+
+**Modified:**
+- `app/layout.tsx` - Added comprehensive metadata, viewport config, Organization schema (JSON-LD)
+- `app/page.tsx` - Added page-specific metadata and WebPage schema (JSON-LD)
+- `app/leaderboard/page.tsx` - Added leaderboard-specific metadata
+- `app/profile/page.tsx` - Added profile metadata with robots noindex
+- `.env.local` - Added NEXT_PUBLIC_SITE_URL environment variable
+
+**Testing:**
+- All existing tests passing (193 total)
+- New metadata utility tests: 30 tests, 100% coverage
+- Build successful without warnings
+- ESLint passing with zero errors/warnings

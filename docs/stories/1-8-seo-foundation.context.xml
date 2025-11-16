@@ -1,0 +1,339 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>8</storyId>
+    <title>SEO Foundation</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-8-seo-foundation.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>product owner and content creator</asA>
+    <iWant>comprehensive SEO foundations with metadata, structured data, and social sharing optimization</iWant>
+    <soThat>Sudoku Daily appears professionally in search results and social shares, driving organic discovery and establishing credibility</soThat>
+    <tasks>
+### Task 1: Configure Root Metadata
+- Update app/layout.tsx with complete metadata object (default title, description, OpenGraph, Twitter card)
+- Add NEXT_PUBLIC_SITE_URL environment variable
+- Create metadata constant for reuse
+- Test metadata rendering in browser DevTools
+- Verify title template works with page-specific titles
+
+### Task 2: Implement Page-Specific Metadata
+- Update app/page.tsx (Home) with puzzle-specific metadata
+- Update app/leaderboard/page.tsx with leaderboard metadata
+- Update app/profile/page.tsx with private page settings (noindex)
+- Test each page's metadata in view source
+- Verify title template renders correctly on all pages
+
+### Task 3: Add Structured Data (JSON-LD)
+- Create Organization schema in root layout
+- Create WebPage schema for home page
+- Create utility function generateJSONLD(type, data)
+- Test schemas with Google Rich Results Test
+- Validate JSON-LD syntax (no errors)
+
+### Task 4: Generate Sitemap & Robots.txt
+- Create app/sitemap.ts with public routes
+- Create app/robots.ts with crawl rules
+- Test sitemap at /sitemap.xml (valid XML)
+- Test robots.txt at /robots.txt (correct syntax)
+
+### Task 5: Create Social Media Images
+- Create OpenGraph image (1200x630px, newspaper aesthetic)
+- Create Twitter card image (1200x600px)
+- Create favicon (32x32, 16x16 ICO)
+- Create Apple touch icon (180x180px)
+- Create high-res logo (512x512px)
+- Test social previews (Facebook, Twitter, LinkedIn)
+
+### Task 6: Create SEO Utilities & Documentation
+- Create lib/utils/metadata.ts with helper functions
+- Create lib/utils/metadata.test.ts with 90%+ coverage
+- Create docs/seo.md with comprehensive guide
+- Add inline code comments
+- Update README with SEO section
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+### AC1: Root Metadata Configuration
+- Default metadata object in app/layout.tsx with title, description, keywords, authors, robots, viewport, theme color
+- OpenGraph metadata configured (type, locale, url, siteName, title, description, images)
+- Twitter card metadata configured (card, site, creator, title, description, images)
+- Favicon and apple-icon links configured
+- Verification meta tags (Google Search Console)
+- Lighthouse SEO audit score ≥95
+
+### AC2: Page-Specific Metadata Overrides
+- app/page.tsx: "Today's Puzzle" with puzzle-specific description
+- app/leaderboard/page.tsx: "Global Leaderboard" with leaderboard description
+- app/profile/page.tsx: "Your Profile" with robots noindex
+- All pages use title template correctly
+- Page-specific OpenGraph images (if applicable)
+
+### AC3: Structured Data (JSON-LD)
+- Organization schema in root layout (name, url, logo, description, sameAs)
+- WebPage schema on home page (name, description, url)
+- JSON-LD script injected in head using Next.js Script component
+- Schema validates with Google Rich Results Test
+- No schema.org validation errors
+
+### AC4: Sitemap & Robots.txt
+- app/sitemap.ts with public routes (/, /leaderboard) with priorities and change frequencies
+- app/robots.ts allowing public pages, disallowing /profile and /auth/
+- Sitemap accessible at /sitemap.xml (valid XML)
+- Robots.txt accessible at /robots.txt with sitemap reference
+
+### AC5: OpenGraph & Social Media Images
+- Static OpenGraph image (1200x630px, newspaper aesthetic, <200KB)
+- Twitter card image (1200x600px, <200KB)
+- Favicon (32x32 + 16x16 multi-size ICO)
+- Apple touch icon (180x180px)
+- Logo (512x512px for structured data)
+- All images use newspaper aesthetic (black/white/blue)
+- Social sharing preview tests pass
+
+### AC6: SEO Utilities & Documentation
+- lib/utils/metadata.ts with helper functions (generateMetadata, getAbsoluteURL, generateJSONLD)
+- TypeScript types exported (SEOMetadata, OGImageOptions)
+- Unit tests with 90%+ coverage
+- JSDoc comments for all functions
+- docs/seo.md with comprehensive guide (overview, examples, testing checklist, troubleshooting)
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>SEO Strategy (lines 240-258)</section>
+        <snippet>Target keywords: "daily sudoku", "sudoku online free", "daily puzzle game". SEO technical requirements include SSR for landing/puzzle pages, dynamic meta tags with OpenGraph for social sharing, fresh daily content, sitemap with daily puzzle URLs, and Schema.org structured data. Expected traffic: 60-70% viral social sharing, 20-25% organic search, 10-15% direct.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR-7: Social Sharing (Primary Growth Engine) (lines 764-855)</section>
+        <snippet>Social sharing is the primary growth engine modeled after Wordle. Requirements include emoji grid generation, share completion modal with preview, one-tap sharing (Twitter, WhatsApp, clipboard), and shareable links with social meta tags. Priority: 2 (MVP requirement).</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>SEO & Social Sharing (lines 1835-1968)</section>
+        <snippet>Next.js Metadata API provides built-in metadata generation, OpenGraph tags, Twitter cards, and structured data. Root layout (app/layout.tsx) contains default metadata with title, description, metadataBase, openGraph config. Dynamic OpenGraph images planned for Epic 5. Sitemap (app/sitemap.ts) and robots.txt (app/robots.ts) use MetadataRoute types. Social share URLs for Twitter, WhatsApp with dynamic content.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Next.js 16 App Router & Testing Infrastructure (lines 100-200)</section>
+        <snippet>Next.js 16 with React 19, TypeScript strict mode, App Router structure. Root layout (app/layout.tsx) includes HTML meta tags, Google Fonts (Merriweather, Inter), Tailwind CSS. Testing with Jest + React Testing Library, 70% minimum coverage threshold enforced in CI/CD. Test configuration in jest.config.js with coverage collection from lib/** only.</snippet>
+      </doc>
+      <doc>
+        <path>docs/rate-limiting.md</path>
+        <title>Rate Limiting Documentation</title>
+        <section>Documentation Pattern Reference</section>
+        <snippet>Example of comprehensive technical documentation structure: Overview, Architecture, Implementation Guide with code examples, Testing Strategy, Privacy Considerations, Future Enhancements. Use this as template for docs/seo.md.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>app/layout.tsx</path>
+        <kind>layout</kind>
+        <symbol>RootLayout</symbol>
+        <lines>1-49</lines>
+        <reason>Current root layout with basic metadata (title, description only). Need to extend with OpenGraph, Twitter cards, structured data, and complete SEO configuration.</reason>
+      </artifact>
+      <artifact>
+        <path>app/layout.tsx</path>
+        <kind>metadata</kind>
+        <symbol>metadata</symbol>
+        <lines>23-26</lines>
+        <reason>Existing metadata object to be extended with comprehensive SEO fields including OpenGraph, Twitter cards, keywords, authors, robots, viewport, theme color, and favicon configuration.</reason>
+      </artifact>
+      <artifact>
+        <path>app/page.tsx</path>
+        <kind>page</kind>
+        <symbol>Home</symbol>
+        <lines>1-18</lines>
+        <reason>Home page component. Need to add page-specific metadata export with title "Today's Puzzle" and puzzle-specific description using Next.js metadata override pattern.</reason>
+      </artifact>
+      <artifact>
+        <path>jest.config.js</path>
+        <kind>config</kind>
+        <symbol>customJestConfig</symbol>
+        <lines>8-39</lines>
+        <reason>Jest testing configuration with 70% coverage threshold for lib/** files. New SEO utilities (lib/utils/metadata.ts) must follow this pattern and achieve 90%+ coverage per story requirements.</reason>
+      </artifact>
+      <artifact>
+        <path>lib/utils/rate-limit.ts</path>
+        <kind>utility</kind>
+        <symbol>rateLimit</symbol>
+        <lines>1-80</lines>
+        <reason>Example of well-structured utility module with TypeScript types, JSDoc comments, and comprehensive test coverage. Use as pattern for lib/utils/metadata.ts implementation.</reason>
+      </artifact>
+      <artifact>
+        <path>lib/utils/rate-limit.test.ts</path>
+        <kind>test</kind>
+        <symbol>rate-limit tests</symbol>
+        <lines>1-300</lines>
+        <reason>Example of comprehensive Jest test suite with 100% coverage. Use as pattern for lib/utils/metadata.test.ts - tests valid inputs, edge cases, error handling.</reason>
+      </artifact>
+      <artifact>
+        <path>tailwind.config.ts</path>
+        <kind>config</kind>
+        <symbol>config</symbol>
+        <lines>12-19</lines>
+        <reason>Design tokens with newspaper aesthetic colors (black/white/blue). Use these color values for theme-color meta tag and OpenGraph/Twitter card image design (primary: blue accent).</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="next" version="16.0.1">Built-in Metadata API, MetadataRoute types for sitemap/robots</package>
+        <package name="react" version="19.2.0">React 19 for component rendering</package>
+        <package name="next/font/google" version="built-in">Merriweather and Inter fonts already configured</package>
+        <package name="jest" version="30.2.0">Test runner for utility tests</package>
+        <package name="@testing-library/react" version="16.3.0">React component testing utilities</package>
+        <package name="@testing-library/jest-dom" version="6.9.1">Custom Jest matchers for DOM</package>
+      </node>
+      <note>No new dependencies required - all SEO features use Next.js 16 built-in Metadata API</note>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>MUST use Next.js 16 built-in Metadata API (not react-helmet or external libraries)</constraint>
+    <constraint>TypeScript strict mode required for all new code (tsconfig.json strict: true)</constraint>
+    <constraint>ESLint and Prettier must pass with no errors before commit</constraint>
+    <constraint>Utility functions in lib/utils/metadata.ts must achieve 90%+ test coverage (story requirement, higher than default 70%)</constraint>
+    <constraint>All images (OG, Twitter, favicon) must use newspaper aesthetic from design tokens (black/white/blue color palette)</constraint>
+    <constraint>Image optimization: OG/Twitter images must be under 200KB for fast social sharing</constraint>
+    <constraint>Accessibility: Maintain WCAG AA compliance (4.5:1 contrast ratio, semantic HTML)</constraint>
+    <constraint>Environment variable NEXT_PUBLIC_SITE_URL must be configured for absolute URLs (Vercel deployment)</constraint>
+    <constraint>No client-side runtime overhead - metadata generated at build time (SSG) or request time (SSR)</constraint>
+    <constraint>Follow existing code organization pattern: utilities in lib/utils/, tests co-located with .test.ts suffix</constraint>
+    <constraint>Documentation in docs/seo.md must follow rate-limiting.md structure (Overview, Architecture, Implementation Guide, Testing)</constraint>
+    <constraint>Structured data must validate with Google Rich Results Test (no schema.org errors)</constraint>
+    <constraint>Lighthouse SEO audit score must be ≥95 before completion</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>Metadata (from 'next')</name>
+      <kind>TypeScript type</kind>
+      <signature>import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: string | { default: string; template: string },
+  description: string,
+  keywords?: string[],
+  authors?: Array&lt;{ name: string; url?: string }&gt;,
+  creator?: string,
+  publisher?: string,
+  robots?: { index: boolean; follow: boolean },
+  viewport?: { width: string; initialScale: number },
+  themeColor?: string,
+  openGraph?: {
+    type: string,
+    locale: string,
+    url: string,
+    siteName: string,
+    title: string,
+    description: string,
+    images: Array&lt;{ url: string; width: number; height: number; alt: string }&gt;
+  },
+  twitter?: {
+    card: string,
+    site: string,
+    creator: string,
+    title: string,
+    description: string,
+    images: string[]
+  },
+  icons?: {
+    icon: string,
+    apple: Array&lt;{ url: string; sizes: string }&gt;
+  }
+}</signature>
+      <path>app/layout.tsx, app/page.tsx, app/leaderboard/page.tsx, app/profile/page.tsx</path>
+    </interface>
+    <interface>
+      <name>MetadataRoute.Sitemap</name>
+      <kind>TypeScript type</kind>
+      <signature>import { MetadataRoute } from 'next'
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  return [
+    {
+      url: string,           // Absolute URL
+      lastModified: Date,    // Last modified date
+      changeFrequency: 'daily' | 'hourly' | 'weekly' | 'monthly',
+      priority: number       // 0.0 to 1.0
+    }
+  ]
+}</signature>
+      <path>app/sitemap.ts</path>
+    </interface>
+    <interface>
+      <name>MetadataRoute.Robots</name>
+      <kind>TypeScript type</kind>
+      <signature>import { MetadataRoute } from 'next'
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: {
+      userAgent: string,     // '*' for all bots
+      allow: string,         // Allowed paths
+      disallow: string[]     // Disallowed paths array
+    },
+    sitemap: string          // Absolute sitemap URL
+  }
+}</signature>
+      <path>app/robots.ts</path>
+    </interface>
+    <interface>
+      <name>SEOMetadata (custom utility type)</name>
+      <kind>TypeScript interface</kind>
+      <signature>// To be defined in lib/utils/metadata.ts
+export interface SEOMetadata {
+  title: string
+  description: string
+  ogImage?: string
+  twitterCard?: string
+  keywords?: string[]
+  robots?: { index: boolean; follow: boolean }
+}
+
+// Helper functions to create
+export function generateMetadata(options: SEOMetadata): Metadata
+export function getAbsoluteURL(path: string): string
+export function generateJSONLD(type: string, data: any): string</signature>
+      <path>lib/utils/metadata.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Jest 30.2.0 with React Testing Library 16.3.0 configured via jest.config.js. Coverage threshold: 90%+ for lib/utils/metadata.ts (higher than default 70% for utilities). TypeScript test files with .test.ts suffix. Use @testing-library/jest-dom matchers. Follow existing test pattern from lib/utils/rate-limit.test.ts: descriptive test blocks, test valid inputs, edge cases, error handling, and TypeScript type safety. Integration tests should verify metadata renders in HTML head. No snapshot testing for metadata (values change frequently).</standards>
+    <locations>
+      <location>lib/utils/metadata.test.ts - Unit tests for SEO utility functions</location>
+      <location>lib/utils/ - All utility test files co-located with source</location>
+      <location>Coverage reports in coverage/ directory (generated by Jest)</location>
+    </locations>
+    <ideas>
+      <idea ac="AC1">Test generateMetadata() returns valid Metadata object with all required fields (title, description, openGraph, twitter)</idea>
+      <idea ac="AC1">Test getAbsoluteURL() converts relative paths to absolute URLs using NEXT_PUBLIC_SITE_URL env var</idea>
+      <idea ac="AC1">Test getAbsoluteURL() handles localhost fallback when env var not set (development mode)</idea>
+      <idea ac="AC2">Test metadata title template renders correctly (e.g., "Page Title | Sudoku Daily")</idea>
+      <idea ac="AC3">Test generateJSONLD() creates valid JSON-LD schema (Organization, WebPage types)</idea>
+      <idea ac="AC3">Test JSON-LD output escapes special characters properly (prevents XSS)</idea>
+      <idea ac="AC4">Integration test: verify sitemap.xml returns valid XML with correct routes and priorities</idea>
+      <idea ac="AC4">Integration test: verify robots.txt content matches expected format and includes sitemap reference</idea>
+      <idea ac="AC5">Test image path validation (OG/Twitter images must exist in public/ directory)</idea>
+      <idea ac="AC6">Test edge cases: empty strings, special characters in titles/descriptions, missing optional fields</idea>
+      <idea ac="DoD">Manual test: Lighthouse SEO audit score ≥95 in CI/CD or local build</idea>
+      <idea ac="DoD">Manual test: Facebook Sharing Debugger shows correct preview with OG image</idea>
+      <idea ac="DoD">Manual test: Twitter Card Validator shows correct preview with Twitter card image</idea>
+      <idea ac="DoD">Manual test: Google Rich Results Test validates structured data with no errors</idea>
+    </ideas>
+  </tests>
+</story-context>

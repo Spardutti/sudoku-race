@@ -1,3 +1,19 @@
+import type { Metadata } from "next";
+import { generateMetadata } from "@/lib/utils/metadata";
+
+/**
+ * Leaderboard Page Metadata
+ * SEO optimized for competitive ranking queries
+ */
+export const metadata: Metadata = generateMetadata({
+  title: "Global Leaderboard",
+  description:
+    "Top Sudoku solvers worldwide. See the fastest completion times and compete for your rank on the daily leaderboard.",
+  canonicalPath: "/leaderboard",
+  ogImage: "/og-image.png",
+  twitterCard: "/twitter-card.png",
+});
+
 export default function LeaderboardPage() {
   return (
     <div className="flex items-center justify-center px-4 py-16">
