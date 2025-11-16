@@ -123,14 +123,75 @@ Create → Test Locally → Review → Deploy to Production
 - `npm run db:push` - Deploy migrations to production
 - `npm run migration:new` - Create new migration file
 
+**Puzzle Management:**
+- `npm run puzzle:seed` - Generate and seed today's daily puzzle
+
+### Daily Puzzle Seeding
+
+The application requires daily Sudoku puzzles to be seeded into the database. Use the puzzle seed script to generate and store puzzles.
+
+#### Quick Start
+
+```bash
+# Add service role key to .env.local (one-time setup)
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+
+# Seed today's puzzle
+npm run puzzle:seed
+```
+
+#### Expected Output
+
+```
+🎲 Generating daily Sudoku puzzle...
+
+✅ Valid puzzle generated with unique solution
+📅 Puzzle date: 2025-11-16
+🧩 Difficulty: medium
+📊 Empty cells: 52
+
+✅ Puzzle successfully inserted into database
+   ID: 550e8400-e29b-41d4-a716-446655440000
+   Date: 2025-11-16
+   Difficulty: medium
+```
+
+#### Troubleshooting
+
+**Error: Missing Supabase environment variables**
+- Ensure `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are set in `.env.local`
+- Get the service role key from: Supabase Dashboard → Project Settings → API → service_role key
+
+**Warning: Puzzle for today already exists**
+- This is expected if you've already seeded today's puzzle
+- The script gracefully exits without error
+- To seed a different date, you'll need to manually modify the script (future enhancement)
+
+**Error: Row-level security policy violation**
+- Verify you're using the `SUPABASE_SERVICE_ROLE_KEY`, not the anon key
+- The service role key bypasses RLS (required for inserting puzzles)
+
+#### Production Deployment
+
+For MVP, puzzles are seeded manually. Future enhancements will add automated daily seeding via Vercel cron jobs.
+
+```bash
+# Manual seeding workflow (run daily at 00:00 UTC)
+npm run puzzle:seed
+```
+
 ## Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Yes |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (client-side) | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-side only, for puzzle seeding) | Yes* |
 
-**Security Note:** Never commit `.env.local` to version control. The `.env*` pattern is included in `.gitignore`.
+**Required for:**
+- `*` Service role key is required for puzzle seeding (`npm run puzzle:seed`). Not needed for running the application.
+
+**Security Note:** Never commit `.env.local` to version control. The `.env*` pattern is included in `.gitignore`. The service role key bypasses Row Level Security - keep it secret and never expose it to the client.
 
 ## Project Structure
 

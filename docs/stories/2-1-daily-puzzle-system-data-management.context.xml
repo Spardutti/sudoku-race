@@ -1,0 +1,334 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>1</storyId>
+    <title>Daily Puzzle System & Data Management</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/2-1-daily-puzzle-system-data-management.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>system administrator</asA>
+    <iWant>a daily puzzle generation and delivery system</iWant>
+    <soThat>all users globally receive the same medium-difficulty puzzle each day at midnight UTC</soThat>
+    <tasks>
+Task 1: Install sudoku-core Library
+- Install sudoku-core@3.0.3 package
+- Verify TypeScript types available
+- Test basic usage in Node.js environment
+- Estimated: 10 minutes
+
+Task 2: Create Puzzle Generation Script
+- Create scripts/seed-puzzle.ts
+- Implement puzzle generation with sudoku-core (medium difficulty)
+- Extract puzzle_data (9x9 array with 0s for empty cells)
+- Extract solution (complete 9x9 solution)
+- Implement database insertion using createServerClient()
+- Calculate UTC date and handle unique constraint on puzzle_date
+- Estimated: 1 hour
+
+Task 3: Add NPM Script for Puzzle Seeding
+- Add "puzzle:seed" script to package.json
+- Install tsx dev dependency if needed
+- Test command execution
+- Document usage in README.md
+- Estimated: 15 minutes
+
+Task 4: Create Server Action - getPuzzleToday
+- Create actions/puzzle.ts with 'use server' directive
+- Implement getPuzzleToday() to fetch today's puzzle by UTC date
+- Define Puzzle TypeScript type
+- CRITICAL: DO NOT select solution field in query
+- Add error handling for missing puzzles
+- Estimated: 45 minutes
+
+Task 5: Create Server Action - validatePuzzle
+- Add validatePuzzle() to actions/puzzle.ts
+- Accept puzzleId and user solution as parameters
+- Fetch stored solution from database (server-side only)
+- Validate grid structure (9x9, all filled, 1-9 only)
+- Compare user solution with stored solution (deep equality)
+- Return Result&lt;{ correct: boolean }, string&gt;
+- Estimated: 1 hour
+
+Task 6: Seed Test Puzzles
+- Run seed script 7 times for consecutive dates
+- Verify puzzles inserted into database
+- Test getPuzzleToday() with seeded data
+- Document seeded dates
+- Estimated: 30 minutes
+
+Task 7: Write Unit Tests
+- Create actions/puzzle.test.ts
+- Test getPuzzleToday() (successful fetch, not found error, solution field exclusion)
+- Test validatePuzzle() (correct/incorrect solutions, invalid grids, errors)
+- Test grid validation helper
+- Achieve ≥90% coverage for validation logic
+- Estimated: 1.5 hours
+
+Task 8: Documentation
+- Update README.md with Puzzle Seeding section
+- Add inline code comments (UTC handling, security implications)
+- Update docs/database-migrations.md if needed
+- Document server action usage patterns
+- Estimated: 30 minutes
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+AC1: Puzzle Generation Script
+Given the Supabase database is configured
+When the puzzle seed script is executed
+Then:
+- Script file created: scripts/seed-puzzle.ts
+- Uses sudoku-core library for puzzle generation
+- Generates valid Sudoku puzzle with unique solution
+- Difficulty set to "medium" (hardcoded for MVP)
+- Puzzle stored in puzzles table with puzzle_date (UTC YYYY-MM-DD), puzzle_data (9x9 array), solution (9x9 array), difficulty
+- Script runnable via: npm run puzzle:seed
+- Script validates puzzle has unique solution before inserting
+- Script handles duplicate date gracefully (unique constraint)
+
+Validation:
+- Run npm run puzzle:seed and verify puzzle inserted
+- Verify puzzle_date is today's UTC date
+- Confirm solution field populated but never returned by API
+- Test duplicate prevention
+
+AC2: Puzzle Retrieval API (getPuzzleToday)
+Given puzzles exist in database
+When getPuzzleToday() server action is called
+Then:
+- Server action created: actions/puzzle.ts - getPuzzleToday()
+- Fetches puzzle where puzzle_date = today (UTC)
+- Returns type-safe puzzle object: { id, puzzle_date, puzzle_data, difficulty }
+- NEVER returns solution field (security - server-side only)
+- Throws error if no puzzle found for today
+- Uses createServerClient() for database access
+- UTC date calculation consistent: new Date().toISOString().split('T')[0]
+
+Validation:
+- Call getPuzzleToday() and verify puzzle returned
+- Confirm solution field NOT in response
+- Test error handling (missing puzzle)
+- Verify UTC date handling across timezone boundaries
+
+AC3: Solution Validation API (validatePuzzle)
+Given a user submits a completed puzzle
+When validatePuzzle() server action is called
+Then:
+- Server action created: actions/puzzle.ts - validatePuzzle()
+- Accepts: puzzleId (string), solution (number[][])
+- Returns Result&lt;{ correct: boolean }, string&gt; type
+- Fetches stored solution from database (server-side only)
+- Compares user solution against stored solution (deep equality)
+- Returns { success: true, data: { correct: true } } if match
+- Returns { success: true, data: { correct: false } } if mismatch
+- Does NOT reveal correct answer if wrong
+- Validates grid structure: 9x9 array, all cells filled, values 1-9 only
+- Rate limiting applied: max 100 attempts per hour per user
+
+Validation:
+- Test correct solution (returns correct: true)
+- Test incorrect solution (returns correct: false)
+- Test invalid grid structure (returns error)
+- Verify solution never exposed in response
+- Test rate limiting (defer full implementation to Story 4.3)
+
+AC4: Test Data Seeded
+Given the seed script is functional
+When test puzzles are seeded
+Then:
+- At least 7 puzzles pre-seeded in database
+- Puzzles span consecutive dates for multi-day testing
+- Each puzzle has valid solution (verified by sudoku-core)
+- Seeding documented in README or docs/database-migrations.md
+- Seed script can be re-run without errors (idempotent or handles duplicates)
+
+Validation:
+- Query puzzles table, verify ≥7 records
+- Verify consecutive dates
+- Test getPuzzleToday() with seeded data
+- Verify documentation includes seeding instructions
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="Section 2.1: Daily Puzzle Service Module">
+        Defines the puzzle generation script at scripts/seed-puzzle.ts using sudoku-core library. Script generates medium-difficulty puzzles, validates unique solutions, and inserts into puzzles table with UTC date. Runnable via npm run seed:puzzle. Deployment: Manual execution for MVP, future Vercel cron at 00:00 UTC.
+      </doc>
+      <doc path="docs/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="Section 2.2: Puzzle Retrieval Service">
+        Defines getPuzzleToday() server action in actions/puzzle.ts. Fetches puzzle where puzzle_date = today (UTC). Returns id, puzzle_date, puzzle_data, difficulty. CRITICAL: Never returns solution field (security). Throws error if no puzzle found.
+      </doc>
+      <doc path="docs/tech-spec-epic-2.md" title="Epic 2 Technical Specification" section="Section 2.8: Solution Validation Service">
+        Defines validatePuzzle() server action. Server-side only validation comparing user solution against stored solution field. Returns Result&lt;{ correct: boolean }&gt;. No client-side validation during solving (pure challenge approach). Unlimited attempts allowed.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Document" section="Server Action Pattern">
+        All Server Actions must return Result&lt;T, E&gt; type for consistent error handling. Use createServerClient() for database access. Always use getUser() not getSession() in Server Components for auth validation (prevents spoofing). Mark functions with 'use server' directive.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Document" section="Database Layer">
+        Puzzles table created in Epic 1.2. Fields: id (UUID), puzzle_date (DATE, UNIQUE), puzzle_data (JSONB 9x9 array), solution (JSONB 9x9 array), difficulty (TEXT). Index on puzzle_date DESC for efficient daily lookups. Solution field never exposed to client.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Document" section="Error Handling Strategy">
+        Use Result&lt;T, E&gt; type pattern for all Server Actions. Error categories: User Errors (encouraging), Network Errors (retry-focused), Server Errors (generic, never expose stack traces). Structured logging with logger.info(), logger.error(). Never log PII.
+      </doc>
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="MVP Core Daily Puzzle Experience">
+        One medium-difficulty Sudoku puzzle per day (UTC-based, same puzzle globally). Timer starts when puzzle loads, stops on completion. Basic conflict validation on submit. NO hints, NO auto-fill, NO helpers (core differentiator). Pure competitive integrity.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="lib/types/result.ts" kind="type definition" symbol="Result&lt;T, E&gt;" reason="Required type for all Server Action return values. Story must use this for getPuzzleToday(), validatePuzzle() return types.">
+        Discriminated union type for type-safe error handling. Success&lt;T&gt; | Failure&lt;E&gt;. Includes helper functions: isSuccess(), isFailure(), unwrap(), unwrapOr(). All Server Actions MUST return this type.
+      </artifact>
+      <artifact path="lib/supabase.ts" kind="client" symbol="supabase" reason="Existing Supabase client. NOTE: Architecture requires createServerClient() for Server Actions (not this browser client).">
+        Browser Supabase client using createClient(). For Server Actions, must use createServerClient() from @supabase/ssr package with cookies() from next/headers (see architecture.md Server Action Pattern).
+      </artifact>
+      <artifact path="lib/utils/logger.ts" kind="utility" symbol="logger" reason="Structured logging required for all Server Actions. Use logger.info() for events, logger.error() for failures.">
+        Provides logger.info(), logger.warn(), logger.error() with structured JSON logging. Auto-sanitizes PII. Integrates with Sentry for error tracking. Never log email, IP, or passwords.
+      </artifact>
+      <artifact path="lib/constants/errors.ts" kind="constants" symbol="USER_ERRORS, SERVER_ERRORS" reason="Error message constants for consistent, encouraging user feedback.">
+        Error categories: USER_ERRORS (encouraging), NETWORK_ERRORS (retry-focused), SERVER_ERRORS (generic). Use USER_ERRORS.INCORRECT_SOLUTION for validation failures.
+      </artifact>
+      <artifact path="supabase/migrations/001_initial_schema.sql" kind="database schema" symbol="puzzles table" lines="20-29" reason="Database table already exists from Story 1.2. Story 2.1 populates this table.">
+        Puzzles table structure: id (UUID), puzzle_date (DATE UNIQUE), puzzle_data (JSONB 9x9 array), solution (JSONB 9x9 array), difficulty (TEXT), created_at (TIMESTAMPTZ). Index on puzzle_date DESC. Solution field NEVER exposed to client.
+      </artifact>
+      <artifact path="actions/puzzle.ts" kind="server action" symbol="completePuzzle" lines="1-256" reason="Existing Server Action for puzzle completion. Story 2.1 adds getPuzzleToday() and validatePuzzle() to this file.">
+        Existing completePuzzle() action with rate limiting, duplicate submission prevention, and structured logging. Story 2.1 creates getPuzzleToday() and validatePuzzle() in same file following same patterns.
+      </artifact>
+      <artifact path="package.json" kind="dependency manifest" symbol="dependencies, scripts" reason="Existing npm scripts and dependencies. Story 2.1 adds sudoku-core and puzzle:seed script.">
+        Has tsx dev dependency for running TypeScript scripts. Has jest and @testing-library for testing. Needs to add: sudoku-core@3.0.3 dependency and puzzle:seed script.
+      </artifact>
+    </code>
+    <dependencies>
+      <dependency name="sudoku-core" version="3.0.3" kind="npm production" reason="Puzzle generation library with TypeScript types, difficulty levels, and solution validation">
+        TypeScript-native Sudoku puzzle generator. Provides puzzle generation, validation, and difficulty analysis. Required for Task 1 (Install library) and Task 2 (Puzzle generation script).
+        Installation: npm install sudoku-core@3.0.3
+        Usage: import { Sudoku } from 'sudoku-core'
+        Doc: https://www.npmjs.com/package/sudoku-core
+      </dependency>
+      <dependency name="@supabase/ssr" version="latest" kind="npm production" reason="Server-Side Rendering package for Next.js Server Actions with createServerClient()">
+        Provides createServerClient() function for Server Actions. Required per architecture.md Server Action Pattern. Replaces browser client (lib/supabase.ts) for server-side operations.
+        Installation: npm install @supabase/ssr
+        Usage: import { createServerClient } from '@supabase/ssr'; import { cookies } from 'next/headers'
+        CRITICAL: Use this for getPuzzleToday() and validatePuzzle() Server Actions
+        Doc: https://supabase.com/docs/guides/auth/server-side/nextjs
+      </dependency>
+      <dependency name="tsx" version="^4.20.6" kind="npm dev (already installed)" reason="TypeScript execution for seed-puzzle.ts script">
+        Already installed as dev dependency. Required to run scripts/seed-puzzle.ts via npm run puzzle:seed.
+        No installation needed - already in package.json devDependencies.
+      </dependency>
+      <dependency name="jest + @testing-library" version="already installed" kind="npm dev (already installed)" reason="Testing framework for unit tests">
+        Already installed. Required for Task 7 (Write Unit Tests) to test getPuzzleToday() and validatePuzzle().
+        No installation needed - already in package.json devDependencies.
+      </dependency>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    1. Server Action Pattern (architecture.md):
+       - All Server Actions MUST return Result&lt;T, E&gt; type
+       - Mark functions with 'use server' directive at top of file
+       - Use createServerClient() from @supabase/ssr (NOT lib/supabase.ts browser client)
+       - Always use getUser() not getSession() for auth (prevents spoofing)
+
+    2. Security Constraints (architecture.md, tech-spec-epic-2.md):
+       - NEVER return solution field to client (server-side only validation)
+       - Solution field must NEVER appear in SELECT queries for client
+       - Server-side validation only (no client-side solution checking)
+
+    3. Error Handling (architecture.md):
+       - Use Result&lt;T, E&gt; pattern (no throwing exceptions across boundary)
+       - Use USER_ERRORS for encouraging messages ("Not quite right. Keep trying!")
+       - Use SERVER_ERRORS for generic failures (never expose stack traces)
+       - Use structured logging with logger.info() and logger.error()
+       - Never log PII (email, IP addresses, passwords)
+
+    4. Database Constraints (001_initial_schema.sql):
+       - puzzle_date has UNIQUE constraint (prevents duplicate dates)
+       - Must handle duplicate date errors gracefully
+       - Use UTC dates for puzzle rotation (new Date().toISOString().split('T')[0])
+
+    5. Testing Requirements (architecture.md, story DoD):
+       - Unit tests for getPuzzleToday() and validatePuzzle()
+       - Test coverage ≥90% for validation logic (critical path)
+       - Test: correct solution, incorrect solution, invalid grid, missing puzzle
+       - Test: duplicate date handling, UTC date edge cases
+
+    6. Development Patterns (architecture.md):
+       - Follow Single Responsibility Principle (one function, one job)
+       - Use TypeScript strict mode (no 'any' types)
+       - Add JSDoc comments for all functions
+       - Project-relative paths only (strip /home/spardutti/Projects/sudoku-race prefix)
+  </constraints>
+  <interfaces>
+    <interface name="Result&lt;T, E&gt;" kind="type definition" signature="type Result&lt;T, E&gt; = Success&lt;T&gt; | Failure&lt;E&gt;" path="lib/types/result.ts">
+      Required return type for all Server Actions. Success: { success: true; data: T }. Failure: { success: false; error: E }. Enables type-safe error handling across client/server boundary.
+    </interface>
+    <interface name="Supabase createServerClient()" kind="database client" signature="createServerClient(url, key, { cookies })" path="@supabase/ssr package">
+      CRITICAL: Use this for Server Actions, NOT lib/supabase.ts browser client. Requires cookies() from next/headers. See architecture.md Server Action Pattern.
+    </interface>
+    <interface name="logger" kind="utility" signature="logger.info(message, context?), logger.error(message, error, context?)" path="lib/utils/logger.ts">
+      Structured logging with JSON output. Auto-integrates with Sentry. Never log PII (email, IP, passwords). Use for all Server Action events and errors.
+    </interface>
+    <interface name="Puzzles table" kind="database table" signature="id, puzzle_date (UNIQUE), puzzle_data, solution, difficulty, created_at" path="supabase/migrations/001_initial_schema.sql">
+      Database table for daily puzzles. Unique constraint on puzzle_date prevents duplicate dates. Index on puzzle_date DESC for efficient queries. Solution field server-only.
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+Framework: Jest + @testing-library/react
+Coverage Target: ≥90% for validation logic (critical path per architecture.md)
+File Naming: Co-located with source files (.test.ts suffix)
+Test Organization: Describe blocks per function, it blocks per test case
+Mocking Strategy: Mock Supabase client, use test fixtures for puzzle data
+    </standards>
+    <locations>
+actions/puzzle.test.ts - Unit tests for getPuzzleToday(), validatePuzzle() Server Actions
+scripts/seed-puzzle.test.ts (optional) - Integration test for puzzle generation script
+    </locations>
+    <ideas>
+getPuzzleToday() Tests:
+- ✅ Successfully fetches today's puzzle (UTC date match)
+- ✅ Returns puzzle with correct structure (id, puzzle_date, puzzle_data, difficulty)
+- ✅ NEVER returns solution field (security critical)
+- ✅ Throws error if no puzzle found for today
+- ✅ Handles database connection errors gracefully
+- ✅ Correctly calculates UTC date (test timezone edge cases)
+- ✅ Returns most recent puzzle when multiple exist (index test)
+
+validatePuzzle() Tests:
+- ✅ Correct solution returns { success: true, data: { correct: true } }
+- ✅ Incorrect solution returns { success: true, data: { correct: false } }
+- ✅ Does NOT reveal correct answer when solution is wrong
+- ✅ Invalid grid structure (not 9x9) returns error
+- ✅ Grid with non-numeric values returns error
+- ✅ Grid with values outside 1-9 range returns error
+- ✅ Grid with empty cells returns error (must be complete)
+- ✅ Solution field never exposed in response
+- ✅ Database errors return generic error message (no stack trace)
+- ✅ Handles missing puzzle gracefully
+
+Grid Validation Helper Tests:
+- ✅ Validates 9x9 array structure
+- ✅ Validates all cells filled (no 0s or nulls)
+- ✅ Validates all values 1-9 only
+- ✅ Rejects invalid dimensions (8x9, 9x10, etc.)
+- ✅ Rejects partial grids (some rows missing)
+
+Puzzle Generation Script Tests (integration):
+- ✅ Generates valid medium-difficulty puzzle
+- ✅ Puzzle has unique solution (verified by sudoku-core)
+- ✅ Inserts puzzle into database with UTC date
+- ✅ Handles duplicate date error gracefully (UNIQUE constraint)
+- ✅ Script runnable via npm run puzzle:seed
+
+Edge Cases:
+- ✅ UTC date boundary (23:59:59 → 00:00:00)
+- ✅ Leap year date handling
+- ✅ Multiple calls to getPuzzleToday() return same puzzle (caching/consistency)
+- ✅ Deep equality check for solution comparison (not reference equality)
+    </ideas>
+  </tests>
+</story-context>
