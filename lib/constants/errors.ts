@@ -122,6 +122,17 @@ export const VALIDATION_ERRORS = {
 } as const;
 
 /**
+ * Abuse Prevention Error Messages
+ *
+ * Messages for rate limiting and abuse detection.
+ * These errors prevent malicious actors from gaming the system.
+ */
+export const ABUSE_ERRORS = {
+  RATE_LIMIT_EXCEEDED: "Too many attempts. Please try again later.",
+  DUPLICATE_SUBMISSION: "You've already submitted a solution for this puzzle.",
+} as const;
+
+/**
  * Get user-friendly error message by category
  *
  * @param category - Error category

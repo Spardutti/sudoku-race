@@ -1,0 +1,474 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.7</storyId>
+    <title>Rate Limiting & Abuse Prevention</title>
+    <status>draft</status>
+    <generatedAt>2025-11-16</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-7-rate-limiting-implementation.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>system administrator and product owner</asA>
+    <iWant>comprehensive rate limiting and abuse prevention mechanisms</iWant>
+    <soThat>the platform remains stable, fair, and protected against malicious actors attempting to cheat, spam, or overload the system</soThat>
+    <tasks>
+      <task id="1" title="Implement LRU Cache Rate Limiter Utility">
+        <objective>Create reusable rate limiting utility using LRU Cache</objective>
+        <subtasks>
+          <subtask>Install lru-cache dependency</subtask>
+          <subtask>Create lib/utils/rate-limit.ts with RateLimitOptions type and rateLimit() function</subtask>
+          <subtask>Implement LRU Cache with TTL and check(limit, token) method</subtask>
+          <subtask>Create lib/utils/rate-limit.test.ts with 90%+ coverage</subtask>
+          <subtask>Add ABUSE_ERRORS constants to lib/constants/errors.ts</subtask>
+        </subtasks>
+        <estimatedEffort>2-3 hours</estimatedEffort>
+        <acceptanceCriteria>AC1</acceptanceCriteria>
+      </task>
+
+      <task id="2" title="Implement Puzzle Submission Rate Limiting">
+        <objective>Apply rate limiting to puzzle completion Server Action</objective>
+        <subtasks>
+          <subtask>Create submission rate limiter instance in actions/puzzle.ts</subtask>
+          <subtask>Add rate limit check to completePuzzle() Server Action (3 submissions per minute)</subtask>
+          <subtask>Add Sentry tracking for excessive attempts (>10 violations)</subtask>
+          <subtask>Update completePuzzle() return type to include rate limit error</subtask>
+          <subtask>Create integration test for rate limiting flow</subtask>
+        </subtasks>
+        <estimatedEffort>2-3 hours</estimatedEffort>
+        <acceptanceCriteria>AC2</acceptanceCriteria>
+      </task>
+
+      <task id="3" title="Implement Duplicate Submission Prevention">
+        <objective>Prevent users from submitting multiple solutions for same puzzle</objective>
+        <subtasks>
+          <subtask>Create database migration for composite index on (user_id, puzzle_id, is_complete)</subtask>
+          <subtask>Add duplicate check to completePuzzle() Server Action</subtask>
+          <subtask>Create integration test for duplicate prevention</subtask>
+          <subtask>Verify database query performance (<10ms target)</subtask>
+        </subtasks>
+        <estimatedEffort>1-2 hours</estimatedEffort>
+        <acceptanceCriteria>AC3</acceptanceCriteria>
+      </task>
+
+      <task id="4" title="Implement IP-Based Rate Limiting for Guests">
+        <objective>Rate limit guest users by IP address</objective>
+        <subtasks>
+          <subtask>Create IP extraction utility in lib/utils/ip-utils.ts</subtask>
+          <subtask>Update completePuzzle() to use IP for guests</subtask>
+          <subtask>Create unit tests for IP extraction</subtask>
+          <subtask>Create integration test for guest rate limiting</subtask>
+          <subtask>Document IP privacy considerations</subtask>
+        </subtasks>
+        <estimatedEffort>1-2 hours</estimatedEffort>
+        <acceptanceCriteria>AC4</acceptanceCriteria>
+      </task>
+
+      <task id="5" title="Configure Monitoring & Alerting">
+        <objective>Integrate rate limiting with existing monitoring infrastructure (Story 1.6)</objective>
+        <subtasks>
+          <subtask>Add structured logging for rate limit events</subtask>
+          <subtask>Configure Sentry alerts for violations (>50/day per user, >100/day per IP)</subtask>
+          <subtask>Create monitoring dashboard query documentation</subtask>
+          <subtask>Document monitoring procedures in docs/rate-limiting.md</subtask>
+          <subtask>Test monitoring integration end-to-end</subtask>
+        </subtasks>
+        <estimatedEffort>2-3 hours</estimatedEffort>
+        <acceptanceCriteria>AC5</acceptanceCriteria>
+      </task>
+
+      <task id="6" title="Testing & Documentation">
+        <objective>Ensure comprehensive test coverage and documentation</objective>
+        <subtasks>
+          <subtask>Achieve 90%+ coverage for rate limiting utilities</subtask>
+          <subtask>Create end-to-end integration tests</subtask>
+          <subtask>Create docs/rate-limiting.md documentation</subtask>
+          <subtask>Update architecture document if needed</subtask>
+          <subtask>Performance benchmarking (rate limiter <1ms, duplicate check <10ms)</subtask>
+        </subtasks>
+        <estimatedEffort>2-3 hours</estimatedEffort>
+        <acceptanceCriteria>AC6</acceptanceCriteria>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1" title="LRU Cache Rate Limiter Utility">
+      <given>I need to rate limit API endpoints</given>
+      <when>I implement the rate limiter utility</when>
+      <then>
+        <requirement>File created: lib/utils/rate-limit.ts</requirement>
+        <requirement>LRU Cache implementation using lru-cache package</requirement>
+        <requirement>Configurable options: interval (default: 60000ms) and uniqueTokenPerInterval (default: 500)</requirement>
+        <requirement>check(limit, token) method returns Promise&lt;void&gt; - resolves if under limit, rejects if exceeded</requirement>
+        <requirement>Token-based counting (userId for authenticated, IP for guests)</requirement>
+        <requirement>Automatic cleanup after interval expires (LRU eviction)</requirement>
+        <requirement>TypeScript types exported: RateLimitOptions, RateLimiter</requirement>
+        <requirement>Unit tests with 90%+ coverage covering under limit, over limit, multiple tokens, and interval expiration</requirement>
+      </then>
+    </criterion>
+
+    <criterion id="AC2" title="Puzzle Submission Rate Limiting">
+      <given>I am implementing puzzle completion Server Actions</given>
+      <when>I add rate limiting to submission endpoints</when>
+      <then>
+        <requirement>Rate limiter initialized in Server Actions with 60s interval and 500 unique tokens</requirement>
+        <requirement>completePuzzle() Server Action checks rate limit BEFORE validation (3 submissions per minute)</requirement>
+        <requirement>Rate limit applies to authenticated users (userId as token)</requirement>
+        <requirement>Rate limit error logged for monitoring with userId, puzzleId, action, limit, and windowSeconds</requirement>
+        <requirement>User receives clear error message: "Too many attempts. Try again in a minute."</requirement>
+        <requirement>Rate limit does NOT block valid submissions (timer resets after 1 minute)</requirement>
+        <requirement>Integration tests verify: 3 submissions succeed, 4th fails with rate limit error, submission succeeds after 1 minute</requirement>
+      </then>
+    </criterion>
+
+    <criterion id="AC3" title="Duplicate Submission Prevention">
+      <given>I am submitting a puzzle solution</given>
+      <when>The system checks for duplicate submissions</when>
+      <then>
+        <requirement>completePuzzle() Server Action checks for existing completion BEFORE processing</requirement>
+        <requirement>Database query optimized with composite index: CREATE INDEX idx_completions_user_puzzle_complete ON completions(user_id, puzzle_id, is_complete) WHERE is_complete = true</requirement>
+        <requirement>Duplicate check prevents leaderboard gaming (one rank per user per puzzle)</requirement>
+        <requirement>User receives clear message: "You've already completed today's puzzle!"</requirement>
+        <requirement>Duplicate submission logged for monitoring (track potential abuse attempts)</requirement>
+        <requirement>Integration test verifies: first submission succeeds, second fails with duplicate error, existing completion unchanged</requirement>
+      </then>
+    </criterion>
+
+    <criterion id="AC4" title="IP-Based Rate Limiting for Guest Users">
+      <given>I am playing as a guest (unauthenticated)</given>
+      <when>I submit puzzle solutions</when>
+      <then>
+        <requirement>Guest users rate limited by IP address (fallback when no userId)</requirement>
+        <requirement>IP address extracted from request headers (x-forwarded-for or x-real-ip)</requirement>
+        <requirement>completePuzzle() uses IP address as token for guests</requirement>
+        <requirement>Same rate limit applies: 3 submissions per minute per IP</requirement>
+        <requirement>Multiple guest users behind same IP share rate limit (acceptable for MVP)</requirement>
+        <requirement>IP-based limits logged with IP address for abuse tracking</requirement>
+        <requirement>Integration test verifies: guest submissions rate limited by IP, different IPs have independent limits</requirement>
+        <requirement>IP addresses logged but anonymized after 30 days (GDPR compliance), NOT stored in database</requirement>
+      </then>
+    </criterion>
+
+    <criterion id="AC5" title="Monitoring & Alerting Integration">
+      <given>I have implemented rate limiting</given>
+      <when>Abuse patterns are detected</when>
+      <then>
+        <requirement>Rate limit violations logged with structured context: userId, IP, endpoint, limit, windowSeconds, attemptCount</requirement>
+        <requirement>Sentry tracking for high-severity violations (>= 10 excessive attempts)</requirement>
+        <requirement>Monitoring metrics tracked: rate limit hit count (daily), top users by violations, top IPs by violations</requirement>
+        <requirement>Alert thresholds configured: Single user >50 violations/day (high priority), Single IP >100 violations/day (critical)</requirement>
+        <requirement>Dashboard query available for rate limit analytics in last 24 hours, grouped by userId/IP</requirement>
+      </then>
+    </criterion>
+
+    <criterion id="AC6" title="Comprehensive Testing & Documentation">
+      <given>I have implemented rate limiting</given>
+      <when>I verify the implementation</when>
+      <then>
+        <requirement>Unit tests (90%+ coverage): rate-limit.test.ts, abuse-prevention.test.ts covering all edge cases</requirement>
+        <requirement>Integration tests: submission rate limiting end-to-end, duplicate submission prevention, guest IP-based limiting</requirement>
+        <requirement>Documentation: docs/rate-limiting.md with usage guide, configuration options, testing patterns, monitoring setup</requirement>
+        <requirement>Inline code comments for critical logic</requirement>
+        <requirement>Architecture document updated if needed to match implementation</requirement>
+        <requirement>Performance benchmarks: Rate limiter check &lt;1ms, Duplicate submission check &lt;10ms, No measurable impact on valid submissions</requirement>
+      </then>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document - Rate Limiting & Abuse Prevention</title>
+        <section>Security Architecture / Rate Limiting & Abuse Prevention</section>
+        <snippet>Defines LRU Cache-based rate limiting pattern with 3 submissions per minute per user, IP-based fallback for guests, and duplicate submission prevention. Includes complete implementation example for Server Actions and monitoring strategies for tracking abuse patterns.</snippet>
+        <lines>1026-1095</lines>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document - Anti-Cheat Measures</title>
+        <section>Security Architecture / Anti-Cheat Measures</section>
+        <snippet>Server-side validation, server-side timing calculation, auto-flagging for completions under 120 seconds, and pause detection. All puzzle solutions validated on server to prevent client manipulation.</snippet>
+        <lines>1018-1025</lines>
+      </doc>
+
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document - Monitoring & Observability</title>
+        <section>Monitoring & Observability / Error Tracking</section>
+        <snippet>Sentry integration patterns (Story 1.6) for error tracking, structured logging, user context, and breadcrumbs. Provides captureException, setUser, and addBreadcrumb utilities for comprehensive monitoring of Server Actions and abuse detection.</snippet>
+        <lines>1466-1515</lines>
+      </doc>
+
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Epic Overview - Foundation & Infrastructure</section>
+        <snippet>Epic 1 establishes technical foundation including database security (Row Level Security on all tables), TypeScript strict mode, Content Security Policy headers, and observability infrastructure. Story 1.6 implemented error tracking and monitoring foundations that rate limiting will integrate with.</snippet>
+        <lines>1-106</lines>
+      </doc>
+
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification - Security</title>
+        <section>Security / Database Security</section>
+        <snippet>Row Level Security (RLS) enabled on all tables with policies enforcing data isolation. Database credentials never exposed to client. Content Security Policy configured in Next.js. Dependency security via npm audit in CI pipeline.</snippet>
+        <lines>773-813</lines>
+      </doc>
+
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Functional Requirements - Leaderboard Anti-Cheat</section>
+        <snippet>FR-5.2 requires server-side validation to prevent client manipulation, rate limiting to prevent automated submissions, and duplicate submission prevention ensuring one completion per user per puzzle. Monitoring must track suspicious patterns like excessive failures or rapid submissions.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>lib/constants/errors.ts</path>
+        <kind>constants</kind>
+        <symbol>ERROR_CATEGORIES, SERVER_ERRORS</symbol>
+        <lines>1-228</lines>
+        <reason>Existing error categorization system from Story 1.6. Rate limiting will add ABUSE_ERRORS category following same pattern: user-friendly messages, categorization, and error handling utilities.</reason>
+      </artifact>
+
+      <artifact>
+        <path>lib/types/result.ts</path>
+        <kind>type</kind>
+        <symbol>Result&lt;T, E&gt;, Success, Failure</symbol>
+        <lines>1-156</lines>
+        <reason>Result type pattern for Server Actions. completePuzzle() will return Result&lt;SuccessData, string&gt; with rate limit errors following established pattern.</reason>
+      </artifact>
+
+      <artifact>
+        <path>lib/utils/logger.ts</path>
+        <kind>utility</kind>
+        <symbol>logger.warn(), logger.info()</symbol>
+        <lines>1-300</lines>
+        <reason>Structured logging system from Story 1.6. Rate limit violations logged with logger.warn() including userId, puzzleId, action, attemptCount context. Never logs PII (emails/IPs long-term).</reason>
+      </artifact>
+
+      <artifact>
+        <path>lib/monitoring/sentry.ts</path>
+        <kind>monitoring</kind>
+        <symbol>captureException(), captureMessage(), setUser()</symbol>
+        <lines>1-220</lines>
+        <reason>Sentry error tracking from Story 1.6. Excessive rate limit violations (>=10 attempts) tracked via captureMessage() with 'warning' severity for abuse pattern detection.</reason>
+      </artifact>
+
+      <artifact>
+        <path>lib/supabase.ts</path>
+        <kind>database-client</kind>
+        <symbol>createClient()</symbol>
+        <reason>Supabase client utilities for database queries. Duplicate submission check will query completions table with optimized composite index.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="npm">
+        <package name="lru-cache" version="^10.0.0" usage="LRU Cache-based rate limiting (lightweight, in-memory)" />
+        <package name="@types/lru-cache" version="latest" usage="TypeScript definitions for lru-cache" dev="true" />
+        <package name="@sentry/nextjs" version="latest" usage="Error tracking and abuse monitoring (from Story 1.6)" />
+        <package name="@supabase/supabase-js" version="^2.80.0" usage="Supabase client for database queries (duplicate check)" />
+        <package name="jest" version="latest" usage="Testing framework for rate limiting unit tests" dev="true" />
+        <package name="@testing-library/react" version="latest" usage="React Testing Library for integration tests" dev="true" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint category="error-handling">
+      <rule>Use Result&lt;T, E&gt; pattern for all Server Actions (established in Story 1.6)</rule>
+      <example>return { success: false, error: ABUSE_ERRORS.RATE_LIMIT_EXCEEDED }</example>
+    </constraint>
+
+    <constraint category="error-categorization">
+      <rule>Add ABUSE_ERRORS to lib/constants/errors.ts following existing pattern</rule>
+      <example>export const ABUSE_ERRORS = { RATE_LIMIT_EXCEEDED: "Too many attempts. Please try again later.", DUPLICATE_SUBMISSION: "You've already submitted a solution for this puzzle." }</example>
+    </constraint>
+
+    <constraint category="logging">
+      <rule>Use logger.warn() for rate limit violations with structured context (Story 1.6 pattern)</rule>
+      <example>logger.warn('Rate limit exceeded', { userId, puzzleId, action: 'completePuzzle', attemptCount, windowSeconds })</example>
+      <rule>NEVER log PII: Use userId (not email), IP addresses transient only (not persisted)</rule>
+    </constraint>
+
+    <constraint category="monitoring">
+      <rule>Excessive violations (>=10 attempts) tracked via Sentry captureMessage()</rule>
+      <example>captureMessage('Excessive puzzle submission attempts', { userId, attemptCount, puzzleId }, 'warning')</example>
+    </constraint>
+
+    <constraint category="testing">
+      <rule>Target 90%+ test coverage for rate limiting utilities (stricter than general 70% target)</rule>
+      <rule>Integration tests must verify: 3 submissions succeed, 4th fails, submission succeeds after 61 seconds</rule>
+    </constraint>
+
+    <constraint category="performance">
+      <rule>Check rate limit BEFORE expensive validation (fail fast pattern)</rule>
+      <rule>Performance requirements: Rate limiter check &lt;1ms, duplicate check &lt;10ms</rule>
+    </constraint>
+
+    <constraint category="database">
+      <rule>Database migrations version controlled in supabase/migrations directory</rule>
+      <rule>Composite index required for duplicate check: (user_id, puzzle_id, is_complete)</rule>
+    </constraint>
+
+    <constraint category="file-structure">
+      <rule>Rate limiting utility: lib/utils/rate-limit.ts</rule>
+      <rule>IP utilities: lib/utils/ip-utils.ts</rule>
+      <rule>Tests: lib/utils/rate-limit.test.ts, lib/utils/abuse-prevention.test.ts</rule>
+      <rule>Documentation: docs/rate-limiting.md</rule>
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>Result&lt;T, E&gt;</name>
+      <kind>TypeScript type</kind>
+      <signature>type Result&lt;T, E = Error&gt; = Success&lt;T&gt; | Failure&lt;E&gt;</signature>
+      <path>lib/types/result.ts</path>
+      <usage>All Server Actions return Result type for type-safe error handling</usage>
+    </interface>
+
+    <interface>
+      <name>logger.warn()</name>
+      <kind>function</kind>
+      <signature>logger.warn(message: string, context?: LogContext): void</signature>
+      <path>lib/utils/logger.ts</path>
+      <usage>Log rate limit violations with structured context (userId, puzzleId, action, attemptCount)</usage>
+    </interface>
+
+    <interface>
+      <name>captureMessage()</name>
+      <kind>function</kind>
+      <signature>captureMessage(message: string, context?: Record&lt;string, unknown&gt;, severity?: ErrorSeverity): void</signature>
+      <path>lib/monitoring/sentry.ts</path>
+      <usage>Track excessive rate limit violations (>=10 attempts) with 'warning' severity</usage>
+    </interface>
+
+    <interface>
+      <name>Supabase Client Query</name>
+      <kind>database-query</kind>
+      <signature>supabase.from('completions').select('id').eq('user_id', userId).eq('puzzle_id', puzzleId).eq('is_complete', true).single()</signature>
+      <path>lib/supabase.ts</path>
+      <usage>Duplicate submission check query (optimized with composite index)</usage>
+    </interface>
+
+    <interface>
+      <name>rateLimit()</name>
+      <kind>function</kind>
+      <signature>rateLimit(options: RateLimitOptions): { check: (limit: number, token: string) =&gt; Promise&lt;void&gt; }</signature>
+      <path>lib/utils/rate-limit.ts</path>
+      <usage>Create rate limiter instance with configurable interval and token limit. check() method resolves if under limit, rejects if exceeded.</usage>
+    </interface>
+
+    <interface>
+      <name>LRUCache</name>
+      <kind>npm-package</kind>
+      <signature>new LRUCache({ max: number, ttl: number })</signature>
+      <package>lru-cache</package>
+      <usage>In-memory cache for token-based rate limiting with automatic TTL expiration</usage>
+    </interface>
+
+    <interface>
+      <name>completePuzzle() Server Action</name>
+      <kind>server-action</kind>
+      <signature>completePuzzle(puzzleId: string, solution: number[][]): Promise&lt;Result&lt;CompletionData, string&gt;&gt;</signature>
+      <path>actions/puzzle.ts (to be created)</path>
+      <usage>Main Server Action where rate limiting will be integrated. Check rate limit BEFORE validation.</usage>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Testing framework: Jest + React Testing Library (established in Story 1.4).
+      Coverage target: 90%+ for rate limiting utilities (stricter than general 70% target due to security-critical nature).
+      Test file naming: Co-located with source files using .test.ts suffix (e.g., rate-limit.test.ts).
+      Integration tests: End-to-end flows testing Server Actions with rate limiting, duplicate checks, and monitoring.
+      Performance benchmarks: Measure and verify rate limiter check &lt;1ms, duplicate check &lt;10ms using performance.now().
+      CI/CD: All tests run in GitHub Actions on every PR, must pass to merge.
+    </standards>
+
+    <locations>
+      lib/utils/rate-limit.test.ts - Unit tests for LRU Cache rate limiter
+      lib/utils/ip-utils.test.ts - Unit tests for IP extraction utility
+      lib/utils/abuse-prevention.test.ts - Integration tests for rate limiting + duplicate prevention
+      __tests__/server-actions/ - Integration tests for completePuzzle() Server Action
+    </locations>
+
+    <ideas>
+      <testIdea ac="AC1" priority="high">
+        <name>Rate Limiter - Under Limit</name>
+        <description>Verify rate limiter allows requests under the limit (3 submissions within 60s should all succeed)</description>
+        <approach>Call limiter.check(3, 'user-123') three times, all should resolve successfully</approach>
+      </testIdea>
+
+      <testIdea ac="AC1" priority="high">
+        <name>Rate Limiter - Over Limit</name>
+        <description>Verify rate limiter blocks requests over the limit (4th submission should fail)</description>
+        <approach>Call limiter.check(3, 'user-123') four times, 4th should reject with error</approach>
+      </testIdea>
+
+      <testIdea ac="AC1" priority="medium">
+        <name>Rate Limiter - Multiple Tokens</name>
+        <description>Verify different tokens have independent counters</description>
+        <approach>Exhaust limit for 'user-123', verify 'user-456' still has full quota</approach>
+      </testIdea>
+
+      <testIdea ac="AC1" priority="medium">
+        <name>Rate Limiter - Interval Reset</name>
+        <description>Verify counter resets after TTL expires</description>
+        <approach>Exhaust limit, wait 61 seconds (or use fake timers), verify next request succeeds</approach>
+      </testIdea>
+
+      <testIdea ac="AC2" priority="critical">
+        <name>Submission Rate Limiting - End-to-End</name>
+        <description>Integration test: 3 puzzle submissions succeed, 4th fails with rate limit error, submission succeeds after 1 minute</description>
+        <approach>Mock completePuzzle() Server Action, submit 3 valid solutions (succeed), submit 4th (fail with RATE_LIMIT_EXCEEDED), wait 61s, submit again (succeed)</approach>
+      </testIdea>
+
+      <testIdea ac="AC3" priority="critical">
+        <name>Duplicate Submission Prevention</name>
+        <description>Integration test: First submission succeeds, second fails with duplicate error</description>
+        <approach>Complete puzzle once (creates DB record), attempt second completion (should fail with DUPLICATE_SUBMISSION), verify only one completion exists</approach>
+      </testIdea>
+
+      <testIdea ac="AC4" priority="high">
+        <name>Guest IP-Based Rate Limiting</name>
+        <description>Verify guest users rate limited by IP address</description>
+        <approach>Submit 3 times from IP '192.168.1.1' (succeed), submit 4th time (fail), submit from IP '192.168.1.2' (succeed - independent limit)</approach>
+      </testIdea>
+
+      <testIdea ac="AC4" priority="medium">
+        <name>IP Extraction Utility</name>
+        <description>Verify IP extracted from x-forwarded-for and x-real-ip headers</description>
+        <approach>Test getClientIP() with different header combinations: x-forwarded-for (multiple IPs), x-real-ip, no headers (fallback to 'unknown')</approach>
+      </testIdea>
+
+      <testIdea ac="AC5" priority="medium">
+        <name>Monitoring Integration - Logging</name>
+        <description>Verify rate limit violations logged with structured context</description>
+        <approach>Mock logger.warn(), trigger rate limit violation, assert logger.warn() called with userId, puzzleId, action, attemptCount</approach>
+      </testIdea>
+
+      <testIdea ac="AC5" priority="medium">
+        <name>Monitoring Integration - Sentry Tracking</name>
+        <description>Verify excessive violations tracked via Sentry</description>
+        <approach>Mock captureMessage(), simulate 10+ violations, assert captureMessage() called with 'warning' severity</approach>
+      </testIdea>
+
+      <testIdea ac="AC6" priority="high">
+        <name>Performance Benchmark - Rate Limiter</name>
+        <description>Verify rate limiter check completes in &lt;1ms</description>
+        <approach>Use performance.now() to measure limiter.check() execution time, assert duration &lt;1ms over 100 iterations</approach>
+      </testIdea>
+
+      <testIdea ac="AC6" priority="high">
+        <name>Performance Benchmark - Duplicate Check</name>
+        <description>Verify duplicate submission check completes in &lt;10ms</description>
+        <approach>Use performance.now() to measure database query time, assert duration &lt;10ms (requires composite index)</approach>
+      </testIdea>
+    </ideas>
+  </tests>
+</story-context>

@@ -47,8 +47,8 @@ development_status:
   1-4-testing-infrastructure-cicd-quality-gates: done
   1-5-design-system-foundations-newspaper-aesthetic: done
   1-6-error-tracking-monitoring-setup: done
-  1-7-rate-limiting-implementation: backlog
-  1-8-seo-foundation: backlog
+  1-7-rate-limiting-implementation: done # docs/stories/1-7-rate-limiting-implementation.md
+  1-8-seo-foundation: drafted
   1-9-database-migration-tool-setup: backlog
   epic-1-retrospective: optional
 
