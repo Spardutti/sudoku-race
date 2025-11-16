@@ -71,8 +71,8 @@ export const metadata: Metadata = {
       "One authentic Sudoku puzzle daily. No hints, pure challenge, real competition.",
     images: [
       {
-        url: "/og-image.png",
-        width: 1200,
+        url: "/og-image.jpg",
+        width: 945,
         height: 630,
         alt: "Sudoku Daily - Daily Puzzle Challenge",
       },
@@ -86,7 +86,7 @@ export const metadata: Metadata = {
     creator: SOCIAL_MEDIA.twitter.handle,
     title: "Sudoku Daily",
     description: "One authentic Sudoku puzzle daily. Pure challenge, real competition.",
-    images: ["/twitter-card.png"],
+    images: ["/twitter-card.jpg"],
   },
 
   // Favicon auto-detected from app/favicon.ico (Next.js 13+ convention)
