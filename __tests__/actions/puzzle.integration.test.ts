@@ -12,6 +12,8 @@
 import { rateLimit } from "@/lib/utils/rate-limit";
 import { getClientIP, isValidIP } from "@/lib/utils/ip-utils";
 import { ABUSE_ERRORS } from "@/lib/constants/errors";
+import fs from "fs";
+import path from "path";
 
 describe("Rate Limiting Integration", () => {
   describe("AC2: Submission Rate Limiting Logic", () => {
@@ -80,8 +82,6 @@ describe("Rate Limiting Integration", () => {
       // This query is optimized by index: idx_completions_user_puzzle_complete
       // Created in migration: 003_add_duplicate_check_index.sql
 
-      const fs = require("fs");
-      const path = require("path");
       const migrationPath = path.join(
         process.cwd(),
         "supabase/migrations/003_add_duplicate_check_index.sql"
@@ -272,8 +272,6 @@ describe("Performance Benchmarks", () => {
       // This ensures query execution <10ms per architecture requirements
 
       // Verify the migration file exists
-      const fs = require("fs");
-      const path = require("path");
       const migrationPath = path.join(
         process.cwd(),
         "supabase/migrations/003_add_duplicate_check_index.sql"
