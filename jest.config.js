@@ -15,6 +15,10 @@ const customJestConfig = {
     '!lib/**/*.test.{js,ts}',
     '!lib/types/**', // Exclude TypeScript type definitions
     '!lib/supabase.ts', // Exclude config/client setup (not business logic)
+    '!lib/monitoring/**', // Exclude monitoring integrations (Sentry, Analytics, Real-time)
+    '!lib/constants/**', // Exclude constant definitions (error messages)
+    '!lib/design-tokens.ts', // Exclude design token constants
+    '!lib/utils/logger.ts', // Exclude logging utility (infrastructure)
     '!**/node_modules/**',
   ],
   // Enforce 70% coverage threshold ONLY on lib/** (pure functions/business logic)
