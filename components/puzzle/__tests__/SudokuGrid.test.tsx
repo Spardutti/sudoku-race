@@ -442,7 +442,7 @@ describe("SudokuGrid", () => {
 
       const cells = screen.getAllByRole("gridcell");
       cells.forEach((cell) => {
-        expect(cell).toHaveClass("min-w-[44px]", "min-h-[44px]");
+        expect(cell).toHaveClass("min-w-11", "min-h-11");
       });
     });
   });
