@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase/server";
+import { createServerActionClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabase = await createServerClient();
+    const supabase = await createServerActionClient();
 
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
@@ -92,7 +92,89 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.redirect(`${requestUrl.origin}/puzzle`);
+    const migrationPage = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Completing sign-in...</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #fafafa;
+    }
+    .loader {
+      text-align: center;
+    }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #000;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="loader">
+    <div class="spinner"></div>
+    <p>Completing sign-in...</p>
+  </div>
+  <script>
+    (async function() {
+      try {
+        const localStorageData = localStorage.getItem('sudoku-race-puzzle-state');
+
+        if (localStorageData) {
+          const response = await fetch('/api/auth/migrate-guest-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ localStorageData }),
+          });
+
+          const result = await response.json();
+
+          if (result.success && result.data) {
+            localStorage.removeItem('sudoku-race-puzzle-state');
+
+            const { highestRank } = result.data;
+            if (highestRank !== null) {
+              window.location.href = '/puzzle?migrated=true&rank=' + highestRank;
+              return;
+            }
+          } else {
+            console.error('Migration failed:', result.error);
+            window.location.href = '/puzzle?migrationFailed=true';
+            return;
+          }
+        }
+
+        window.location.href = '/puzzle';
+      } catch (error) {
+        console.error('Migration error:', error);
+        window.location.href = '/puzzle?migrationFailed=true';
+      }
+    })();
+  </script>
+</body>
+</html>
+    `;
+
+    return new NextResponse(migrationPage, {
+      status: 200,
+      headers: { "Content-Type": "text/html" },
+    });
   } catch (error) {
     logger.error("Unexpected error in OAuth callback", error as Error);
     Sentry.captureException(error, {

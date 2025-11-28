@@ -1,35 +1,44 @@
-import type { Metadata } from "next";
-import { generateMetadata } from "@/lib/utils/metadata";
+import { redirect } from "next/navigation";
+import { getCurrentUserId } from "@/lib/auth/get-current-user";
+import { createServerClient } from "@/lib/supabase/server";
+import { ProfilePageClient } from "@/components/profile/ProfilePageClient";
 
-/**
- * Profile Page Metadata
- * Private page - excluded from search indexing
- */
-export const metadata: Metadata = generateMetadata({
-  title: "Your Profile",
-  description:
-    "Track your Sudoku solving statistics, streaks, and personal best times.",
-  canonicalPath: "/profile",
-  robots: {
-    index: false, // Profile pages are private, don't index
-    follow: true,
-  },
-});
+export default async function ProfilePage() {
+  const userId = await getCurrentUserId();
 
-export default function ProfilePage() {
+  if (!userId) {
+    redirect("/?message=Please sign in to view your profile");
+  }
+
+  const supabase = await createServerClient();
+
+  const { data: userData, error: userError } = await supabase
+    .from("users")
+    .select("username, email, created_at, oauth_provider")
+    .eq("id", userId)
+    .single();
+
+  if (userError || !userData) {
+    redirect("/?message=Failed to load profile");
+  }
+
+  const { count: completionCount } = await supabase
+    .from("completions")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId);
+
   return (
-    <div className="flex items-center justify-center px-4 py-16">
-      <div className="text-center">
-        <h1 className="mb-4 font-serif text-5xl font-bold text-black md:text-6xl">
-          Profile
-        </h1>
-        <h2 className="mb-6 font-serif text-2xl text-black md:text-3xl">
-          Coming Soon
-        </h2>
-        <p className="text-lg text-gray-700">
-          Authentication required (Epic 3)
-        </p>
-      </div>
-    </div>
+    <ProfilePageClient
+      user={{
+        id: userId,
+        username: userData.username,
+        email: userData.email,
+        createdAt: userData.created_at,
+        oauthProvider: userData.oauth_provider,
+      }}
+      stats={{
+        totalPuzzlesSolved: completionCount ?? 0,
+      }}
+    />
   );
 }

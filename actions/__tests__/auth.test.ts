@@ -1,4 +1,4 @@
-import { signInWithGoogle, signInWithGithub, signInWithApple, signOut } from "../auth";
+import { signInWithGoogle, signInWithGithub, signInWithApple, signOut, deleteAccount } from "../auth";
 import { createServerClient } from "@/lib/supabase/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -166,6 +166,72 @@ describe("Auth Server Actions", () => {
       if (!result.success) {
         expect(result.error).toBe("Something went wrong. Please try again.");
       }
+    });
+  });
+
+  describe("deleteAccount", () => {
+    let mockFrom: jest.Mock;
+    let mockDelete: jest.Mock;
+    let mockEq: jest.Mock;
+
+    beforeEach(() => {
+      mockEq = jest.fn().mockResolvedValue({ error: null });
+      mockDelete = jest.fn().mockReturnValue({ eq: mockEq });
+      mockFrom = jest.fn().mockReturnValue({ delete: mockDelete });
+
+      mockSupabase.from = mockFrom;
+      (mockSupabase.auth!.signOut as jest.Mock).mockResolvedValue({
+        error: null,
+      });
+    });
+
+    it("should delete all user data and sign out on success", async () => {
+      const userId = "test-user-id";
+
+      const result = await deleteAccount(userId);
+
+      expect(result.success).toBe(true);
+      expect(mockFrom).toHaveBeenCalledWith("completions");
+      expect(mockFrom).toHaveBeenCalledWith("leaderboards");
+      expect(mockFrom).toHaveBeenCalledWith("streaks");
+      expect(mockFrom).toHaveBeenCalledWith("users");
+      expect(mockDelete).toHaveBeenCalledTimes(4);
+      expect(mockEq).toHaveBeenCalledWith("user_id", userId);
+      expect(mockSupabase.auth!.signOut).toHaveBeenCalled();
+    });
+
+    it("should return error when deletion fails", async () => {
+      const userId = "test-user-id";
+      mockEq.mockResolvedValue({ error: new Error("Delete failed") });
+
+      const result = await deleteAccount(userId);
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toBe("Deletion failed. Contact support.");
+      }
+    });
+
+    it("should continue deletion even if sign-out fails", async () => {
+      const userId = "test-user-id";
+      (mockSupabase.auth!.signOut as jest.Mock).mockResolvedValue({
+        error: new Error("Sign-out failed"),
+      });
+
+      const result = await deleteAccount(userId);
+
+      expect(result.success).toBe(true);
+    });
+
+    it("should retry operations on transient failures", async () => {
+      const userId = "test-user-id";
+      mockEq
+        .mockRejectedValueOnce(new Error("Transient error"))
+        .mockResolvedValue({ error: null });
+
+      const result = await deleteAccount(userId);
+
+      expect(result.success).toBe(true);
     });
   });
 });

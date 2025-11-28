@@ -1,7 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
-import { createServerClient } from "@/lib/supabase/server";
+import { createServerActionClient } from "@/lib/supabase/server";
 import { getClientIP } from "@/lib/utils/ip-utils";
 import { ABUSE_ERRORS } from "@/lib/constants/errors";
 import { logger } from "@/lib/utils/logger";
@@ -22,7 +22,7 @@ export type Puzzle = {
 export async function getPuzzleToday(): Promise<Result<Puzzle, string>> {
   try {
     const today = new Date().toISOString().split("T")[0];
-    const supabase = await createServerClient();
+    const supabase = await createServerActionClient();
 
     const { data, error } = await supabase
       .from("puzzles")
@@ -112,7 +112,7 @@ export async function validatePuzzle(
       return { success: false, error: ABUSE_ERRORS.RATE_LIMIT_EXCEEDED };
     }
 
-    const supabase = await createServerClient();
+    const supabase = await createServerActionClient();
 
     const { data, error } = await supabase
       .from("puzzles")
@@ -210,7 +210,7 @@ export async function validateSolution(
       };
     }
 
-    const supabase = await createServerClient();
+    const supabase = await createServerActionClient();
 
     const { data, error } = await supabase
       .from("puzzles")
@@ -325,7 +325,7 @@ export async function completePuzzle(
     return { success: false, error: ABUSE_ERRORS.RATE_LIMIT_EXCEEDED };
   }
 
-  const supabase = await createServerClient();
+  const supabase = await createServerActionClient();
 
   if (userId) {
     const { data: existing } = await supabase
@@ -430,7 +430,7 @@ export async function saveProgress(
       };
     }
 
-    const supabase = await createServerClient();
+    const supabase = await createServerActionClient();
 
     const { error } = await supabase.from("completions").upsert(
       {
@@ -514,7 +514,7 @@ export async function loadProgress(
       };
     }
 
-    const supabase = await createServerClient();
+    const supabase = await createServerActionClient();
 
     const { data, error } = await supabase
       .from("completions")
@@ -607,7 +607,7 @@ export async function startTimer(
       };
     }
 
-    const supabase = await createServerClient();
+    const supabase = await createServerActionClient();
 
     // Check if timer already started (idempotent)
     const { data: existing } = await supabase
@@ -715,7 +715,7 @@ export async function submitCompletion(
       };
     }
 
-    const supabase = await createServerClient();
+    const supabase = await createServerActionClient();
 
     // Get started_at timestamp
     const { data: completion } = await supabase
@@ -831,7 +831,7 @@ export async function checkPuzzleCompletion(
       };
     }
 
-    const supabase = await createServerClient();
+    const supabase = await createServerActionClient();
 
     const { data, error } = await supabase
       .from("completions")

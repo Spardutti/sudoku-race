@@ -67,8 +67,8 @@ development_status:
   epic-3: backlog
   3-1-guest-play-session-based-progress: done
   3-2-oauth-authentication-google-github-apple: done
-  3-3-session-preservation-retroactive-save: backlog
-  3-4-user-profile-account-management: backlog
+  3-3-session-preservation-retroactive-save: done
+  3-4-user-profile-account-management: done
   3-5-auth-state-management-ui-indicators: backlog
   epic-3-retrospective: optional
 

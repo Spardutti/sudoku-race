@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { SudokuGrid } from "@/components/puzzle/SudokuGrid";
 import { NumberPad } from "@/components/puzzle/NumberPad";
 import { Timer } from "@/components/puzzle/Timer";
@@ -70,6 +71,28 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
 
   // Timer - auto-starts on mount
   useTimer();
+
+  // Check for migration success/failure on mount
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const migrated = urlParams.get("migrated");
+    const rank = urlParams.get("rank");
+    const migrationFailed = urlParams.get("migrationFailed");
+
+    if (migrated === "true" && rank) {
+      toast.success(`Your completion time saved! You ranked #${rank} on today's puzzle.`, {
+        duration: 5000,
+      });
+      window.history.replaceState({}, "", "/puzzle");
+    } else if (migrationFailed === "true") {
+      toast.error("Sign-in successful, but progress sync failed. Please contact support.", {
+        duration: 8000,
+      });
+      window.history.replaceState({}, "", "/puzzle");
+    }
+  }, []);
 
   // Auto-focus grid on mount
   React.useEffect(() => {

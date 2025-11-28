@@ -1,6 +1,6 @@
 "use server";
 
-import { createServerClient } from "@/lib/supabase/server";
+import { createServerActionClient } from "@/lib/supabase/server";
 import type { Result } from "@/lib/types/result";
 
 export async function getHypotheticalRank(
@@ -8,7 +8,7 @@ export async function getHypotheticalRank(
   completionTimeSeconds: number
 ): Promise<Result<number, string>> {
   try {
-    const supabase = await createServerClient();
+    const supabase = await createServerActionClient();
 
     const { count, error } = await supabase
       .from("leaderboards")
