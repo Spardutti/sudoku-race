@@ -4,19 +4,25 @@ import * as React from "react";
 import { SudokuGrid } from "@/components/puzzle/SudokuGrid";
 import { NumberPad } from "@/components/puzzle/NumberPad";
 import { useKeyboardInput } from "@/lib/hooks/useKeyboardInput";
+import { usePuzzleStore } from "@/lib/stores/puzzleStore";
+import { useAutoSave } from "@/lib/hooks/useAutoSave";
+import { useStateRestoration } from "@/lib/hooks/useStateRestoration";
 
 /**
- * Demo Page: Number Input System
+ * Demo Page: Number Input System + Auto-Save
  *
  * Tests integration of:
  * - SudokuGrid component (from Story 2.2)
- * - NumberPad component (mobile touch input)
- * - useKeyboardInput hook (desktop keyboard shortcuts)
+ * - NumberPad component (mobile touch input - Story 2.3)
+ * - useKeyboardInput hook (desktop keyboard shortcuts - Story 2.3)
+ * - Zustand store with auto-save (Story 2.4)
+ * - State restoration from localStorage (Story 2.4)
  *
  * Instructions:
  * - Mobile: Tap cells to select, use number pad at bottom to input
  * - Desktop: Click cells to select, press 1-9 to input, Backspace/Delete/0 to clear
  * - Arrow keys navigate between cells (from Grid component)
+ * - Progress auto-saves to localStorage (refresh page to test)
  */
 
 // Sample puzzle (easy difficulty)
@@ -32,31 +38,51 @@ const DEMO_PUZZLE: number[][] = [
   [0, 0, 0, 0, 8, 0, 0, 7, 9],
 ];
 
+const PUZZLE_ID = "demo-puzzle-001";
+
 export default function InputDemoPage() {
-  const [userEntries, setUserEntries] = React.useState<number[][]>(
-    Array(9)
-      .fill(null)
-      .map(() => Array(9).fill(0))
+  // Use Zustand store instead of local state
+  const puzzle = usePuzzleStore((state) => state.puzzle);
+  const userEntries = usePuzzleStore((state) => state.userEntries);
+  const selectedCell = usePuzzleStore((state) => state.selectedCell);
+  const setPuzzle = usePuzzleStore((state) => state.setPuzzle);
+  const updateCell = usePuzzleStore((state) => state.updateCell);
+  const setSelectedCell = usePuzzleStore((state) => state.setSelectedCell);
+
+  // Initialize puzzle clues on mount
+  React.useEffect(() => {
+    const storedPuzzleId = usePuzzleStore.getState().puzzleId;
+
+    if (!storedPuzzleId || storedPuzzleId !== PUZZLE_ID) {
+      // First time or different puzzle - use setPuzzle (resets userEntries)
+      setPuzzle(PUZZLE_ID, DEMO_PUZZLE);
+    } else if (!puzzle) {
+      // Same puzzle ID but clues not loaded (after localStorage restore)
+      // Only restore clues without resetting userEntries
+      usePuzzleStore.setState({ puzzle: DEMO_PUZZLE });
+    }
+  }, [puzzle, setPuzzle]);
+
+  // State restoration (for authenticated users, this would load from DB)
+  // For demo, localStorage restoration happens automatically via Zustand persist
+  const isLoading = useStateRestoration(false, PUZZLE_ID);
+
+  // Auto-save hook (for authenticated users, this would save to DB)
+  // For demo, localStorage saving happens automatically via Zustand persist
+  useAutoSave(false);
+
+  const handleCellSelect = React.useCallback(
+    (row: number, col: number) => {
+      setSelectedCell({ row, col });
+    },
+    [setSelectedCell]
   );
-
-  const [selectedCell, setSelectedCell] = React.useState<{
-    row: number;
-    col: number;
-  } | null>(null);
-
-  const handleCellSelect = React.useCallback((row: number, col: number) => {
-    setSelectedCell({ row, col });
-  }, []);
 
   const handleNumberChange = React.useCallback(
     (row: number, col: number, value: number) => {
-      setUserEntries((prev) => {
-        const newEntries = prev.map((r) => [...r]);
-        newEntries[row][col] = value;
-        return newEntries;
-      });
+      updateCell(row, col, value);
     },
-    []
+    [updateCell]
   );
 
   const isClueCell = React.useCallback(
@@ -81,16 +107,26 @@ export default function InputDemoPage() {
     isClueCell,
   });
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white p-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-pulse text-gray-600">Loading puzzle...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white p-4">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-black">
-            Number Input System Demo
+            Number Input System + Auto-Save Demo
           </h1>
           <p className="text-gray-600">
-            Story 2.3: Touch & Keyboard Number Input
+            Story 2.3 + 2.4: Touch & Keyboard Input + Auto-Save
           </p>
         </div>
 
@@ -108,6 +144,10 @@ export default function InputDemoPage() {
             </li>
             <li>Arrow keys navigate between cells</li>
             <li>Clue cells (pre-filled numbers) cannot be modified</li>
+            <li>
+              <strong>New:</strong> Progress auto-saves to localStorage - refresh
+              page to test!
+            </li>
           </ul>
         </div>
 
