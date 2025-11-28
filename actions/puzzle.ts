@@ -818,3 +818,71 @@ export async function submitCompletion(
   }
 }
 
+export async function checkPuzzleCompletion(
+  puzzleId: string
+): Promise<Result<{ isCompleted: boolean; completionTime?: number }, string>> {
+  try {
+    const userId = await getCurrentUserId();
+
+    if (!userId) {
+      return {
+        success: true,
+        data: { isCompleted: false },
+      };
+    }
+
+    const supabase = await createServerClient();
+
+    const { data, error } = await supabase
+      .from("completions")
+      .select("completion_time_seconds")
+      .eq("puzzle_id", puzzleId)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error) {
+      logger.error("Failed to check puzzle completion", error, {
+        puzzleId,
+        userId,
+        action: "checkPuzzleCompletion",
+      });
+
+      return {
+        success: false,
+        error: "Failed to check completion status.",
+      };
+    }
+
+    if (data) {
+      return {
+        success: true,
+        data: {
+          isCompleted: true,
+          completionTime: data.completion_time_seconds,
+        },
+      };
+    }
+
+    return {
+      success: true,
+      data: { isCompleted: false },
+    };
+  } catch (error) {
+    const checkError = error as Error;
+
+    logger.error("Failed to check puzzle completion", checkError, {
+      puzzleId,
+      action: "checkPuzzleCompletion",
+    });
+
+    Sentry.captureException(checkError, {
+      extra: { puzzleId, action: "checkPuzzleCompletion" },
+    });
+
+    return {
+      success: false,
+      error: "Failed to check completion status.",
+    };
+  }
+}
+

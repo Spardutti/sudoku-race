@@ -56,6 +56,12 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to view the application.
 
+**Available Routes:**
+- `/` - Home page
+- `/puzzle` - Today's puzzle (production-ready)
+- `/demo/grid` - Grid component demo
+- `/demo/input` - Input system demo (deprecated - use `/puzzle` instead)
+
 ### Database Migrations
 
 This project uses **Supabase CLI** for version-controlled database migrations. All schema changes must go through migrations to ensure reproducibility across environments.
