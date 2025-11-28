@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X, User, LogOut } from 'lucide-react'
+import { Menu, X, User as UserIcon, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -21,16 +21,20 @@ import { AuthButtons } from '@/components/auth/AuthButtons'
 import { signOut } from '@/actions/auth'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { useAuthState } from '@/lib/hooks/useAuthState'
+import type { User } from '@supabase/supabase-js'
 
 interface HeaderProps {
-  userId: string | null
+  initialUser: User | null
   username: string | null
 }
 
-export function Header({ userId, username }: HeaderProps) {
+export function Header({ initialUser, username: initialUsername }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const router = useRouter()
+  const { user, isAuthenticated } = useAuthState({ initialUser })
 
   // Close menu on Escape key
   useEffect(() => {
@@ -49,6 +53,7 @@ export function Header({ userId, username }: HeaderProps) {
   const closeMenu = () => setMobileMenuOpen(false)
 
   const handleSignOut = async () => {
+    setIsLoggingOut(true)
     const result = await signOut()
     if (result.success) {
       toast.success('Signed out successfully')
@@ -56,6 +61,7 @@ export function Header({ userId, username }: HeaderProps) {
       router.refresh()
     } else {
       toast.error(result.error)
+      setIsLoggingOut(false)
     }
   }
 
@@ -86,24 +92,24 @@ export function Header({ userId, username }: HeaderProps) {
           ))}
 
           {/* Auth State */}
-          {userId ? (
+          {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2">
-                  <User className="h-4 w-4" />
-                  {username || 'User'}
+                <Button variant="ghost" className="gap-2" disabled={isLoggingOut}>
+                  <UserIcon className="h-4 w-4" />
+                  {user?.user_metadata?.full_name || initialUsername || 'User'}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
                   <Link href="/profile" className="cursor-pointer">
-                    <User className="h-4 w-4 mr-2" />
+                    <UserIcon className="h-4 w-4 mr-2" />
                     Profile
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                <DropdownMenuItem onClick={handleSignOut} disabled={isLoggingOut} className="cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+                  {isLoggingOut ? 'Logging out...' : 'Logout'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -126,7 +132,7 @@ export function Header({ userId, username }: HeaderProps) {
         <Button
           variant="ghost"
           size="sm"
-          className="md:hidden min-w-[36px]"
+          className="md:hidden min-w-9"
           aria-label="Toggle navigation menu"
           aria-expanded={mobileMenuOpen}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -154,7 +160,7 @@ export function Header({ userId, username }: HeaderProps) {
             ))}
 
             {/* Mobile Auth State */}
-            {userId ? (
+            {isAuthenticated ? (
               <button
                 onClick={() => {
                   closeMenu()
@@ -173,7 +179,7 @@ export function Header({ userId, username }: HeaderProps) {
                 }}
                 className="border-b border-gray-200 px-4 py-3 text-left text-black transition-colors hover:bg-gray-50 hover:text-[#1a73e8] flex items-center gap-2"
               >
-                <User className="h-4 w-4" />
+                <UserIcon className="h-4 w-4" />
                 Sign In
               </button>
             )}

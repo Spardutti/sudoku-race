@@ -69,7 +69,7 @@ development_status:
   3-2-oauth-authentication-google-github-apple: done
   3-3-session-preservation-retroactive-save: done
   3-4-user-profile-account-management: done
-  3-5-auth-state-management-ui-indicators: backlog
+  3-5-auth-state-management-ui-indicators: done # docs/sprint-artifacts/3-5-auth-state-management-ui-indicators.md
   epic-3-retrospective: optional
 
   # Epic 4: Competitive Leaderboards (5 stories)
