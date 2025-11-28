@@ -14,3 +14,18 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+@keyframes completion-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.02);
+    filter: brightness(1.15) saturate(1.2);
+  }
+}
+
+.animate-completion {
+  animation: completion-pulse 1s ease-in-out;
+}

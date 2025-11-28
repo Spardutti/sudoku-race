@@ -4,11 +4,14 @@ import * as React from "react";
 import { SudokuGrid } from "@/components/puzzle/SudokuGrid";
 import { NumberPad } from "@/components/puzzle/NumberPad";
 import { Timer } from "@/components/puzzle/Timer";
+import { SubmitButton } from "@/components/puzzle/SubmitButton";
+import { CompletionModal } from "@/components/puzzle/CompletionModal";
 import { useKeyboardInput } from "@/lib/hooks/useKeyboardInput";
 import { usePuzzleStore } from "@/lib/stores/puzzleStore";
 import { useAutoSave } from "@/lib/hooks/useAutoSave";
 import { useStateRestoration } from "@/lib/hooks/useStateRestoration";
 import { useTimer } from "@/lib/hooks/useTimer";
+import { validateSolution, submitCompletion } from "@/actions/puzzle";
 
 /**
  * Demo Page: Number Input System + Auto-Save + Timer
@@ -51,9 +54,16 @@ export default function InputDemoPage() {
   const selectedCell = usePuzzleStore((state) => state.selectedCell);
   const elapsedTime = usePuzzleStore((state) => state.elapsedTime);
   const isCompleted = usePuzzleStore((state) => state.isCompleted);
+  const completionTime = usePuzzleStore((state) => state.completionTime);
   const setPuzzle = usePuzzleStore((state) => state.setPuzzle);
   const updateCell = usePuzzleStore((state) => state.updateCell);
   const setSelectedCell = usePuzzleStore((state) => state.setSelectedCell);
+  const markCompleted = usePuzzleStore((state) => state.markCompleted);
+
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [validationMessage, setValidationMessage] = React.useState<string | null>(null);
+  const [showCompletionModal, setShowCompletionModal] = React.useState(false);
+  const [showAnimation, setShowAnimation] = React.useState(false);
 
   // Initialize puzzle clues on mount
   React.useEffect(() => {
@@ -119,6 +129,57 @@ export default function InputDemoPage() {
     isClueCell,
   });
 
+  const isGridComplete = React.useMemo(() => {
+    return userEntries.every((row) => row.every((cell) => cell !== 0));
+  }, [userEntries]);
+
+  const handleSubmit = React.useCallback(async () => {
+    if (!isGridComplete || isSubmitting || isCompleted) return;
+
+    setIsSubmitting(true);
+    setValidationMessage(null);
+
+    const result = await validateSolution(PUZZLE_ID, userEntries);
+
+    if (!result.success) {
+      setValidationMessage(result.error);
+      setIsSubmitting(false);
+      setTimeout(() => setValidationMessage(null), 4000);
+      return;
+    }
+
+    if (!result.data.isValid) {
+      setValidationMessage("Not quite right. Keep trying!");
+      setIsSubmitting(false);
+      setTimeout(() => {
+        setValidationMessage(null);
+      }, 4000);
+      return;
+    }
+
+    markCompleted(elapsedTime);
+    setShowAnimation(true);
+
+    setTimeout(() => {
+      setShowAnimation(false);
+      setShowCompletionModal(true);
+    }, 1200);
+
+    const completionResult = await submitCompletion(PUZZLE_ID, userEntries);
+    if (!completionResult.success) {
+      console.error("Failed to submit completion:", completionResult.error);
+    }
+
+    setIsSubmitting(false);
+  }, [isGridComplete, isSubmitting, isCompleted, userEntries, elapsedTime, markCompleted]);
+
+  React.useEffect(() => {
+    if (validationMessage) {
+      const timer = setTimeout(() => setValidationMessage(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [validationMessage]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white p-4 flex items-center justify-center">
@@ -174,14 +235,32 @@ export default function InputDemoPage() {
 
         {/* Puzzle Grid */}
         <div className="flex justify-center pb-32 lg:pb-0">
-          <SudokuGrid
-            puzzle={DEMO_PUZZLE}
-            userEntries={userEntries}
-            selectedCell={selectedCell}
-            onCellSelect={handleCellSelect}
-            onNumberChange={handleNumberChange}
+          <div className={showAnimation ? "animate-completion" : ""}>
+            <SudokuGrid
+              puzzle={DEMO_PUZZLE}
+              userEntries={userEntries}
+              selectedCell={selectedCell}
+              onCellSelect={handleCellSelect}
+              onNumberChange={handleNumberChange}
+            />
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <div className="max-w-xs mx-auto">
+          <SubmitButton
+            onSubmit={handleSubmit}
+            isDisabled={!isGridComplete || isCompleted}
+            isLoading={isSubmitting}
           />
         </div>
+
+        {/* Validation Message */}
+        {validationMessage && (
+          <div className="max-w-xs mx-auto p-4 bg-blue-50 border-2 border-blue-200 rounded-md text-center">
+            <p className="text-blue-900 font-semibold">{validationMessage}</p>
+          </div>
+        )}
 
         {/* Selected Cell Info (Debug) */}
         {selectedCell && (
@@ -200,6 +279,14 @@ export default function InputDemoPage() {
           isClueCell={
             selectedCell ? isClueCell(selectedCell.row, selectedCell.col) : false
           }
+        />
+
+        {/* Completion Modal */}
+        <CompletionModal
+          isOpen={showCompletionModal}
+          completionTime={completionTime || elapsedTime}
+          isAuthenticated={false}
+          onClose={() => setShowCompletionModal(false)}
         />
       </div>
     </div>

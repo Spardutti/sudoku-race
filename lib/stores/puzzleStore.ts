@@ -55,6 +55,12 @@ export interface PuzzleState {
    * True when puzzle successfully validated
    */
   isCompleted: boolean;
+
+  /**
+   * Completion time in seconds
+   * Null until puzzle is completed
+   */
+  completionTime: number | null;
 }
 
 /**
@@ -118,6 +124,15 @@ export interface PuzzleActions {
   setCompleted: () => void;
 
   /**
+   * Mark puzzle as completed with time
+   *
+   * Sets isCompleted to true and records completion time.
+   *
+   * @param time - Completion time in seconds
+   */
+  markCompleted: (time: number) => void;
+
+  /**
    * Restore state from partial state object
    *
    * Used for loading saved progress from database or localStorage.
@@ -173,6 +188,7 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
       selectedCell: null,
       elapsedTime: 0,
       isCompleted: false,
+      completionTime: null,
 
       // Actions
       setPuzzle: (id: string, puzzle: number[][]) =>
@@ -183,6 +199,7 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           selectedCell: null,
           elapsedTime: 0,
           isCompleted: false,
+          completionTime: null,
         })),
 
       updateCell: (row: number, col: number, value: number) =>
@@ -204,6 +221,9 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
 
       setCompleted: () => set(() => ({ isCompleted: true })),
 
+      markCompleted: (time: number) =>
+        set(() => ({ isCompleted: true, completionTime: time })),
+
       restoreState: (state: Partial<PuzzleState>) =>
         set((current) => ({
           ...current,
@@ -218,6 +238,7 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           selectedCell: null,
           elapsedTime: 0,
           isCompleted: false,
+          completionTime: null,
         })),
     }),
     {
@@ -228,6 +249,7 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
         selectedCell: state.selectedCell,
         elapsedTime: state.elapsedTime,
         isCompleted: state.isCompleted,
+        completionTime: state.completionTime,
       }),
     }
   )

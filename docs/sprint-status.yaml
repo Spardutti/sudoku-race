@@ -59,7 +59,7 @@ development_status:
   2-3-number-input-system-touch-keyboard: done # docs/stories/2-3-number-input-system-touch-keyboard.md
   2-4-puzzle-state-auto-save-session-management: done # docs/stories/2-4-puzzle-state-auto-save-session-management.md
   2-5-timer-implementation-auto-start-fair-timing: done # docs/stories/2-5-timer-implementation-auto-start-fair-timing.md
-  2-6-solution-validation-completion-flow: backlog
+  2-6-solution-validation-completion-flow: done # docs/stories/2-6-solution-validation-completion-flow.md
   2-7-puzzle-page-integration-ux-polish: backlog
   epic-2-retrospective: optional
 
