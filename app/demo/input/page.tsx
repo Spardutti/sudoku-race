@@ -285,6 +285,7 @@ export default function InputDemoPage() {
         <CompletionModal
           isOpen={showCompletionModal}
           completionTime={completionTime || elapsedTime}
+          puzzleId={PUZZLE_ID}
           isAuthenticated={false}
           onClose={() => setShowCompletionModal(false)}
         />

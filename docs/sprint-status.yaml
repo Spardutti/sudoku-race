@@ -60,12 +60,12 @@ development_status:
   2-4-puzzle-state-auto-save-session-management: done # docs/stories/2-4-puzzle-state-auto-save-session-management.md
   2-5-timer-implementation-auto-start-fair-timing: done # docs/stories/2-5-timer-implementation-auto-start-fair-timing.md
   2-6-solution-validation-completion-flow: done # docs/stories/2-6-solution-validation-completion-flow.md
-  2-7-puzzle-page-integration-ux-polish: in-progress # docs/sprint-artifacts/2-7-puzzle-page-integration-ux-polish.md
+  2-7-puzzle-page-integration-ux-polish: done # docs/sprint-artifacts/2-7-puzzle-page-integration-ux-polish.md
   epic-2-retrospective: optional
 
   # Epic 3: User Identity & Authentication (5 stories)
   epic-3: backlog
-  3-1-guest-play-session-based-progress: backlog
+  3-1-guest-play-session-based-progress: done
   3-2-oauth-authentication-google-github-apple: backlog
   3-3-session-preservation-retroactive-save: backlog
   3-4-user-profile-account-management: backlog

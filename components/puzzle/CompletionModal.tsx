@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,10 +8,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { getHypotheticalRank } from "@/actions/leaderboard";
 
 interface CompletionModalProps {
   isOpen: boolean;
   completionTime: number;
+  puzzleId: string;
   rank?: number;
   isAuthenticated: boolean;
   onClose: () => void;
@@ -25,10 +28,29 @@ function formatTime(seconds: number): string {
 export function CompletionModal({
   isOpen,
   completionTime,
+  puzzleId,
   rank,
   isAuthenticated,
   onClose,
 }: CompletionModalProps) {
+  const [hypotheticalRank, setHypotheticalRank] = React.useState<number | null>(null);
+  const [isLoadingRank, setIsLoadingRank] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!isAuthenticated && isOpen && !hypotheticalRank) {
+      setIsLoadingRank(true);
+      getHypotheticalRank(puzzleId, completionTime)
+        .then((result) => {
+          if (result.success) {
+            setHypotheticalRank(result.data);
+          }
+        })
+        .finally(() => setIsLoadingRank(false));
+    }
+  }, [isOpen, isAuthenticated, puzzleId, completionTime, hypotheticalRank]);
+
+  const guestRank = hypotheticalRank ?? null;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -52,25 +74,24 @@ export function CompletionModal({
           </div>
         ) : (
           <div className="mb-6 rounded-md border-2 border-gray-200 bg-gray-50 p-4">
-            <p className="mb-2 font-semibold text-gray-900">
-              Sign in to save your time!
+            <p className="mb-3 text-lg font-semibold text-gray-900">
+              {isLoadingRank
+                ? "Calculating your rank..."
+                : guestRank !== null
+                  ? `Nice time! You'd be #${guestRank}! Sign in to claim your rank on the leaderboard.`
+                  : "Sign in to claim your rank on the leaderboard!"}
             </p>
-            <p className="mb-4 text-sm text-gray-600">
-              {rank !== undefined
-                ? `You'd be ranked #${rank}! Create an account to claim your spot.`
-                : "Join the leaderboard and track your progress."}
+            <p className="mb-4 text-xs text-gray-500">
+              Without signing in: No leaderboard rank • No streaks • No stats
             </p>
             <div className="flex flex-col gap-2">
-              <Button className="w-full">Sign in with Google</Button>
-              <Button className="w-full">Sign in with GitHub</Button>
-              <Button className="w-full">Sign in with Apple</Button>
+              <Button className="w-full">Sign In</Button>
+              <Button onClick={onClose} variant="secondary" className="w-full">
+                Maybe Later
+              </Button>
             </div>
           </div>
         )}
-
-        <Button onClick={onClose} variant="secondary" className="w-full">
-          Close
-        </Button>
       </DialogContent>
     </Dialog>
   );

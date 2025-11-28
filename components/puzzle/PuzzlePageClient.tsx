@@ -271,6 +271,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
         <CompletionModal
           isOpen={showCompletionModal}
           completionTime={completionTime || elapsedTime}
+          puzzleId={puzzle.id}
           isAuthenticated={!!userId}
           onClose={() => setShowCompletionModal(false)}
         />

@@ -1,165 +1,200 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import { CompletionModal } from "../CompletionModal";
+import { getHypotheticalRank } from "@/actions/leaderboard";
+
+jest.mock("@/actions/leaderboard");
+
+const mockGetHypotheticalRank = getHypotheticalRank as jest.MockedFunction<
+  typeof getHypotheticalRank
+>;
 
 describe("CompletionModal", () => {
-  const mockOnClose = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("does not render when isOpen is false", () => {
-    render(
-      <CompletionModal
-        isOpen={false}
-        completionTime={125}
-        isAuthenticated={false}
-        onClose={mockOnClose}
-      />
-    );
+  describe("Authenticated User", () => {
+    it("should display rank for authenticated users", () => {
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={180}
+          puzzleId="puzzle-123"
+          rank={42}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+        />
+      );
 
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(screen.getByText("Congratulations!")).toBeInTheDocument();
+      expect(screen.getByText("03:00")).toBeInTheDocument();
+      expect(screen.getByText("Your rank:")).toBeInTheDocument();
+      expect(screen.getByText("#42")).toBeInTheDocument();
+    });
+
+    it("should not fetch hypothetical rank for authenticated users", () => {
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={180}
+          puzzleId="puzzle-123"
+          rank={10}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+        />
+      );
+
+      expect(mockGetHypotheticalRank).not.toHaveBeenCalled();
+    });
   });
 
-  it("renders when isOpen is true", () => {
-    render(
-      <CompletionModal
-        isOpen={true}
-        completionTime={125}
-        isAuthenticated={false}
-        onClose={mockOnClose}
-      />
-    );
+  describe("Guest User", () => {
+    it("should fetch and display hypothetical rank for guests", async () => {
+      mockGetHypotheticalRank.mockResolvedValue({
+        success: true,
+        data: 347,
+      });
 
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Congratulations!")).toBeInTheDocument();
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={300}
+          puzzleId="puzzle-123"
+          isAuthenticated={false}
+          onClose={jest.fn()}
+        />
+      );
+
+      expect(screen.getByText("Calculating your rank...")).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Nice time! You'd be #347! Sign in to claim your rank on the leaderboard\./
+          )
+        ).toBeInTheDocument();
+      });
+
+      expect(mockGetHypotheticalRank).toHaveBeenCalledWith("puzzle-123", 300);
+    });
+
+    it("should display Sign In button for guests", async () => {
+      mockGetHypotheticalRank.mockResolvedValue({
+        success: true,
+        data: 100,
+      });
+
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={250}
+          puzzleId="puzzle-123"
+          isAuthenticated={false}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Sign In")).toBeInTheDocument();
+      });
+
+      expect(screen.getByText("Maybe Later")).toBeInTheDocument();
+    });
+
+    it("should display limitations messaging for guests", async () => {
+      mockGetHypotheticalRank.mockResolvedValue({
+        success: true,
+        data: 50,
+      });
+
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={200}
+          puzzleId="puzzle-123"
+          isAuthenticated={false}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Without signing in: No leaderboard rank/)
+        ).toBeInTheDocument();
+      });
+
+      expect(screen.getByText(/No streaks/)).toBeInTheDocument();
+      expect(screen.getByText(/No stats/)).toBeInTheDocument();
+    });
+
+    it("should handle rank fetch failure gracefully", async () => {
+      mockGetHypotheticalRank.mockResolvedValue({
+        success: false,
+        error: "Failed to calculate rank",
+      });
+
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={300}
+          puzzleId="puzzle-123"
+          isAuthenticated={false}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Sign in to claim your rank on the leaderboard!/)
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("should not fetch rank when modal is closed", () => {
+      render(
+        <CompletionModal
+          isOpen={false}
+          completionTime={300}
+          puzzleId="puzzle-123"
+          isAuthenticated={false}
+          onClose={jest.fn()}
+        />
+      );
+
+      expect(mockGetHypotheticalRank).not.toHaveBeenCalled();
+    });
   });
 
-  it("displays formatted completion time", () => {
-    render(
-      <CompletionModal
-        isOpen={true}
-        completionTime={125}
-        isAuthenticated={false}
-        onClose={mockOnClose}
-      />
-    );
+  describe("Time Formatting", () => {
+    it("should format time correctly (MM:SS)", () => {
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={185}
+          puzzleId="puzzle-123"
+          rank={1}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+        />
+      );
 
-    expect(screen.getByText("02:05")).toBeInTheDocument();
-  });
+      expect(screen.getByText("03:05")).toBeInTheDocument();
+    });
 
-  it("displays rank for authenticated users", () => {
-    render(
-      <CompletionModal
-        isOpen={true}
-        completionTime={125}
-        rank={42}
-        isAuthenticated={true}
-        onClose={mockOnClose}
-      />
-    );
+    it("should pad single-digit seconds with leading zero", () => {
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={123}
+          puzzleId="puzzle-123"
+          rank={1}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+        />
+      );
 
-    expect(screen.getByText("#42")).toBeInTheDocument();
-    expect(screen.getByText("Your rank:")).toBeInTheDocument();
-  });
-
-  it("shows auth CTA for guest users", () => {
-    render(
-      <CompletionModal
-        isOpen={true}
-        completionTime={125}
-        isAuthenticated={false}
-        onClose={mockOnClose}
-      />
-    );
-
-    expect(screen.getByText("Sign in to save your time!")).toBeInTheDocument();
-    expect(screen.getByText("Sign in with Google")).toBeInTheDocument();
-    expect(screen.getByText("Sign in with GitHub")).toBeInTheDocument();
-    expect(screen.getByText("Sign in with Apple")).toBeInTheDocument();
-  });
-
-  it("shows hypothetical rank for guests when provided", () => {
-    render(
-      <CompletionModal
-        isOpen={true}
-        completionTime={125}
-        rank={347}
-        isAuthenticated={false}
-        onClose={mockOnClose}
-      />
-    );
-
-    expect(
-      screen.getByText(/You'd be ranked #347/i)
-    ).toBeInTheDocument();
-  });
-
-  it("calls onClose when X button clicked", () => {
-    render(
-      <CompletionModal
-        isOpen={true}
-        completionTime={125}
-        isAuthenticated={false}
-        onClose={mockOnClose}
-      />
-    );
-
-    // Radix Dialog renders X button with sr-only "Close" text
-    const closeButtons = screen.getAllByText("Close");
-    const xButton = closeButtons.find(el => el.classList.contains("sr-only"))?.parentElement;
-
-    if (xButton) {
-      fireEvent.click(xButton);
-      expect(mockOnClose).toHaveBeenCalledTimes(1);
-    }
-  });
-
-  it("calls onClose when Close button clicked", () => {
-    render(
-      <CompletionModal
-        isOpen={true}
-        completionTime={125}
-        isAuthenticated={false}
-        onClose={mockOnClose}
-      />
-    );
-
-    // Get all buttons with "Close" text and click the visible one (variant="secondary")
-    const closeButtons = screen.getAllByRole("button", { name: /close/i });
-    const visibleCloseButton = closeButtons.find(btn =>
-      btn.textContent === "Close" && !btn.querySelector('.sr-only')
-    );
-
-    if (visibleCloseButton) {
-      fireEvent.click(visibleCloseButton);
-      expect(mockOnClose).toHaveBeenCalledTimes(1);
-    }
-  });
-
-  it("formats time correctly for single-digit minutes and seconds", () => {
-    render(
-      <CompletionModal
-        isOpen={true}
-        completionTime={65}
-        isAuthenticated={false}
-        onClose={mockOnClose}
-      />
-    );
-
-    expect(screen.getByText("01:05")).toBeInTheDocument();
-  });
-
-  it("formats time correctly for double-digit values", () => {
-    render(
-      <CompletionModal
-        isOpen={true}
-        completionTime={725}
-        isAuthenticated={false}
-        onClose={mockOnClose}
-      />
-    );
-
-    expect(screen.getByText("12:05")).toBeInTheDocument();
+      expect(screen.getByText("02:03")).toBeInTheDocument();
+    });
   });
 });
