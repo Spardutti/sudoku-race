@@ -486,3 +486,237 @@ export async function loadProgress(
     };
   }
 }
+
+/**
+ * Start puzzle timer
+ *
+ * Records server-side timestamp when puzzle starts. Idempotent - only sets
+ * started_at if not already set.
+ *
+ * @param puzzleId - Unique puzzle identifier
+ * @returns Result with started_at timestamp on success, error message on failure
+ */
+export async function startTimer(
+  puzzleId: string
+): Promise<Result<{ startedAt: string }, string>> {
+  try {
+    const userId = await getCurrentUserId();
+
+    if (!userId) {
+      return {
+        success: false,
+        error: "Unauthorized: User must be authenticated to start timer",
+      };
+    }
+
+    const supabase = await createServerClient();
+
+    // Check if timer already started (idempotent)
+    const { data: existing } = await supabase
+      .from("completions")
+      .select("started_at")
+      .eq("user_id", userId)
+      .eq("puzzle_id", puzzleId)
+      .maybeSingle();
+
+    if (existing?.started_at) {
+      logger.info("Timer already started (idempotent)", {
+        userId,
+        puzzleId,
+        startedAt: existing.started_at,
+        action: "startTimer",
+      });
+
+      return {
+        success: true,
+        data: { startedAt: existing.started_at },
+      };
+    }
+
+    // Insert or update with started_at timestamp
+    const startedAt = new Date().toISOString();
+
+    const { error } = await supabase.from("completions").upsert(
+      {
+        user_id: userId,
+        puzzle_id: puzzleId,
+        started_at: startedAt,
+        is_complete: false,
+        is_guest: false,
+      },
+      {
+        onConflict: "user_id,puzzle_id",
+        ignoreDuplicates: false,
+      }
+    );
+
+    if (error) {
+      logger.error("Failed to start puzzle timer", error, {
+        userId,
+        puzzleId,
+        action: "startTimer",
+      });
+
+      return {
+        success: false,
+        error: "Failed to start timer. Please try again.",
+      };
+    }
+
+    logger.info("Puzzle timer started", {
+      userId,
+      puzzleId,
+      startedAt,
+      action: "startTimer",
+    });
+
+    return {
+      success: true,
+      data: { startedAt },
+    };
+  } catch (error) {
+    const startError = error as Error;
+
+    logger.error("Exception starting puzzle timer", startError, {
+      puzzleId,
+      action: "startTimer",
+    });
+
+    Sentry.captureException(startError, {
+      extra: { puzzleId, action: "startTimer" },
+    });
+
+    return {
+      success: false,
+      error: "Failed to start timer. Please try again.",
+    };
+  }
+}
+
+/**
+ * Submit puzzle completion with server-side time validation
+ *
+ * Records completion timestamp and calculates server-side completion time.
+ * Flags suspiciously fast completions (<120s) for review.
+ *
+ * @param puzzleId - Unique puzzle identifier
+ * @param userEntries - 9x9 grid of user's final entries
+ * @returns Result with completion time and flagged status, error message on failure
+ */
+export async function submitCompletion(
+  puzzleId: string,
+  userEntries: number[][]
+): Promise<Result<{ completionTime: number; flagged: boolean }, string>> {
+  try {
+    const userId = await getCurrentUserId();
+
+    if (!userId) {
+      return {
+        success: false,
+        error: "Unauthorized: User must be authenticated to submit completion",
+      };
+    }
+
+    const supabase = await createServerClient();
+
+    // Get started_at timestamp
+    const { data: completion } = await supabase
+      .from("completions")
+      .select("started_at")
+      .eq("user_id", userId)
+      .eq("puzzle_id", puzzleId)
+      .maybeSingle();
+
+    if (!completion?.started_at) {
+      logger.warn("Cannot submit completion without started_at", {
+        userId,
+        puzzleId,
+        action: "submitCompletion",
+      });
+
+      return {
+        success: false,
+        error: "Timer not started. Please refresh the page.",
+      };
+    }
+
+    // Calculate server-side completion time
+    const completedAt = new Date();
+    const startedAt = new Date(completion.started_at);
+    const completionTimeSeconds = Math.floor(
+      (completedAt.getTime() - startedAt.getTime()) / 1000
+    );
+
+    // Flag suspiciously fast completions (<120s)
+    const FAST_COMPLETION_THRESHOLD_SECONDS = 120;
+    const flagged = completionTimeSeconds < FAST_COMPLETION_THRESHOLD_SECONDS;
+
+    // Update completion record
+    const { error } = await supabase
+      .from("completions")
+      .update({
+        completed_at: completedAt.toISOString(),
+        completion_time_seconds: completionTimeSeconds,
+        flagged_for_review: flagged,
+        is_complete: true,
+        completion_data: { userEntries },
+      })
+      .eq("user_id", userId)
+      .eq("puzzle_id", puzzleId);
+
+    if (error) {
+      logger.error("Failed to submit puzzle completion", error, {
+        userId,
+        puzzleId,
+        action: "submitCompletion",
+      });
+
+      return {
+        success: false,
+        error: "Failed to submit completion. Please try again.",
+      };
+    }
+
+    logger.info("Puzzle completion submitted", {
+      userId,
+      puzzleId,
+      completionTimeSeconds,
+      flagged,
+      action: "submitCompletion",
+    });
+
+    if (flagged) {
+      logger.warn("Fast completion flagged for review", {
+        userId,
+        puzzleId,
+        completionTimeSeconds,
+        threshold: FAST_COMPLETION_THRESHOLD_SECONDS,
+      });
+    }
+
+    return {
+      success: true,
+      data: {
+        completionTime: completionTimeSeconds,
+        flagged,
+      },
+    };
+  } catch (error) {
+    const submitError = error as Error;
+
+    logger.error("Exception submitting puzzle completion", submitError, {
+      puzzleId,
+      action: "submitCompletion",
+    });
+
+    Sentry.captureException(submitError, {
+      extra: { puzzleId, action: "submitCompletion" },
+    });
+
+    return {
+      success: false,
+      error: "Failed to submit completion. Please try again.",
+    };
+  }
+}
+

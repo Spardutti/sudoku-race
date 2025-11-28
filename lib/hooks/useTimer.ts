@@ -1,0 +1,145 @@
+/**
+ * Timer Hook - Auto-Start, Pause on Visibility
+ *
+ * Manages puzzle timer with automatic start, pause on tab visibility change,
+ * and stop on completion. Updates Zustand store every second.
+ *
+ * @see docs/architecture.md (ADR-005: Server-Side Timer Validation)
+ * @see docs/stories/2-5-timer-implementation-auto-start-fair-timing.md
+ */
+
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { usePuzzleStore } from "@/lib/stores/puzzleStore";
+
+interface UseTimerReturn {
+  /**
+   * Whether the timer is currently running
+   */
+  isRunning: boolean;
+  /**
+   * Pause the timer manually
+   */
+  pause: () => void;
+  /**
+   * Resume the timer manually
+   */
+  resume: () => void;
+  /**
+   * Reset the timer to 0
+   */
+  reset: () => void;
+}
+
+const TIMER_INTERVAL_MS = 1000;
+
+/**
+ * Timer Hook
+ *
+ * Auto-starts on mount, pauses on tab visibility change, stops when puzzle completed.
+ * Updates Zustand store `elapsedTime` every second.
+ *
+ * @returns Timer control methods and running state
+ *
+ * @example
+ * ```tsx
+ * function PuzzlePage() {
+ *   const { isRunning, pause, resume } = useTimer();
+ *   const elapsedTime = usePuzzleStore((s) => s.elapsedTime);
+ *   const isCompleted = usePuzzleStore((s) => s.isCompleted);
+ *
+ *   return <Timer elapsedTime={elapsedTime} isCompleted={isCompleted} />;
+ * }
+ * ```
+ */
+export function useTimer(): UseTimerReturn {
+  const { updateElapsedTime, isCompleted } = usePuzzleStore();
+  const [isRunning, setIsRunning] = useState(!isCompleted);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const pause = () => {
+    setIsRunning(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  const resume = () => {
+    if (!isCompleted) {
+      setIsRunning(true);
+    }
+  };
+
+  const reset = () => {
+    pause();
+    updateElapsedTime(0);
+  };
+
+  // Stop timer when puzzle is completed
+  useEffect(() => {
+    if (isCompleted) {
+      setIsRunning(false);
+    }
+  }, [isCompleted]);
+
+  // Timer interval - increment elapsed time every second
+  useEffect(() => {
+    if (!isRunning || isCompleted) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
+
+    intervalRef.current = setInterval(() => {
+      // Use functional update to access current state without dependency
+      const currentTime = usePuzzleStore.getState().elapsedTime;
+      updateElapsedTime(currentTime + 1);
+    }, TIMER_INTERVAL_MS);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [isRunning, isCompleted, updateElapsedTime]);
+
+  // Page Visibility API - pause when tab loses focus
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        pause();
+      } else if (document.visibilityState === "visible") {
+        resume();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCompleted]);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, []);
+
+  return {
+    isRunning,
+    pause,
+    resume,
+    reset,
+  };
+}

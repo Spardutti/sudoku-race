@@ -102,6 +102,15 @@ export interface PuzzleActions {
   setElapsedTime: (seconds: number) => void;
 
   /**
+   * Update elapsed time (alias for setElapsedTime)
+   *
+   * Provides consistent naming with timer hook expectations.
+   *
+   * @param seconds - Elapsed time in seconds
+   */
+  updateElapsedTime: (seconds: number) => void;
+
+  /**
    * Mark puzzle as completed
    *
    * Called after successful validation.
@@ -188,6 +197,9 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
         set(() => ({ selectedCell: cell })),
 
       setElapsedTime: (seconds: number) =>
+        set(() => ({ elapsedTime: seconds })),
+
+      updateElapsedTime: (seconds: number) =>
         set(() => ({ elapsedTime: seconds })),
 
       setCompleted: () => set(() => ({ isCompleted: true })),

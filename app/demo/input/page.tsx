@@ -3,13 +3,15 @@
 import * as React from "react";
 import { SudokuGrid } from "@/components/puzzle/SudokuGrid";
 import { NumberPad } from "@/components/puzzle/NumberPad";
+import { Timer } from "@/components/puzzle/Timer";
 import { useKeyboardInput } from "@/lib/hooks/useKeyboardInput";
 import { usePuzzleStore } from "@/lib/stores/puzzleStore";
 import { useAutoSave } from "@/lib/hooks/useAutoSave";
 import { useStateRestoration } from "@/lib/hooks/useStateRestoration";
+import { useTimer } from "@/lib/hooks/useTimer";
 
 /**
- * Demo Page: Number Input System + Auto-Save
+ * Demo Page: Number Input System + Auto-Save + Timer
  *
  * Tests integration of:
  * - SudokuGrid component (from Story 2.2)
@@ -17,12 +19,14 @@ import { useStateRestoration } from "@/lib/hooks/useStateRestoration";
  * - useKeyboardInput hook (desktop keyboard shortcuts - Story 2.3)
  * - Zustand store with auto-save (Story 2.4)
  * - State restoration from localStorage (Story 2.4)
+ * - Timer component + useTimer hook (Story 2.5)
  *
  * Instructions:
  * - Mobile: Tap cells to select, use number pad at bottom to input
  * - Desktop: Click cells to select, press 1-9 to input, Backspace/Delete/0 to clear
  * - Arrow keys navigate between cells (from Grid component)
  * - Progress auto-saves to localStorage (refresh page to test)
+ * - Timer auto-starts and pauses when tab loses focus
  */
 
 // Sample puzzle (easy difficulty)
@@ -45,6 +49,8 @@ export default function InputDemoPage() {
   const puzzle = usePuzzleStore((state) => state.puzzle);
   const userEntries = usePuzzleStore((state) => state.userEntries);
   const selectedCell = usePuzzleStore((state) => state.selectedCell);
+  const elapsedTime = usePuzzleStore((state) => state.elapsedTime);
+  const isCompleted = usePuzzleStore((state) => state.isCompleted);
   const setPuzzle = usePuzzleStore((state) => state.setPuzzle);
   const updateCell = usePuzzleStore((state) => state.updateCell);
   const setSelectedCell = usePuzzleStore((state) => state.setSelectedCell);
@@ -70,6 +76,12 @@ export default function InputDemoPage() {
   // Auto-save hook (for authenticated users, this would save to DB)
   // For demo, localStorage saving happens automatically via Zustand persist
   useAutoSave(false);
+
+  // Timer hook - auto-starts on mount, pauses on tab visibility change
+  useTimer();
+
+  // Note: In production, this would call startTimer(PUZZLE_ID) on mount
+  // For demo, localStorage persistence is sufficient
 
   const handleCellSelect = React.useCallback(
     (row: number, col: number) => {
@@ -123,11 +135,16 @@ export default function InputDemoPage() {
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-black">
-            Number Input System + Auto-Save Demo
+            Number Input System + Auto-Save + Timer Demo
           </h1>
           <p className="text-gray-600">
-            Story 2.3 + 2.4: Touch & Keyboard Input + Auto-Save
+            Story 2.3 + 2.4 + 2.5: Input + Auto-Save + Timer
           </p>
+        </div>
+
+        {/* Timer Display */}
+        <div className="flex justify-center">
+          <Timer elapsedTime={elapsedTime} isCompleted={isCompleted} />
         </div>
 
         {/* Instructions */}
@@ -145,8 +162,12 @@ export default function InputDemoPage() {
             <li>Arrow keys navigate between cells</li>
             <li>Clue cells (pre-filled numbers) cannot be modified</li>
             <li>
-              <strong>New:</strong> Progress auto-saves to localStorage - refresh
-              page to test!
+              <strong>Auto-Save:</strong> Progress auto-saves to localStorage -
+              refresh page to test!
+            </li>
+            <li>
+              <strong>Timer:</strong> Auto-starts on load, pauses when tab loses
+              focus, resumes on return
             </li>
           </ul>
         </div>
