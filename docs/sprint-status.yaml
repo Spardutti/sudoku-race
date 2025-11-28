@@ -56,7 +56,7 @@ development_status:
   epic-2: contexted # docs/tech-spec-epic-2.md
   2-1-daily-puzzle-system-data-management: done # docs/stories/2-1-daily-puzzle-system-data-management.md + .context.xml
   2-2-sudoku-grid-ui-component-mobile-optimized: done # docs/stories/2-2-sudoku-grid-ui-component-mobile-optimized.md
-  2-3-number-input-system-touch-keyboard: drafted # docs/stories/2-3-number-input-system-touch-keyboard.md
+  2-3-number-input-system-touch-keyboard: done # docs/stories/2-3-number-input-system-touch-keyboard.md
   2-4-puzzle-state-auto-save-session-management: backlog
   2-5-timer-implementation-auto-start-fair-timing: backlog
   2-6-solution-validation-completion-flow: backlog
