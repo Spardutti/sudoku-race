@@ -1,9 +1,12 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { CompletionModal } from "../CompletionModal";
 import { getHypotheticalRank } from "@/actions/leaderboard";
 
 jest.mock("@/actions/leaderboard");
+jest.mock("@/components/auth/AuthButtons", () => ({
+  AuthButtons: () => <div data-testid="auth-buttons">Mock Auth Buttons</div>,
+}));
 
 const mockGetHypotheticalRank = getHypotheticalRank as jest.MockedFunction<
   typeof getHypotheticalRank
@@ -163,6 +166,159 @@ describe("CompletionModal", () => {
       );
 
       expect(mockGetHypotheticalRank).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Auth Button Integration", () => {
+    it("should show 'Sign In' button by default for guests", async () => {
+      mockGetHypotheticalRank.mockResolvedValue({
+        success: true,
+        data: 25,
+      });
+
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={200}
+          puzzleId="puzzle-123"
+          isAuthenticated={false}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
+      });
+
+      expect(screen.queryByTestId("auth-buttons")).not.toBeInTheDocument();
+    });
+
+    it("should display AuthButtons component when Sign In clicked", async () => {
+      mockGetHypotheticalRank.mockResolvedValue({
+        success: true,
+        data: 30,
+      });
+
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={250}
+          puzzleId="puzzle-123"
+          isAuthenticated={false}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
+      });
+
+      const signInButton = screen.getByRole("button", { name: /sign in/i });
+      fireEvent.click(signInButton);
+
+      expect(screen.getByTestId("auth-buttons")).toBeInTheDocument();
+    });
+
+    it("should show 'Back' button when AuthButtons displayed", async () => {
+      mockGetHypotheticalRank.mockResolvedValue({
+        success: true,
+        data: 35,
+      });
+
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={275}
+          puzzleId="puzzle-123"
+          isAuthenticated={false}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
+      });
+
+      const signInButton = screen.getByRole("button", { name: /sign in/i });
+      fireEvent.click(signInButton);
+
+      expect(screen.getByRole("button", { name: /back/i })).toBeInTheDocument();
+    });
+
+    it("should hide AuthButtons when 'Back' clicked", async () => {
+      mockGetHypotheticalRank.mockResolvedValue({
+        success: true,
+        data: 40,
+      });
+
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={280}
+          puzzleId="puzzle-123"
+          isAuthenticated={false}
+          onClose={jest.fn()}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
+      });
+
+      // Show auth buttons
+      const signInButton = screen.getByRole("button", { name: /sign in/i });
+      fireEvent.click(signInButton);
+      expect(screen.getByTestId("auth-buttons")).toBeInTheDocument();
+
+      // Hide auth buttons
+      const backButton = screen.getByRole("button", { name: /back/i });
+      fireEvent.click(backButton);
+
+      expect(screen.queryByTestId("auth-buttons")).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
+    });
+
+    it("should call onClose when 'Maybe Later' clicked", async () => {
+      mockGetHypotheticalRank.mockResolvedValue({
+        success: true,
+        data: 45,
+      });
+
+      const onClose = jest.fn();
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={300}
+          puzzleId="puzzle-123"
+          isAuthenticated={false}
+          onClose={onClose}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /maybe later/i })).toBeInTheDocument();
+      });
+
+      const maybeLaterButton = screen.getByRole("button", { name: /maybe later/i });
+      fireEvent.click(maybeLaterButton);
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not show auth buttons for authenticated users", () => {
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={200}
+          puzzleId="puzzle-123"
+          rank={10}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+        />
+      );
+
+      expect(screen.queryByRole("button", { name: /sign in/i })).not.toBeInTheDocument();
+      expect(screen.queryByTestId("auth-buttons")).not.toBeInTheDocument();
     });
   });
 

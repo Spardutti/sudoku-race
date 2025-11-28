@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { getHypotheticalRank } from "@/actions/leaderboard";
+import { AuthButtons } from "@/components/auth/AuthButtons";
 
 interface CompletionModalProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ export function CompletionModal({
 }: CompletionModalProps) {
   const [hypotheticalRank, setHypotheticalRank] = React.useState<number | null>(null);
   const [isLoadingRank, setIsLoadingRank] = React.useState(false);
+  const [showAuthButtons, setShowAuthButtons] = React.useState(false);
 
   React.useEffect(() => {
     if (!isAuthenticated && isOpen && !hypotheticalRank) {
@@ -84,12 +86,21 @@ export function CompletionModal({
             <p className="mb-4 text-xs text-gray-500">
               Without signing in: No leaderboard rank • No streaks • No stats
             </p>
-            <div className="flex flex-col gap-2">
-              <Button className="w-full">Sign In</Button>
-              <Button onClick={onClose} variant="secondary" className="w-full">
-                Maybe Later
-              </Button>
-            </div>
+            {showAuthButtons ? (
+              <div className="flex flex-col gap-2">
+                <AuthButtons />
+                <Button onClick={() => setShowAuthButtons(false)} variant="secondary" className="w-full">
+                  Back
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <Button onClick={() => setShowAuthButtons(true)} className="w-full">Sign In</Button>
+                <Button onClick={onClose} variant="secondary" className="w-full">
+                  Maybe Later
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </DialogContent>

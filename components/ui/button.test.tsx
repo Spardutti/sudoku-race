@@ -51,7 +51,7 @@ describe("Button Component", () => {
     it("applies primary variant classes correctly", () => {
       render(<Button variant="primary">Primary</Button>);
       const button = screen.getByRole("button");
-      expect(button).toHaveClass("bg-primary", "text-background");
+      expect(button).toHaveClass("bg-black", "text-white");
     });
 
     /**
@@ -61,7 +61,7 @@ describe("Button Component", () => {
     it("applies secondary variant classes correctly", () => {
       render(<Button variant="secondary">Secondary</Button>);
       const button = screen.getByRole("button");
-      expect(button).toHaveClass("bg-background", "text-primary", "border-primary");
+      expect(button).toHaveClass("bg-white", "text-black", "border-black");
     });
 
     /**
@@ -71,7 +71,7 @@ describe("Button Component", () => {
     it("applies ghost variant classes correctly", () => {
       render(<Button variant="ghost">Ghost</Button>);
       const button = screen.getByRole("button");
-      expect(button).toHaveClass("bg-transparent", "text-primary");
+      expect(button).toHaveClass("bg-transparent", "text-black");
     });
 
     /**
@@ -81,7 +81,7 @@ describe("Button Component", () => {
     it("uses primary variant as default", () => {
       render(<Button>Default</Button>);
       const button = screen.getByRole("button");
-      expect(button).toHaveClass("bg-primary", "text-background");
+      expect(button).toHaveClass("bg-black", "text-white");
     });
   });
 
@@ -272,7 +272,7 @@ describe("Button Component", () => {
       );
 
       const link = screen.getByRole("link");
-      expect(link).toHaveClass("bg-background", "text-primary");
+      expect(link).toHaveClass("bg-white", "text-black");
     });
   });
 
@@ -327,11 +327,11 @@ describe("Button Component", () => {
     it("uses design system color tokens (primary, background, accent)", () => {
       const { rerender } = render(<Button variant="primary">Primary</Button>);
       let button = screen.getByRole("button");
-      expect(button).toHaveClass("bg-primary", "text-background");
+      expect(button).toHaveClass("bg-black", "text-white");
 
       rerender(<Button variant="secondary">Secondary</Button>);
       button = screen.getByRole("button");
-      expect(button).toHaveClass("bg-background", "text-primary");
+      expect(button).toHaveClass("bg-white", "text-black");
     });
 
     /**

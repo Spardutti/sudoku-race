@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Merriweather, Inter } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
+import { HeaderWithAuth } from "@/components/layout/HeaderWithAuth";
 import { Footer } from "@/components/layout/Footer";
 import { Analytics } from "@vercel/analytics/react";
 import { WebVitalsReporter } from "@/lib/monitoring/web-vitals";
 import { SITE_URL, SOCIAL_MEDIA } from "@/lib/config";
+import { Toaster } from "@/components/ui/sonner";
 
 const merriweather = Merriweather({
   variable: "--font-serif",
@@ -137,10 +138,11 @@ export default function RootLayout({
         className={`${merriweather.variable} ${inter.variable} font-sans antialiased`}
       >
         <div className="flex min-h-screen flex-col">
-          <Header />
+          <HeaderWithAuth />
           <main className="flex-1">{children}</main>
           <Footer />
         </div>
+        <Toaster />
         <Analytics />
         <WebVitalsReporter />
       </body>

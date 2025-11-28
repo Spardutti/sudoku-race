@@ -39,18 +39,18 @@ const buttonVariants = cva(
          * High contrast for primary CTAs
          */
         primary:
-          "bg-primary text-background border-2 border-primary hover:bg-background hover:text-primary",
+          "bg-black text-white border-2 border-black hover:bg-white hover:text-black",
         /**
          * Secondary variant - White background, black border
          * For secondary actions and alternative CTAs
          */
         secondary:
-          "bg-background text-primary border-2 border-primary hover:bg-primary hover:text-background",
+          "bg-white text-black border-2 border-black hover:bg-black hover:text-white",
         /**
          * Ghost variant - Transparent background, underline on hover
          * For subtle actions and tertiary CTAs
          */
-        ghost: "bg-transparent text-primary hover:underline underline-offset-4",
+        ghost: "bg-transparent text-black hover:underline underline-offset-4",
       },
       size: {
         /**
