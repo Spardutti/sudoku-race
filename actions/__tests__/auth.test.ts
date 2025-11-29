@@ -171,7 +171,6 @@ describe("Auth Server Actions", () => {
 
   describe("deleteAccount", () => {
     let mockFrom: jest.Mock;
-    let mockDelete: jest.Mock;
     let mockEq: jest.Mock;
 
     beforeEach(() => {

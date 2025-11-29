@@ -12,8 +12,8 @@ const mockToast = toast as jest.Mocked<typeof toast>;
 describe("AuthButtons", () => {
   beforeAll(() => {
     // Mock window.location for all tests
-    delete (window as any).location;
-    window.location = { href: "" } as any;
+    delete (window as Window & { location?: Location }).location;
+    window.location = { href: "" } as Location;
   });
 
   beforeEach(() => {
