@@ -95,8 +95,10 @@ export default async function LeaderboardPage() {
       </div>
 
       <LeaderboardTable
-        entries={entries}
+        puzzleId={puzzle.id}
+        initialEntries={entries}
         personalRank={personalRank ?? undefined}
+        currentUserId={userId ?? undefined}
       />
 
       {personalRank && <PersonalRankFooter personalRank={personalRank} />}

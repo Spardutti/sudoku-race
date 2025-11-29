@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { WebVitalsReporter } from "@/lib/monitoring/web-vitals";
 import { SITE_URL, SOCIAL_MEDIA } from "@/lib/config";
 import { Toaster } from "@/components/ui/sonner";
+import { QueryProvider } from "@/lib/providers/QueryProvider";
 
 const merriweather = Merriweather({
   variable: "--font-serif",
@@ -137,14 +138,16 @@ export default function RootLayout({
       <body
         className={`${merriweather.variable} ${inter.variable} font-sans antialiased`}
       >
-        <div className="flex min-h-screen flex-col">
-          <HeaderWithAuth />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
-        <Toaster />
-        <Analytics />
-        <WebVitalsReporter />
+        <QueryProvider>
+          <div className="flex min-h-screen flex-col">
+            <HeaderWithAuth />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+          <Toaster />
+          <Analytics />
+          <WebVitalsReporter />
+        </QueryProvider>
       </body>
     </html>
   );

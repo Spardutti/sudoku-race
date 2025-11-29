@@ -75,7 +75,7 @@ development_status:
   # Epic 4: Competitive Leaderboards (5 stories)
   epic-4: backlog
   4-1-global-daily-leaderboard-top-100-personal-rank: done
-  4-2-real-time-leaderboard-updates-supabase-realtime: backlog
+  4-2-real-time-leaderboard-updates-supabase-realtime: in-progress
   4-3-server-side-time-validation-anti-cheat: backlog
   4-4-leaderboard-ui-polish-accessibility: backlog
   4-5-leaderboard-sharing-social-proof: backlog

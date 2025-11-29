@@ -7,6 +7,8 @@ export interface LeaderboardEntry {
   rank: number;
   username: string;
   completion_time_seconds: number;
+  user_id?: string;
+  isOptimistic?: boolean;
 }
 
 export interface PersonalRank {

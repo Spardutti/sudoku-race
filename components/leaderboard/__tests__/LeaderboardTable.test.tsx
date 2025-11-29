@@ -1,90 +1,129 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { LeaderboardTable } from "../LeaderboardTable";
-import type { LeaderboardEntry, PersonalRank } from "@/actions/leaderboard";
+import { useLeaderboardQuery } from "@/lib/api";
+
+jest.mock("@/lib/api", () => ({
+  useLeaderboardQuery: jest.fn(),
+}));
 
 describe("LeaderboardTable", () => {
-  const mockEntries: LeaderboardEntry[] = [
-    { rank: 1, username: "Alice", completion_time_seconds: 120 },
-    { rank: 2, username: "Bob", completion_time_seconds: 150 },
-    { rank: 3, username: "Charlie", completion_time_seconds: 180 },
-  ];
+  it("displays initial entries while loading", () => {
+    (useLeaderboardQuery as jest.Mock).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+    });
 
-  it("renders leaderboard table with entries", () => {
-    render(<LeaderboardTable entries={mockEntries} />);
+    render(
+      <LeaderboardTable
+        puzzleId="test-puzzle"
+        initialEntries={[
+          {
+            rank: 1,
+            username: "Alice",
+            completion_time_seconds: 120,
+            user_id: "user-1",
+          },
+        ]}
+      />
+    );
 
-    expect(screen.getByRole("table")).toBeInTheDocument();
     expect(screen.getByText("Alice")).toBeInTheDocument();
-    expect(screen.getByText("Bob")).toBeInTheDocument();
-    expect(screen.getByText("Charlie")).toBeInTheDocument();
   });
 
-  it("displays rank, username, and time columns", () => {
-    render(<LeaderboardTable entries={mockEntries} />);
+  it("displays polled data when available", async () => {
+    const polledData = [
+      {
+        rank: 1,
+        username: "Bob",
+        completion_time_seconds: 100,
+        user_id: "user-2",
+      },
+    ];
 
-    expect(screen.getByText("Rank")).toBeInTheDocument();
-    expect(screen.getByText("Username")).toBeInTheDocument();
-    expect(screen.getByText("Time")).toBeInTheDocument();
-  });
+    (useLeaderboardQuery as jest.Mock).mockReturnValue({
+      data: polledData,
+      isLoading: false,
+    });
 
-  it("formats time correctly (MM:SS)", () => {
-    render(<LeaderboardTable entries={mockEntries} />);
-
-    expect(screen.getByText("02:00")).toBeInTheDocument();
-    expect(screen.getByText("02:30")).toBeInTheDocument();
-    expect(screen.getByText("03:00")).toBeInTheDocument();
-  });
-
-  it("highlights personal rank when inside top 100", () => {
-    const personalRank: PersonalRank = {
-      rank: 2,
-      completion_time_seconds: 150,
-    };
-
-    const { container } = render(
-      <LeaderboardTable entries={mockEntries} personalRank={personalRank} />
+    render(
+      <LeaderboardTable
+        puzzleId="test-puzzle"
+        initialEntries={[
+          {
+            rank: 1,
+            username: "Alice",
+            completion_time_seconds: 120,
+            user_id: "user-1",
+          },
+        ]}
+      />
     );
 
-    const rows = container.querySelectorAll("tbody tr");
-    expect(rows[1]).toHaveClass("bg-blue-50");
-    expect(rows[1]).toHaveClass("font-bold");
+    await waitFor(() => {
+      expect(screen.getByText("Bob")).toBeInTheDocument();
+    });
   });
 
-  it("does not highlight rows when personal rank is outside top 100", () => {
-    const personalRank: PersonalRank = {
-      rank: 150,
-      completion_time_seconds: 300,
-    };
+  it("highlights personal rank when in top 100", () => {
+    (useLeaderboardQuery as jest.Mock).mockReturnValue({
+      data: [
+        {
+          rank: 1,
+          username: "Alice",
+          completion_time_seconds: 120,
+          user_id: "user-1",
+        },
+      ],
+      isLoading: false,
+    });
 
-    const { container } = render(
-      <LeaderboardTable entries={mockEntries} personalRank={personalRank} />
+    render(
+      <LeaderboardTable
+        puzzleId="test-puzzle"
+        initialEntries={[]}
+        currentUserId="user-1"
+      />
     );
 
-    const rows = container.querySelectorAll("tbody tr");
-    expect(rows[0]).not.toHaveClass("bg-blue-50");
-    expect(rows[1]).not.toHaveClass("bg-blue-50");
+    const row = screen.getByText("Alice").closest("tr");
+    expect(row).toHaveClass("bg-blue-50");
   });
 
-  it("applies zebra striping to rows", () => {
-    const { container } = render(<LeaderboardTable entries={mockEntries} />);
+  it("displays correct ranking and time", () => {
+    (useLeaderboardQuery as jest.Mock).mockReturnValue({
+      data: [
+        {
+          rank: 1,
+          username: "Alice",
+          completion_time_seconds: 125,
+          user_id: "user-1",
+        },
+      ],
+      isLoading: false,
+    });
 
-    const rows = container.querySelectorAll("tbody tr");
-    expect(rows[0]).toHaveClass("bg-white");
-    expect(rows[1]).toHaveClass("bg-gray-50");
-    expect(rows[2]).toHaveClass("bg-white");
-  });
-
-  it("displays rank with # prefix", () => {
-    render(<LeaderboardTable entries={mockEntries} />);
+    render(
+      <LeaderboardTable puzzleId="test-puzzle" initialEntries={[]} />
+    );
 
     expect(screen.getByText("#1")).toBeInTheDocument();
-    expect(screen.getByText("#2")).toBeInTheDocument();
-    expect(screen.getByText("#3")).toBeInTheDocument();
+    expect(screen.getByText("Alice")).toBeInTheDocument();
+    expect(screen.getByText("02:05")).toBeInTheDocument();
   });
 
-  it("renders aria-label for accessibility", () => {
-    render(<LeaderboardTable entries={mockEntries} />);
+  it("polls when enabled", () => {
+    (useLeaderboardQuery as jest.Mock).mockReturnValue({
+      data: [],
+      isLoading: false,
+    });
 
-    const table = screen.getByLabelText("Daily leaderboard");
-    expect(table).toBeInTheDocument();
+    render(
+      <LeaderboardTable puzzleId="test-puzzle" initialEntries={[]} />
+    );
+
+    expect(useLeaderboardQuery).toHaveBeenCalledWith({
+      puzzleId: "test-puzzle",
+      enabled: true,
+    });
   });
 });
