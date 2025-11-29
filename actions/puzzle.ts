@@ -17,6 +17,7 @@ export type Puzzle = {
   puzzle_date: string;
   puzzle_data: number[][];
   difficulty: "easy" | "medium" | "hard";
+  solution?: number[][]; // Optional, only for dev tools
 };
 
 export async function getPuzzleToday(): Promise<Result<Puzzle, string>> {
@@ -24,9 +25,12 @@ export async function getPuzzleToday(): Promise<Result<Puzzle, string>> {
     const today = new Date().toISOString().split("T")[0];
     const supabase = await createServerActionClient();
 
+    // In dev mode, include solution for dev tools
+    const isDev = process.env.NODE_ENV !== "production";
+
     const { data, error } = await supabase
       .from("puzzles")
-      .select("id, puzzle_date, puzzle_data, difficulty")
+      .select("id, puzzle_date, puzzle_data, difficulty, solution")
       .eq("puzzle_date", today)
       .single();
 
@@ -53,14 +57,21 @@ export async function getPuzzleToday(): Promise<Result<Puzzle, string>> {
       difficulty: data.difficulty,
     });
 
+    const puzzleData: Puzzle = {
+      id: data.id,
+      puzzle_date: data.puzzle_date,
+      puzzle_data: data.puzzle_data as number[][],
+      difficulty: data.difficulty as "easy" | "medium" | "hard",
+    };
+
+    // Include solution only in dev mode
+    if (isDev && data.solution) {
+      puzzleData.solution = data.solution as number[][];
+    }
+
     return {
       success: true,
-      data: {
-        id: data.id,
-        puzzle_date: data.puzzle_date,
-        puzzle_data: data.puzzle_data as number[][],
-        difficulty: data.difficulty as "easy" | "medium" | "hard",
-      },
+      data: puzzleData,
     };
   } catch (error) {
     const fetchError = error as Error;

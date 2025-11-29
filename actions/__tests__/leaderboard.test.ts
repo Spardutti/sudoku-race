@@ -1,19 +1,20 @@
 import { getHypotheticalRank } from "../leaderboard";
-import { createServerClient } from "@/lib/supabase/server";
+import { createServerActionClient } from "@/lib/supabase/server";
 
 jest.mock("@/lib/supabase/server");
 
 describe("getHypotheticalRank", () => {
-  const mockCreateServerClient = createServerClient as jest.MockedFunction<
-    typeof createServerClient
-  >;
+  const mockCreateServerActionClient =
+    createServerActionClient as jest.MockedFunction<
+      typeof createServerActionClient
+    >;
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it("should return rank 1 when no completions exist", async () => {
-    mockCreateServerClient.mockResolvedValue({
+    mockCreateServerActionClient.mockResolvedValue({
       from: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
@@ -24,7 +25,7 @@ describe("getHypotheticalRank", () => {
           }),
         }),
       }),
-    } as unknown as Awaited<ReturnType<typeof createServerClient>>);
+    } as unknown as Awaited<ReturnType<typeof createServerActionClient>>);
 
     const result = await getHypotheticalRank("puzzle-123", 300);
 
@@ -32,7 +33,7 @@ describe("getHypotheticalRank", () => {
   });
 
   it("should return correct rank when faster completions exist", async () => {
-    mockCreateServerClient.mockResolvedValue({
+    mockCreateServerActionClient.mockResolvedValue({
       from: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
@@ -43,7 +44,7 @@ describe("getHypotheticalRank", () => {
           }),
         }),
       }),
-    } as unknown as Awaited<ReturnType<typeof createServerClient>>);
+    } as unknown as Awaited<ReturnType<typeof createServerActionClient>>);
 
     const result = await getHypotheticalRank("puzzle-123", 300);
 
@@ -51,7 +52,7 @@ describe("getHypotheticalRank", () => {
   });
 
   it("should handle database errors gracefully", async () => {
-    mockCreateServerClient.mockResolvedValue({
+    mockCreateServerActionClient.mockResolvedValue({
       from: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
@@ -62,7 +63,7 @@ describe("getHypotheticalRank", () => {
           }),
         }),
       }),
-    } as unknown as Awaited<ReturnType<typeof createServerClient>>);
+    } as unknown as Awaited<ReturnType<typeof createServerActionClient>>);
 
     const result = await getHypotheticalRank("puzzle-123", 300);
 
@@ -73,7 +74,7 @@ describe("getHypotheticalRank", () => {
   });
 
   it("should handle null count as 0", async () => {
-    mockCreateServerClient.mockResolvedValue({
+    mockCreateServerActionClient.mockResolvedValue({
       from: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
           eq: jest.fn().mockReturnValue({
@@ -84,7 +85,7 @@ describe("getHypotheticalRank", () => {
           }),
         }),
       }),
-    } as unknown as Awaited<ReturnType<typeof createServerClient>>);
+    } as unknown as Awaited<ReturnType<typeof createServerActionClient>>);
 
     const result = await getHypotheticalRank("puzzle-123", 300);
 
@@ -97,9 +98,9 @@ describe("getHypotheticalRank", () => {
     const mockSelect = jest.fn().mockReturnValue({ eq: mockEq });
     const mockFrom = jest.fn().mockReturnValue({ select: mockSelect });
 
-    mockCreateServerClient.mockResolvedValue({
+    mockCreateServerActionClient.mockResolvedValue({
       from: mockFrom,
-    } as unknown as Awaited<ReturnType<typeof createServerClient>>);
+    } as unknown as Awaited<ReturnType<typeof createServerActionClient>>);
 
     await getHypotheticalRank("puzzle-456", 250);
 
@@ -113,7 +114,7 @@ describe("getHypotheticalRank", () => {
   });
 
   it("should handle unexpected errors", async () => {
-    mockCreateServerClient.mockRejectedValue(new Error("Network error"));
+    mockCreateServerActionClient.mockRejectedValue(new Error("Network error"));
 
     const result = await getHypotheticalRank("puzzle-123", 300);
 

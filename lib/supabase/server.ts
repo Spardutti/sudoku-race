@@ -1,4 +1,5 @@
 import { createServerClient as createClient } from '@supabase/ssr'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
 /**
@@ -42,6 +43,32 @@ export async function createServerActionClient() {
             cookieStore.set(name, value, options)
           )
         }
+      }
+    }
+  )
+}
+
+/**
+ * Create Supabase admin client with service role (bypasses RLS)
+ * ONLY use for dev tools or trusted admin operations
+ * DEV MODE ONLY
+ */
+export function createServiceRoleClient() {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Service role client not available in production')
+  }
+
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY not found')
+  }
+
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
       }
     }
   )

@@ -33,17 +33,19 @@ export function InstructionsCard() {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-serif">How to Play</DialogTitle>
-          <DialogDescription className="text-base pt-4 space-y-3">
-            <p>
-              Fill the 9×9 grid so that each row, column, and 3×3 box contains
-              the numbers 1-9.
-            </p>
-            <p className="text-sm text-gray-600">
-              <strong>Mobile:</strong> Tap a cell, then use the number pad below.
-            </p>
-            <p className="text-sm text-gray-600">
-              <strong>Desktop:</strong> Click a cell, then press 1-9 on your keyboard.
-            </p>
+          <DialogDescription asChild>
+            <div className="text-base pt-4 space-y-3">
+              <p>
+                Fill the 9×9 grid so that each row, column, and 3×3 box contains
+                the numbers 1-9.
+              </p>
+              <p className="text-sm text-gray-600">
+                <strong>Mobile:</strong> Tap a cell, then use the number pad below.
+              </p>
+              <p className="text-sm text-gray-600">
+                <strong>Desktop:</strong> Click a cell, then press 1-9 on your keyboard.
+              </p>
+            </div>
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end gap-2 mt-4">

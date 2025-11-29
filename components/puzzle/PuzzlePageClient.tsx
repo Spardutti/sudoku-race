@@ -23,6 +23,7 @@ import { useTimer } from "@/lib/hooks/useTimer";
 import { useNetworkStatus } from "@/lib/hooks/useNetworkStatus";
 import { validateSolution, submitCompletion } from "@/actions/puzzle";
 import type { Puzzle } from "@/actions/puzzle";
+import { DevTools } from "@/components/puzzle/DevTools";
 
 type PuzzlePageClientProps = {
   puzzle: Puzzle;
@@ -280,6 +281,9 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
             </p>
           </div>
         )}
+
+        {/* Dev Tools (only in development) */}
+        <DevTools puzzleId={puzzle.id} solution={puzzle.solution} />
 
         {/* Mobile Number Pad (sticky bottom) */}
         <NumberPad
