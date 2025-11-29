@@ -13,9 +13,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 // Mock dependencies
 jest.mock("@/lib/supabase/server");
 jest.mock("../Header", () => ({
-  Header: ({ userId, username }: { userId: string | null; username: string | null }) => (
-    <header data-testid="mock-header" data-user-id={userId || ""} data-username={username || ""}>
-      {userId ? `Logged in as ${username}` : "Guest"}
+  Header: ({ initialUser, username }: { initialUser: { id: string } | null; username: string | null }) => (
+    <header data-testid="mock-header" data-user-id={initialUser?.id || ""} data-username={username || ""}>
+      {initialUser ? `Logged in as ${username}` : "Guest"}
     </header>
   ),
 }));

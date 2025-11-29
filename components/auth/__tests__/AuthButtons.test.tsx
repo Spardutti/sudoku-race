@@ -10,14 +10,16 @@ const mockSignInWithGoogle = signInWithGoogle as jest.MockedFunction<typeof sign
 const mockToast = toast as jest.Mocked<typeof toast>;
 
 describe("AuthButtons", () => {
+  beforeAll(() => {
+    // Mock window.location for all tests
+    delete (window as any).location;
+    window.location = { href: "" } as any;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock window.location for tests
-    Object.defineProperty(window, "location", {
-      value: { href: "" },
-      writable: true,
-      configurable: true,
-    });
+    // Reset href
+    window.location.href = "";
   });
 
   it("should render Google OAuth button", () => {

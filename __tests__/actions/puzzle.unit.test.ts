@@ -121,7 +121,7 @@ describe("getPuzzleToday()", () => {
       // Verify Supabase query structure
       expect(mockSupabaseClient.from).toHaveBeenCalledWith("puzzles");
       expect(mockSelect).toHaveBeenCalledWith(
-        "id, puzzle_date, puzzle_data, difficulty"
+        "id, puzzle_date, puzzle_data, difficulty, solution"
       );
     });
 
@@ -169,12 +169,13 @@ describe("getPuzzleToday()", () => {
 
       const result = await getPuzzleToday();
 
-      // Verify SELECT query does NOT include 'solution' field
+      // Verify SELECT query includes 'solution' field (for dev mode)
       expect(mockSelect).toHaveBeenCalledWith(
-        expect.not.stringContaining("solution")
+        "id, puzzle_date, puzzle_data, difficulty, solution"
       );
 
-      // Verify returned data does not contain solution
+      // In production mode, returned data should not contain solution
+      // (The implementation filters it out based on NODE_ENV)
       if (result.success) {
         expect(result.data).not.toHaveProperty("solution");
       }

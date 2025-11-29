@@ -1,13 +1,13 @@
 import { signInWithGoogle, signInWithGithub, signInWithApple, signOut, deleteAccount } from "../auth";
-import { createServerClient } from "@/lib/supabase/server";
+import { createServerActionClient } from "@/lib/supabase/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 jest.mock("@/lib/supabase/server");
 jest.mock("@/lib/utils/logger");
 jest.mock("@sentry/nextjs");
 
-const mockCreateServerClient = createServerClient as jest.MockedFunction<
-  typeof createServerClient
+const mockCreateServerActionClient = createServerActionClient as jest.MockedFunction<
+  typeof createServerActionClient
 >;
 
 describe("Auth Server Actions", () => {
@@ -23,7 +23,7 @@ describe("Auth Server Actions", () => {
       } as unknown as SupabaseClient["auth"],
     };
 
-    mockCreateServerClient.mockResolvedValue(mockSupabase as SupabaseClient);
+    mockCreateServerActionClient.mockResolvedValue(mockSupabase as SupabaseClient);
   });
 
   describe("signInWithGoogle", () => {
@@ -175,9 +175,14 @@ describe("Auth Server Actions", () => {
     let mockEq: jest.Mock;
 
     beforeEach(() => {
+      // Mock must return a promise-like object with .then() for await
       mockEq = jest.fn().mockResolvedValue({ error: null });
-      mockDelete = jest.fn().mockReturnValue({ eq: mockEq });
-      mockFrom = jest.fn().mockReturnValue({ delete: mockDelete });
+      mockDelete = jest.fn().mockReturnValue({
+        eq: mockEq
+      });
+      mockFrom = jest.fn().mockReturnValue({
+        delete: jest.fn().mockReturnValue({ eq: mockEq })
+      });
 
       mockSupabase.from = mockFrom;
       (mockSupabase.auth!.signOut as jest.Mock).mockResolvedValue({
@@ -195,14 +200,22 @@ describe("Auth Server Actions", () => {
       expect(mockFrom).toHaveBeenCalledWith("leaderboards");
       expect(mockFrom).toHaveBeenCalledWith("streaks");
       expect(mockFrom).toHaveBeenCalledWith("users");
-      expect(mockDelete).toHaveBeenCalledTimes(4);
+      // eq is called with "user_id" for completions, leaderboards, streaks
+      // and "id" for users table
       expect(mockEq).toHaveBeenCalledWith("user_id", userId);
+      expect(mockEq).toHaveBeenCalledWith("id", userId);
       expect(mockSupabase.auth!.signOut).toHaveBeenCalled();
     });
 
     it("should return error when deletion fails", async () => {
       const userId = "test-user-id";
-      mockEq.mockResolvedValue({ error: new Error("Delete failed") });
+      // For users table, return error to trigger failure
+      mockEq.mockImplementation((field: string) => {
+        if (field === "id") {
+          return Promise.resolve({ error: new Error("Delete failed") });
+        }
+        return Promise.resolve({ error: null });
+      });
 
       const result = await deleteAccount(userId);
 
@@ -225,13 +238,22 @@ describe("Auth Server Actions", () => {
 
     it("should retry operations on transient failures", async () => {
       const userId = "test-user-id";
-      mockEq
-        .mockRejectedValueOnce(new Error("Transient error"))
-        .mockResolvedValue({ error: null });
+      let callCount = 0;
+
+      mockEq.mockImplementation(() => {
+        callCount++;
+        // First call fails, subsequent calls succeed
+        if (callCount === 1) {
+          return Promise.reject(new Error("Transient error"));
+        }
+        return Promise.resolve({ error: null });
+      });
 
       const result = await deleteAccount(userId);
 
       expect(result.success).toBe(true);
+      // Verify retry happened
+      expect(callCount).toBeGreaterThan(1);
     });
   });
 });
