@@ -1,7 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { Header } from "../Header";
-import { signOut } from "@/actions/auth";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "@/lib/hooks/useAuthState";
 import type { User } from "@supabase/supabase-js";
@@ -11,8 +9,6 @@ jest.mock("sonner");
 jest.mock("next/navigation");
 jest.mock("@/lib/hooks/useAuthState");
 
-const mockSignOut = signOut as jest.MockedFunction<typeof signOut>;
-const mockToast = toast as jest.Mocked<typeof toast>;
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 const mockUseAuthState = useAuthState as jest.MockedFunction<typeof useAuthState>;
 

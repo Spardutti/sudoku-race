@@ -71,7 +71,6 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
   userEntries,
   selectedCell,
   onCellSelect,
-  onNumberChange,
 }) {
   const gridRef = React.useRef<HTMLDivElement>(null);
 

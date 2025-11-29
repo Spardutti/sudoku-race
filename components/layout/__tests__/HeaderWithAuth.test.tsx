@@ -7,11 +7,10 @@
 
 import { render, screen } from "@testing-library/react";
 import { HeaderWithAuth } from "../HeaderWithAuth";
-import { getCurrentUserId } from "@/lib/auth/get-current-user";
 import { createServerClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 // Mock dependencies
-jest.mock("@/lib/auth/get-current-user");
 jest.mock("@/lib/supabase/server");
 jest.mock("../Header", () => ({
   Header: ({ userId, username }: { userId: string | null; username: string | null }) => (
@@ -21,7 +20,6 @@ jest.mock("../Header", () => ({
   ),
 }));
 
-const mockGetCurrentUserId = getCurrentUserId as jest.MockedFunction<typeof getCurrentUserId>;
 const mockCreateServerClient = createServerClient as jest.MockedFunction<typeof createServerClient>;
 
 describe("HeaderWithAuth", () => {
@@ -31,9 +29,18 @@ describe("HeaderWithAuth", () => {
 
   describe("Guest State", () => {
     it("renders Header with null userId and username when user not authenticated", async () => {
-      mockGetCurrentUserId.mockResolvedValue(null);
+      const mockSupabaseClient = {
+        auth: {
+          getUser: jest.fn().mockResolvedValue({
+            data: { user: null },
+            error: null,
+          }),
+        },
+      };
 
-      const { container } = render(await HeaderWithAuth());
+      mockCreateServerClient.mockResolvedValue(mockSupabaseClient as unknown as SupabaseClient);
+
+      render(await HeaderWithAuth());
 
       const header = screen.getByTestId("mock-header");
       expect(header).toHaveAttribute("data-user-id", "");
@@ -47,9 +54,13 @@ describe("HeaderWithAuth", () => {
       const mockUserId = "user-123";
       const mockUsername = "testuser";
 
-      mockGetCurrentUserId.mockResolvedValue(mockUserId);
-
       const mockSupabaseClient = {
+        auth: {
+          getUser: jest.fn().mockResolvedValue({
+            data: { user: { id: mockUserId } },
+            error: null,
+          }),
+        },
         from: jest.fn().mockReturnValue({
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
@@ -62,9 +73,9 @@ describe("HeaderWithAuth", () => {
         }),
       };
 
-      mockCreateServerClient.mockResolvedValue(mockSupabaseClient as any);
+      mockCreateServerClient.mockResolvedValue(mockSupabaseClient as unknown as SupabaseClient);
 
-      const { container } = render(await HeaderWithAuth());
+      render(await HeaderWithAuth());
 
       const header = screen.getByTestId("mock-header");
       expect(header).toHaveAttribute("data-user-id", mockUserId);
@@ -75,9 +86,13 @@ describe("HeaderWithAuth", () => {
     it("handles null username from database gracefully", async () => {
       const mockUserId = "user-456";
 
-      mockGetCurrentUserId.mockResolvedValue(mockUserId);
-
       const mockSupabaseClient = {
+        auth: {
+          getUser: jest.fn().mockResolvedValue({
+            data: { user: { id: mockUserId } },
+            error: null,
+          }),
+        },
         from: jest.fn().mockReturnValue({
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
@@ -90,9 +105,9 @@ describe("HeaderWithAuth", () => {
         }),
       };
 
-      mockCreateServerClient.mockResolvedValue(mockSupabaseClient as any);
+      mockCreateServerClient.mockResolvedValue(mockSupabaseClient as unknown as SupabaseClient);
 
-      const { container } = render(await HeaderWithAuth());
+      render(await HeaderWithAuth());
 
       const header = screen.getByTestId("mock-header");
       expect(header).toHaveAttribute("data-user-id", mockUserId);
@@ -102,9 +117,13 @@ describe("HeaderWithAuth", () => {
     it("handles database query errors gracefully", async () => {
       const mockUserId = "user-789";
 
-      mockGetCurrentUserId.mockResolvedValue(mockUserId);
-
       const mockSupabaseClient = {
+        auth: {
+          getUser: jest.fn().mockResolvedValue({
+            data: { user: { id: mockUserId } },
+            error: null,
+          }),
+        },
         from: jest.fn().mockReturnValue({
           select: jest.fn().mockReturnValue({
             eq: jest.fn().mockReturnValue({
@@ -117,9 +136,9 @@ describe("HeaderWithAuth", () => {
         }),
       };
 
-      mockCreateServerClient.mockResolvedValue(mockSupabaseClient as any);
+      mockCreateServerClient.mockResolvedValue(mockSupabaseClient as unknown as SupabaseClient);
 
-      const { container } = render(await HeaderWithAuth());
+      render(await HeaderWithAuth());
 
       const header = screen.getByTestId("mock-header");
       expect(header).toHaveAttribute("data-user-id", mockUserId);
@@ -130,7 +149,6 @@ describe("HeaderWithAuth", () => {
   describe("Database Integration", () => {
     it("queries users table with correct userId", async () => {
       const mockUserId = "user-abc";
-      mockGetCurrentUserId.mockResolvedValue(mockUserId);
 
       const mockEq = jest.fn().mockReturnValue({
         single: jest.fn().mockResolvedValue({
@@ -148,10 +166,16 @@ describe("HeaderWithAuth", () => {
       });
 
       const mockSupabaseClient = {
+        auth: {
+          getUser: jest.fn().mockResolvedValue({
+            data: { user: { id: mockUserId } },
+            error: null,
+          }),
+        },
         from: mockFrom,
       };
 
-      mockCreateServerClient.mockResolvedValue(mockSupabaseClient as any);
+      mockCreateServerClient.mockResolvedValue(mockSupabaseClient as unknown as SupabaseClient);
 
       render(await HeaderWithAuth());
 

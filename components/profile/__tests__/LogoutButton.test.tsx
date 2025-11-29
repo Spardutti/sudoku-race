@@ -26,6 +26,10 @@ describe("LogoutButton", () => {
     mockUseRouter.mockReturnValue({
       push: mockPush,
       refresh: mockRefresh,
+      back: jest.fn(),
+      forward: jest.fn(),
+      replace: jest.fn(),
+      prefetch: jest.fn(),
     } as ReturnType<typeof useRouter>);
   });
 

@@ -1,5 +1,5 @@
 import { validateSolution } from "../puzzle";
-import { createServerClient } from "@/lib/supabase/server";
+import { createServerActionClient } from "@/lib/supabase/server";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
 import { validationLimiter } from "@/lib/abuse-prevention/rate-limiters";
 import { headers } from "next/headers";
@@ -11,8 +11,8 @@ jest.mock("@/lib/utils/logger");
 jest.mock("@sentry/nextjs");
 jest.mock("next/headers");
 
-const mockCreateServerClient = createServerClient as jest.MockedFunction<
-  typeof createServerClient
+const mockCreateServerActionClient = createServerActionClient as jest.MockedFunction<
+  typeof createServerActionClient
 >;
 const mockGetCurrentUserId = getCurrentUserId as jest.MockedFunction<
   typeof getCurrentUserId
@@ -66,8 +66,8 @@ describe("validateSolution", () => {
       }),
     };
 
-    mockCreateServerClient.mockResolvedValue(
-      mockSupabase as unknown as Awaited<ReturnType<typeof createServerClient>>
+    mockCreateServerActionClient.mockResolvedValue(
+      mockSupabase as unknown as Awaited<ReturnType<typeof createServerActionClient>>
     );
 
     const result = await validateSolution(mockPuzzleId, validSolution);
@@ -110,8 +110,8 @@ describe("validateSolution", () => {
       }),
     };
 
-    mockCreateServerClient.mockResolvedValue(
-      mockSupabase as unknown as Awaited<ReturnType<typeof createServerClient>>
+    mockCreateServerActionClient.mockResolvedValue(
+      mockSupabase as unknown as Awaited<ReturnType<typeof createServerActionClient>>
     );
 
     const result = await validateSolution(mockPuzzleId, differentSolution);

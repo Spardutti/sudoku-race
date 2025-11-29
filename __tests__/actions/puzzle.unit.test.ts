@@ -19,7 +19,7 @@ const mockSupabaseClient = {
 };
 
 jest.mock("@/lib/supabase/server", () => ({
-  createServerClient: jest.fn(() => Promise.resolve(mockSupabaseClient)),
+  createServerActionClient: jest.fn(() => Promise.resolve(mockSupabaseClient)),
 }));
 
 // Mock logger to prevent console output during tests
@@ -53,9 +53,29 @@ jest.mock("@/lib/utils/ip-utils", () => ({
   getClientIP: jest.fn(() => "127.0.0.1"),
 }));
 
+// Mock abuse prevention rate limiters
+jest.mock("@/lib/abuse-prevention/rate-limiters", () => ({
+  validationLimiter: {
+    check: jest.fn().mockResolvedValue(undefined),
+  },
+  submissionLimiter: {
+    check: jest.fn().mockResolvedValue(undefined),
+  },
+}));
+
+// Mock getCurrentUserId
+jest.mock("@/lib/auth/get-current-user", () => ({
+  getCurrentUserId: jest.fn().mockResolvedValue(null),
+}));
+
 describe("getPuzzleToday()", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Security tests should run in production mode
+    Object.defineProperty(process.env, "NODE_ENV", {
+      value: "production",
+      writable: true,
+    });
   });
 
   describe("AC2: Puzzle Retrieval - Success Cases", () => {

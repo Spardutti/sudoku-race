@@ -1,5 +1,5 @@
 import { startTimer, submitCompletion } from "../puzzle";
-import { createServerClient } from "@/lib/supabase/server";
+import { createServerActionClient } from "@/lib/supabase/server";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
 
 // Mock dependencies
@@ -8,8 +8,8 @@ jest.mock("@/lib/auth/get-current-user");
 jest.mock("@/lib/utils/logger");
 jest.mock("@sentry/nextjs");
 
-const mockCreateServerClient = createServerClient as jest.MockedFunction<
-  typeof createServerClient
+const mockCreateServerActionClient = createServerActionClient as jest.MockedFunction<
+  typeof createServerActionClient
 >;
 const mockGetCurrentUserId = getCurrentUserId as jest.MockedFunction<
   typeof getCurrentUserId
@@ -35,9 +35,9 @@ describe("Timer Server Actions", () => {
         upsert: jest.fn().mockResolvedValue({ error: null }),
       };
 
-      mockCreateServerClient.mockResolvedValue(
+      mockCreateServerActionClient.mockResolvedValue(
         mockSupabase as unknown as Awaited<
-          ReturnType<typeof createServerClient>
+          ReturnType<typeof createServerActionClient>
         >
       );
 
@@ -80,9 +80,9 @@ describe("Timer Server Actions", () => {
         upsert: jest.fn(),
       };
 
-      mockCreateServerClient.mockResolvedValue(
+      mockCreateServerActionClient.mockResolvedValue(
         mockSupabase as unknown as Awaited<
-          ReturnType<typeof createServerClient>
+          ReturnType<typeof createServerActionClient>
         >
       );
 
@@ -121,9 +121,9 @@ describe("Timer Server Actions", () => {
           .mockResolvedValue({ error: { message: "Database error" } }),
       };
 
-      mockCreateServerClient.mockResolvedValue(
+      mockCreateServerActionClient.mockResolvedValue(
         mockSupabase as unknown as Awaited<
-          ReturnType<typeof createServerClient>
+          ReturnType<typeof createServerActionClient>
         >
       );
 
@@ -165,9 +165,9 @@ describe("Timer Server Actions", () => {
         maybeSingle: jest.fn().mockResolvedValue({ data: null }),
       };
 
-      mockCreateServerClient.mockResolvedValue(
+      mockCreateServerActionClient.mockResolvedValue(
         mockSupabase as unknown as Awaited<
-          ReturnType<typeof createServerClient>
+          ReturnType<typeof createServerActionClient>
         >
       );
 
@@ -196,9 +196,9 @@ describe("Timer Server Actions", () => {
         }),
       };
 
-      mockCreateServerClient.mockResolvedValue(
+      mockCreateServerActionClient.mockResolvedValue(
         mockSupabase as unknown as Awaited<
-          ReturnType<typeof createServerClient>
+          ReturnType<typeof createServerActionClient>
         >
       );
 

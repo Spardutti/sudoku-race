@@ -36,14 +36,8 @@ describe("Leaderboard API", () => {
       });
 
       const { queryFn } = leaderboardKeys.list("puzzle-123");
-      const context = {
-        queryKey: leaderboardKeys.list("puzzle-123").queryKey,
-        signal: new AbortController().signal,
-        meta: undefined,
-        client: queryClient,
-      } as any;
-
-      const result = await queryFn(context);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await queryFn({} as any);
       expect(result).toEqual(mockData);
     });
 
@@ -54,14 +48,8 @@ describe("Leaderboard API", () => {
       });
 
       const { queryFn } = leaderboardKeys.list("puzzle-123");
-      const context = {
-        queryKey: leaderboardKeys.list("puzzle-123").queryKey,
-        signal: new AbortController().signal,
-        meta: undefined,
-        client: queryClient,
-      } as any;
-
-      await expect(queryFn(context)).rejects.toThrow("Database error");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await expect(queryFn({} as any)).rejects.toThrow("Database error");
     });
   });
 

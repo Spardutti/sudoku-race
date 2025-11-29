@@ -1,5 +1,6 @@
 import { getCurrentUserId } from "../get-current-user";
 import { createServerClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 jest.mock("@/lib/supabase/server");
 
@@ -21,7 +22,7 @@ describe("getCurrentUserId", () => {
           error: null,
         }),
       },
-    } as any);
+    } as unknown as SupabaseClient);
 
     const result = await getCurrentUserId();
 
@@ -36,7 +37,7 @@ describe("getCurrentUserId", () => {
           error: null,
         }),
       },
-    } as any);
+    } as unknown as SupabaseClient);
 
     const result = await getCurrentUserId();
 
@@ -51,7 +52,7 @@ describe("getCurrentUserId", () => {
           error: null,
         }),
       },
-    } as any);
+    } as unknown as SupabaseClient);
 
     const result = await getCurrentUserId();
 
@@ -68,7 +69,7 @@ describe("getCurrentUserId", () => {
       auth: {
         getUser: mockGetUser,
       },
-    } as any);
+    } as unknown as SupabaseClient);
 
     await getCurrentUserId();
 

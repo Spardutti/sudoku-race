@@ -8,7 +8,7 @@
 
 import { POST } from "../route";
 import { NextRequest } from "next/server";
-import { createServerClient } from "@/lib/supabase/server";
+import { createServerActionClient } from "@/lib/supabase/server";
 import {
   migrateGuestCompletions,
   parseLocalStorageData,
@@ -36,7 +36,7 @@ describe("POST /api/auth/migrate-guest-data", () => {
       },
     };
 
-    (createServerClient as jest.Mock).mockResolvedValue(mockSupabase);
+    (createServerActionClient as jest.Mock).mockResolvedValue(mockSupabase);
 
     const request = new NextRequest("http://localhost:3000/api/auth/migrate-guest-data", {
       method: "POST",
@@ -58,7 +58,7 @@ describe("POST /api/auth/migrate-guest-data", () => {
       },
     };
 
-    (createServerClient as jest.Mock).mockResolvedValue(mockSupabase);
+    (createServerActionClient as jest.Mock).mockResolvedValue(mockSupabase);
 
     const request = new NextRequest("http://localhost:3000/api/auth/migrate-guest-data", {
       method: "POST",
@@ -84,7 +84,7 @@ describe("POST /api/auth/migrate-guest-data", () => {
       },
     };
 
-    (createServerClient as jest.Mock).mockResolvedValue(mockSupabase);
+    (createServerActionClient as jest.Mock).mockResolvedValue(mockSupabase);
     (parseLocalStorageData as jest.Mock).mockReturnValue(null);
     (migrateGuestCompletions as jest.Mock).mockResolvedValue({
       success: true,

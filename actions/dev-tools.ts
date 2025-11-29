@@ -59,8 +59,8 @@ export async function devSubmitCompletion(
       userId = newUser.id;
     }
 
-    // Get current max rank for this puzzle
-    const { data: maxRankData } = await supabase
+    // Get current max rank for this puzzle (intentionally unused - for future use)
+    await supabase
       .from("leaderboards")
       .select("rank")
       .eq("puzzle_id", puzzleId)
