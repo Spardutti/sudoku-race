@@ -8,12 +8,14 @@ interface PersonalRankFooterProps {
   personalRank: PersonalRank;
   puzzleId: string;
   puzzleNumber: number;
+  isGuest?: boolean;
 }
 
 export function PersonalRankFooter({
   personalRank,
   puzzleId,
   puzzleNumber,
+  isGuest = false,
 }: PersonalRankFooterProps) {
   if (personalRank.rank <= 100) {
     return null;
@@ -34,6 +36,7 @@ export function PersonalRankFooter({
           time={personalRank.completion_time_seconds}
           puzzleNumber={puzzleNumber}
           puzzleId={puzzleId}
+          isGuest={isGuest}
         />
       </div>
     </div>

@@ -95,6 +95,7 @@ export default async function LeaderboardPage() {
             personalRank={personalRank}
             puzzleId={puzzle.id}
             puzzleNumber={puzzleNumber}
+            isGuest={!userId}
           />
         )}
       </div>

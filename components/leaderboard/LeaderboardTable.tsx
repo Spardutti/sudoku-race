@@ -86,14 +86,12 @@ export function LeaderboardTable({
               >
                 Time
               </th>
-              {currentUserId && (
-                <th
-                  scope="col"
-                  className="px-4 py-3 text-left font-serif text-base font-bold uppercase sm:px-2 sm:py-2 sm:text-sm"
-                >
-                  <span className="sr-only">Share</span>
-                </th>
-              )}
+              <th
+                scope="col"
+                className="px-4 py-3 text-left font-serif text-base font-bold uppercase sm:px-2 sm:py-2 sm:text-sm"
+              >
+                <span className="sr-only">Share</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -130,18 +128,17 @@ export function LeaderboardTable({
                   <td className="min-h-11 px-4 py-3 font-mono text-sm sm:px-2 sm:py-2">
                     {formatTime(entry.completion_time_seconds)}
                   </td>
-                  {currentUserId && (
-                    <td className="min-h-11 px-4 py-3 sm:px-2 sm:py-2">
-                      {isPersonalRow && (
-                        <ShareButton
-                          rank={entry.rank}
-                          time={entry.completion_time_seconds}
-                          puzzleNumber={puzzleNumber}
-                          puzzleId={puzzleId}
-                        />
-                      )}
-                    </td>
-                  )}
+                  <td className="min-h-11 px-4 py-3 sm:px-2 sm:py-2">
+                    {isPersonalRow && (
+                      <ShareButton
+                        rank={entry.rank}
+                        time={entry.completion_time_seconds}
+                        puzzleNumber={puzzleNumber}
+                        puzzleId={puzzleId}
+                        isGuest={!currentUserId}
+                      />
+                    )}
+                  </td>
                 </tr>
               );
             })}

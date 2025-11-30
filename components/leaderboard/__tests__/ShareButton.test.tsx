@@ -159,4 +159,37 @@ describe("ShareButton", () => {
       expect(screen.queryByText("Share Preview")).not.toBeInTheDocument();
     });
   });
+
+  describe("Guest user flow", () => {
+    it("shows 'Sign in to Share' prompt for guest users", () => {
+      render(<ShareButton {...defaultProps} isGuest={true} />);
+
+      fireEvent.click(screen.getByRole("button", { name: /share your rank/i }));
+
+      expect(screen.getByText("Sign in to Share")).toBeInTheDocument();
+      expect(screen.getByText(/Create an account to share/)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /sign in to share/i })).toBeInTheDocument();
+    });
+
+    it("does not show share preview or share buttons for guests", () => {
+      render(<ShareButton {...defaultProps} isGuest={true} />);
+
+      fireEvent.click(screen.getByRole("button", { name: /share your rank/i }));
+
+      expect(screen.queryByText("Share Preview")).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /share on twitter/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /share on whatsapp/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /copy to clipboard/i })).not.toBeInTheDocument();
+    });
+
+    it("does not call share handlers when guest clicks (should not happen but safeguard)", async () => {
+      render(<ShareButton {...defaultProps} isGuest={true} />);
+
+      fireEvent.click(screen.getByRole("button", { name: /share your rank/i }));
+
+      expect(shareHandlers.shareToTwitter).not.toHaveBeenCalled();
+      expect(shareHandlers.shareToWhatsApp).not.toHaveBeenCalled();
+      expect(shareHandlers.copyToClipboard).not.toHaveBeenCalled();
+    });
+  });
 });
