@@ -10,10 +10,20 @@ const mockSignInWithGoogle = signInWithGoogle as jest.MockedFunction<typeof sign
 const mockToast = toast as jest.Mocked<typeof toast>;
 
 describe("AuthButtons", () => {
+  let originalLocation: Location;
+
   beforeAll(() => {
-    // Mock window.location for all tests
-    delete (window as Window & { location?: Location }).location;
-    window.location = { href: "" } as Location;
+    // Save original location
+    originalLocation = window.location;
+    // Delete and redefine as mock
+    delete (window as { location?: Location }).location;
+    (window as { location: { href: string } }).location = { href: "" };
+  });
+
+  afterAll(() => {
+    // Restore original location
+    delete (window as { location?: { href: string } }).location;
+    (window as { location: Location }).location = originalLocation;
   });
 
   beforeEach(() => {

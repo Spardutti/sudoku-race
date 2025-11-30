@@ -46,6 +46,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const [validationMessage, setValidationMessage] = React.useState<string | null>(null);
   const [showCompletionModal, setShowCompletionModal] = React.useState(false);
   const [showAnimation, setShowAnimation] = React.useState(false);
+  const [serverCompletionTime, setServerCompletionTime] = React.useState<number | null>(null);
 
   const isOnline = useNetworkStatus();
   const userId = initialUserId || null;
@@ -182,6 +183,8 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     const completionResult = await submitCompletion(puzzle.id, userEntries);
     if (!completionResult.success) {
       console.error("Failed to submit completion:", completionResult.error);
+    } else {
+      setServerCompletionTime(completionResult.data.completionTime);
     }
 
     setIsSubmitting(false);
@@ -297,7 +300,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
         {/* Completion Modal */}
         <CompletionModal
           isOpen={showCompletionModal}
-          completionTime={completionTime || elapsedTime}
+          completionTime={serverCompletionTime || completionTime || elapsedTime}
           puzzleId={puzzle.id}
           isAuthenticated={!!userId}
           onClose={() => setShowCompletionModal(false)}

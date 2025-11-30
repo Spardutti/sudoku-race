@@ -726,6 +726,26 @@ export async function submitCompletion(
       };
     }
 
+    // AC4: Rate limiting (3 submissions/minute per user)
+    const headersList = await headers();
+    const clientIP = getClientIP({ headers: headersList });
+    const token = userId || clientIP;
+
+    try {
+      await submissionLimiter.check(3, token);
+    } catch {
+      logger.warn("Puzzle submission rate limit exceeded", {
+        userId: userId || undefined,
+        ip: userId ? undefined : clientIP,
+        puzzleId,
+        action: "submitCompletion",
+        limit: 3,
+        windowSeconds: 60,
+      });
+
+      return { success: false, error: ABUSE_ERRORS.RATE_LIMIT_EXCEEDED };
+    }
+
     const supabase = await createServerActionClient();
 
     // Get started_at timestamp
@@ -756,7 +776,24 @@ export async function submitCompletion(
       (completedAt.getTime() - startedAt.getTime()) / 1000
     );
 
-    // Flag suspiciously fast completions (<120s)
+    // AC2: Reject if time <60 seconds (too fast to be legitimate)
+    const MINIMUM_TIME_SECONDS = 60;
+    if (completionTimeSeconds < MINIMUM_TIME_SECONDS) {
+      logger.warn("Completion rejected: time too short", {
+        userId,
+        puzzleId,
+        completionTimeSeconds,
+        minimumTime: MINIMUM_TIME_SECONDS,
+        action: "submitCompletion",
+      });
+
+      return {
+        success: false,
+        error: ABUSE_ERRORS.TIME_TOO_SHORT,
+      };
+    }
+
+    // AC3: Flag suspiciously fast completions (<120s)
     const FAST_COMPLETION_THRESHOLD_SECONDS = 120;
     const flagged = completionTimeSeconds < FAST_COMPLETION_THRESHOLD_SECONDS;
 

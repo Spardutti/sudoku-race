@@ -24,7 +24,7 @@ export async function getLeaderboard(
 
     const { data, error } = await supabase
       .from("leaderboards")
-      .select("rank, completion_time_seconds, users!inner(username)")
+      .select("completion_time_seconds, submitted_at, users!inner(username)")
       .eq("puzzle_id", puzzleId)
       .order("completion_time_seconds", { ascending: true })
       .order("submitted_at", { ascending: true })
@@ -35,10 +35,11 @@ export async function getLeaderboard(
       return { success: false, error: "Failed to load leaderboard" };
     }
 
-    const entries: LeaderboardEntry[] = (data || []).map((entry) => {
+    // Calculate ranks dynamically based on sorted order
+    const entries: LeaderboardEntry[] = (data || []).map((entry, index) => {
       const users = Array.isArray(entry.users) ? entry.users[0] : entry.users;
       return {
-        rank: entry.rank,
+        rank: index + 1, // Rank is position in sorted list (1-based)
         username: users?.username || "Unknown",
         completion_time_seconds: entry.completion_time_seconds,
       };

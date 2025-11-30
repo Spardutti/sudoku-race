@@ -1,12 +1,18 @@
 import { startTimer, submitCompletion } from "../puzzle";
 import { createServerActionClient } from "@/lib/supabase/server";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
+import { submissionLimiter } from "@/lib/abuse-prevention/rate-limiters";
+import { getClientIP } from "@/lib/utils/ip-utils";
+import { headers } from "next/headers";
 
 // Mock dependencies
 jest.mock("@/lib/supabase/server");
 jest.mock("@/lib/auth/get-current-user");
 jest.mock("@/lib/utils/logger");
 jest.mock("@sentry/nextjs");
+jest.mock("@/lib/abuse-prevention/rate-limiters");
+jest.mock("@/lib/utils/ip-utils");
+jest.mock("next/headers");
 
 const mockCreateServerActionClient = createServerActionClient as jest.MockedFunction<
   typeof createServerActionClient
@@ -14,6 +20,9 @@ const mockCreateServerActionClient = createServerActionClient as jest.MockedFunc
 const mockGetCurrentUserId = getCurrentUserId as jest.MockedFunction<
   typeof getCurrentUserId
 >;
+const mockSubmissionLimiter = submissionLimiter as jest.Mocked<typeof submissionLimiter>;
+const mockGetClientIP = getClientIP as jest.MockedFunction<typeof getClientIP>;
+const mockHeaders = headers as jest.MockedFunction<typeof headers>;
 
 describe("Timer Server Actions", () => {
   const mockUserId = "user-123";
@@ -21,6 +30,9 @@ describe("Timer Server Actions", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockHeaders.mockResolvedValue(new Headers() as unknown as ReturnType<typeof headers>);
+    mockGetClientIP.mockReturnValue("127.0.0.1");
+    mockSubmissionLimiter.check = jest.fn().mockResolvedValue(undefined);
   });
 
   describe("startTimer", () => {
@@ -182,16 +194,20 @@ describe("Timer Server Actions", () => {
     it("handles database errors gracefully", async () => {
       mockGetCurrentUserId.mockResolvedValue(mockUserId);
 
+      const startedAt = new Date(Date.now() - 150 * 1000).toISOString();
+
       const mockSupabase = {
         from: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         maybeSingle: jest.fn().mockResolvedValue({
-          data: { started_at: new Date().toISOString() },
+          data: { started_at: startedAt },
         }),
         update: jest.fn().mockReturnValue({
-          eq: jest.fn().mockResolvedValue({
-            error: { message: "Database error" },
+          eq: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({
+              error: { message: "Database error" },
+            }),
           }),
         }),
       };
@@ -208,6 +224,129 @@ describe("Timer Server Actions", () => {
       if (!result.success) {
         expect(result.error).toContain("Failed to submit completion");
       }
+    });
+
+    it("rejects completion when time is less than 60 seconds (AC2)", async () => {
+      mockGetCurrentUserId.mockResolvedValue(mockUserId);
+
+      const startedAt = new Date(Date.now() - 30 * 1000).toISOString();
+
+      const mockSupabase = {
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn().mockResolvedValue({
+          data: { started_at: startedAt },
+        }),
+      };
+
+      mockCreateServerActionClient.mockResolvedValue(
+        mockSupabase as unknown as Awaited<
+          ReturnType<typeof createServerActionClient>
+        >
+      );
+
+      const result = await submitCompletion(mockPuzzleId, mockUserEntries);
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toContain("Minimum time: 1 minute");
+      }
+    });
+
+    it("flags completion when time is less than 120 seconds (AC3)", async () => {
+      mockGetCurrentUserId.mockResolvedValue(mockUserId);
+
+      const startedAt = new Date(Date.now() - 90 * 1000).toISOString();
+
+      const mockSupabase = {
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn().mockResolvedValue({
+          data: { started_at: startedAt },
+        }),
+        update: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({ error: null }),
+          }),
+        }),
+      };
+
+      mockCreateServerActionClient.mockResolvedValue(
+        mockSupabase as unknown as Awaited<
+          ReturnType<typeof createServerActionClient>
+        >
+      );
+
+      const result = await submitCompletion(mockPuzzleId, mockUserEntries);
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.flagged).toBe(true);
+        expect(result.data.completionTime).toBeGreaterThanOrEqual(60);
+        expect(result.data.completionTime).toBeLessThan(120);
+      }
+
+      expect(mockSupabase.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          flagged_for_review: true,
+        })
+      );
+    });
+
+    it("does not flag completion when time is 120 seconds or more (AC3)", async () => {
+      mockGetCurrentUserId.mockResolvedValue(mockUserId);
+
+      const startedAt = new Date(Date.now() - 150 * 1000).toISOString();
+
+      const mockSupabase = {
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn().mockResolvedValue({
+          data: { started_at: startedAt },
+        }),
+        update: jest.fn().mockReturnValue({
+          eq: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({ error: null }),
+          }),
+        }),
+      };
+
+      mockCreateServerActionClient.mockResolvedValue(
+        mockSupabase as unknown as Awaited<
+          ReturnType<typeof createServerActionClient>
+        >
+      );
+
+      const result = await submitCompletion(mockPuzzleId, mockUserEntries);
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.flagged).toBe(false);
+        expect(result.data.completionTime).toBeGreaterThanOrEqual(120);
+      }
+
+      expect(mockSupabase.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          flagged_for_review: false,
+        })
+      );
+    });
+
+    it("rejects completion when rate limit exceeded (AC4)", async () => {
+      mockGetCurrentUserId.mockResolvedValue(mockUserId);
+      mockSubmissionLimiter.check = jest.fn().mockRejectedValue(new Error("Rate limit exceeded"));
+
+      const result = await submitCompletion(mockPuzzleId, mockUserEntries);
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toContain("Too many attempts");
+      }
+
+      expect(mockSubmissionLimiter.check).toHaveBeenCalledWith(3, mockUserId);
     });
   });
 });

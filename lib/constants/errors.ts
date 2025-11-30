@@ -130,6 +130,7 @@ export const VALIDATION_ERRORS = {
 export const ABUSE_ERRORS = {
   RATE_LIMIT_EXCEEDED: "Too many attempts. Please try again later.",
   DUPLICATE_SUBMISSION: "You've already submitted a solution for this puzzle.",
+  TIME_TOO_SHORT: "Please take your time to ensure accuracy. Minimum time: 1 minute.",
 } as const;
 
 /**
