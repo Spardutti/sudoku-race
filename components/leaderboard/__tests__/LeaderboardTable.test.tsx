@@ -86,7 +86,43 @@ describe("LeaderboardTable", () => {
     );
 
     const row = screen.getByText("Alice").closest("tr");
-    expect(row).toHaveClass("bg-blue-50");
+    expect(row).toHaveClass("bg-yellow-50");
+    expect(row).toHaveClass("border-l-yellow-500");
+    expect(row).toHaveAttribute("aria-current", "true");
+  });
+
+  it("displays trophy icon for top 3 ranks", () => {
+    (useLeaderboardQuery as jest.Mock).mockReturnValue({
+      data: [
+        {
+          rank: 1,
+          username: "Gold",
+          completion_time_seconds: 100,
+          user_id: "user-1",
+        },
+        {
+          rank: 2,
+          username: "Silver",
+          completion_time_seconds: 110,
+          user_id: "user-2",
+        },
+        {
+          rank: 3,
+          username: "Bronze",
+          completion_time_seconds: 120,
+          user_id: "user-3",
+        },
+      ],
+      isLoading: false,
+    });
+
+    render(
+      <LeaderboardTable puzzleId="test-puzzle" initialEntries={[]} />
+    );
+
+    expect(screen.getByText("🥇")).toBeInTheDocument();
+    expect(screen.getByText("🥈")).toBeInTheDocument();
+    expect(screen.getByText("🥉")).toBeInTheDocument();
   });
 
   it("displays correct ranking and time", () => {

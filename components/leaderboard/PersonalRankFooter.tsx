@@ -15,8 +15,8 @@ export function PersonalRankFooter({
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 border-t-2 border-black bg-white px-4 py-3 shadow-lg">
-      <p className="text-center font-serif text-lg">
+    <div className="sticky bottom-0 left-0 right-0 border-t-2 border-gray-300 bg-white px-6 py-4 shadow-lg sm:px-4 sm:py-3">
+      <p className="text-center font-sans text-base sm:text-sm">
         Your rank: <span className="font-bold">#{personalRank.rank}</span> -
         Time:{" "}
         <span className="font-mono">

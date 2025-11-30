@@ -12,6 +12,19 @@ interface LeaderboardTableProps {
   currentUserId?: string;
 }
 
+const getRankIcon = (rank: number): string => {
+  switch (rank) {
+    case 1:
+      return "🥇";
+    case 2:
+      return "🥈";
+    case 3:
+      return "🥉";
+    default:
+      return "";
+  }
+};
+
 export function LeaderboardTable({
   puzzleId,
   initialEntries,
@@ -46,26 +59,27 @@ export function LeaderboardTable({
     <div className="w-full">
       <div className="w-full overflow-x-auto">
         <table
-          className="w-full border-collapse"
-          aria-label="Daily leaderboard"
+          className="w-full border-collapse border border-gray-200"
+          aria-label="Daily leaderboard rankings"
         >
+          <caption className="sr-only">Rankings for today&apos;s puzzle</caption>
           <thead>
-            <tr className="border-b-2 border-black">
+            <tr className="border-b-2 border-gray-200">
               <th
                 scope="col"
-                className="px-4 py-3 text-left font-serif text-lg font-bold"
+                className="px-4 py-3 text-left font-serif text-base font-bold uppercase sm:px-2 sm:py-2 sm:text-sm"
               >
                 Rank
               </th>
               <th
                 scope="col"
-                className="px-4 py-3 text-left font-serif text-lg font-bold"
+                className="px-4 py-3 text-left font-serif text-base font-bold uppercase sm:px-2 sm:py-2 sm:text-sm"
               >
                 Username
               </th>
               <th
                 scope="col"
-                className="px-4 py-3 text-left font-serif text-lg font-bold"
+                className="px-4 py-3 text-left font-serif text-base font-bold uppercase sm:px-2 sm:py-2 sm:text-sm"
               >
                 Time
               </th>
@@ -75,19 +89,34 @@ export function LeaderboardTable({
             {displayEntries.map((entry) => {
               const isPersonalRow =
                 isPersonalRankInTop100 && entry.rank === personalRank.rank;
+              const rankIcon = getRankIcon(entry.rank);
 
               return (
                 <tr
                   key={`${entry.rank}-${entry.username}`}
-                  className={`border-b border-gray-300 ${
-                    entry.rank % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  } ${isPersonalRow ? "bg-blue-50 font-bold" : ""}`}
+                  data-user-id={
+                    isPersonalRow && currentUserId ? currentUserId : undefined
+                  }
+                  aria-current={isPersonalRow ? "true" : undefined}
+                  className={`border-b border-gray-200 ${
+                    entry.rank % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  } ${
+                    isPersonalRow
+                      ? "border-l-4 border-l-yellow-500 bg-yellow-50 font-bold"
+                      : ""
+                  }`}
                 >
-                  <td scope="row" className="px-4 py-3">
-                    #{entry.rank}
+                  <td
+                    scope="row"
+                    className="min-h-11 px-4 py-3 font-mono text-sm sm:px-2 sm:py-2"
+                  >
+                    {rankIcon && <span className="mr-1">{rankIcon}</span>}
+                    <span>#{entry.rank}</span>
                   </td>
-                  <td className="px-4 py-3">{entry.username}</td>
-                  <td className="px-4 py-3 font-mono">
+                  <td className="min-h-11 px-4 py-3 font-sans text-sm sm:px-2 sm:py-2">
+                    {entry.username}
+                  </td>
+                  <td className="min-h-11 px-4 py-3 font-mono text-sm sm:px-2 sm:py-2">
                     {formatTime(entry.completion_time_seconds)}
                   </td>
                 </tr>

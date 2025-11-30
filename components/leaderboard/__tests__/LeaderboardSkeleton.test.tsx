@@ -16,20 +16,20 @@ describe("LeaderboardSkeleton", () => {
     expect(screen.getByText("Time")).toBeInTheDocument();
   });
 
-  it("renders 5 skeleton rows", () => {
+  it("renders 10 skeleton rows", () => {
     const { container } = render(<LeaderboardSkeleton />);
 
     const rows = container.querySelectorAll("tbody tr");
-    expect(rows).toHaveLength(5);
+    expect(rows).toHaveLength(10);
   });
 
   it("applies zebra striping to skeleton rows", () => {
     const { container } = render(<LeaderboardSkeleton />);
 
     const rows = container.querySelectorAll("tbody tr");
-    expect(rows[0]).toHaveClass("bg-gray-50");
-    expect(rows[1]).toHaveClass("bg-white");
-    expect(rows[2]).toHaveClass("bg-gray-50");
+    expect(rows[0]).toHaveClass("bg-white");
+    expect(rows[1]).toHaveClass("bg-gray-50");
+    expect(rows[2]).toHaveClass("bg-white");
   });
 
   it("has animate-pulse class on shimmer elements", () => {

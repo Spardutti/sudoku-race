@@ -7,7 +7,7 @@ export function LeaderboardSkeleton() {
     <div className="w-full overflow-x-auto">
       <table className="w-full border-collapse" aria-label="Loading leaderboard">
         <thead>
-          <tr className="border-b-2 border-black">
+          <tr className="border-b-2 border-gray-200">
             <th
               scope="col"
               className="px-4 py-3 text-left font-serif text-lg font-bold"
@@ -29,11 +29,11 @@ export function LeaderboardSkeleton() {
           </tr>
         </thead>
         <tbody>
-          {[...Array(5)].map((_, i) => (
+          {[...Array(10)].map((_, i) => (
             <tr
               key={i}
-              className={`border-b border-gray-300 ${
-                i % 2 === 0 ? "bg-gray-50" : "bg-white"
+              className={`border-b border-gray-200 ${
+                i % 2 === 0 ? "bg-white" : "bg-gray-50"
               }`}
             >
               <td className="px-4 py-3">

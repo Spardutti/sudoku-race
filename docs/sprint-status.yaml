@@ -77,7 +77,7 @@ development_status:
   4-1-global-daily-leaderboard-top-100-personal-rank: done
   4-2-real-time-leaderboard-updates-supabase-realtime: done
   4-3-server-side-time-validation-anti-cheat: done
-  4-4-leaderboard-ui-polish-accessibility: backlog
+  4-4-leaderboard-ui-polish-accessibility: done
   4-5-leaderboard-sharing-social-proof: backlog
   epic-4-retrospective: optional
 

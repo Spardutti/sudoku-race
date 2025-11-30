@@ -10,7 +10,7 @@ export function EmptyState() {
       </h2>
       <Link
         href="/puzzle"
-        className="rounded-md border-2 border-black bg-white px-6 py-3 font-serif text-lg font-bold transition-colors hover:bg-black hover:text-white"
+        className="rounded-md border-2 border-black bg-white px-6 py-3 font-serif text-lg font-bold transition-colors hover:bg-black hover:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
       >
         Start Today&apos;s Puzzle
       </Link>

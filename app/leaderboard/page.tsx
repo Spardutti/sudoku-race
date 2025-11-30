@@ -7,6 +7,8 @@ import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
 import { PersonalRankFooter } from "@/components/leaderboard/PersonalRankFooter";
 import { EmptyState } from "@/components/leaderboard/EmptyState";
 import { LeaderboardError } from "@/components/leaderboard/LeaderboardError";
+import { LeaderboardHeader } from "@/components/leaderboard/LeaderboardHeader";
+import { LeaderboardPageClient } from "@/components/leaderboard/LeaderboardPageClient";
 
 export const dynamic = "force-dynamic";
 
@@ -69,39 +71,31 @@ export default async function LeaderboardPage() {
     .toISOString()
     .split("T")[0]
     .replace(/-/g, "");
-  const formattedDate = new Date(puzzle.puzzle_date).toLocaleDateString(
-    "en-US",
-    {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }
-  );
+
+  const shouldScrollToPersonalRank =
+    !!personalRank && personalRank.rank <= 100;
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
-      <div className="mb-6">
-        <h1 className="mb-2 font-serif text-4xl font-bold">
-          Daily Leaderboard
-        </h1>
-        <p className="text-lg text-gray-600">
-          Puzzle #{puzzleNumber} - {formattedDate}
-        </p>
-        <p className="mt-2 text-sm text-gray-500">
-          {entries.length} {entries.length === 1 ? "player" : "players"}{" "}
-          completed today&apos;s puzzle
-        </p>
+    <LeaderboardPageClient
+      currentUserId={userId ?? undefined}
+      shouldScrollToPersonalRank={shouldScrollToPersonalRank}
+    >
+      <div className="container mx-auto max-w-4xl px-4 py-8 md:px-6 lg:max-w-3xl">
+        <LeaderboardHeader
+          puzzleDate={puzzle.puzzle_date}
+          puzzleNumber={Number(puzzleNumber)}
+          totalCompletions={entries.length}
+        />
+
+        <LeaderboardTable
+          puzzleId={puzzle.id}
+          initialEntries={entries}
+          personalRank={personalRank ?? undefined}
+          currentUserId={userId ?? undefined}
+        />
+
+        {personalRank && <PersonalRankFooter personalRank={personalRank} />}
       </div>
-
-      <LeaderboardTable
-        puzzleId={puzzle.id}
-        initialEntries={entries}
-        personalRank={personalRank ?? undefined}
-        currentUserId={userId ?? undefined}
-      />
-
-      {personalRank && <PersonalRankFooter personalRank={personalRank} />}
-    </div>
+    </LeaderboardPageClient>
   );
 }
