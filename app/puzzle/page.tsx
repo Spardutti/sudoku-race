@@ -3,6 +3,8 @@ import { getPuzzleToday, checkPuzzleCompletion } from "@/actions/puzzle";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
 import { PuzzlePageClient } from "@/components/puzzle/PuzzlePageClient";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Today's Puzzle - Sudoku Race",
   description:

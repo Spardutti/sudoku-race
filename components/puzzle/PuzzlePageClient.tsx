@@ -21,7 +21,7 @@ import { useAutoSave } from "@/lib/hooks/useAutoSave";
 import { useStateRestoration } from "@/lib/hooks/useStateRestoration";
 import { useTimer } from "@/lib/hooks/useTimer";
 import { useNetworkStatus } from "@/lib/hooks/useNetworkStatus";
-import { validateSolution, submitCompletion } from "@/actions/puzzle";
+import { validateSolution, submitCompletion, startTimer } from "@/actions/puzzle";
 import type { Puzzle } from "@/actions/puzzle";
 import { DevTools } from "@/components/puzzle/DevTools";
 
@@ -73,6 +73,15 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
 
   // Timer - auto-starts on mount
   useTimer();
+
+  // Start server-side timer for authenticated users
+  React.useEffect(() => {
+    if (userId && !alreadyCompleted) {
+      startTimer(puzzle.id).catch((error) => {
+        console.error("Failed to start server timer:", error);
+      });
+    }
+  }, [userId, puzzle.id, alreadyCompleted]);
 
   // Check for migration success/failure on mount
   React.useEffect(() => {

@@ -777,7 +777,8 @@ export async function submitCompletion(
     );
 
     // AC2: Reject if time <60 seconds (too fast to be legitimate)
-    const MINIMUM_TIME_SECONDS = 60;
+    // In development, reduce to 10 seconds for testing
+    const MINIMUM_TIME_SECONDS = process.env.NODE_ENV === "production" ? 60 : 10;
     if (completionTimeSeconds < MINIMUM_TIME_SECONDS) {
       logger.warn("Completion rejected: time too short", {
         userId,
