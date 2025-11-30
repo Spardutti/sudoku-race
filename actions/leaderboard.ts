@@ -16,36 +16,58 @@ export interface PersonalRank {
   completion_time_seconds: number;
 }
 
+export interface LeaderboardData {
+  entries: LeaderboardEntry[];
+  puzzleNumber: number;
+}
+
 export async function getLeaderboard(
   puzzleId: string
-): Promise<Result<LeaderboardEntry[], string>> {
+): Promise<Result<LeaderboardData, string>> {
   try {
     const supabase = await createServerActionClient();
 
-    const { data, error } = await supabase
-      .from("leaderboards")
-      .select("completion_time_seconds, submitted_at, users!inner(username)")
-      .eq("puzzle_id", puzzleId)
-      .order("completion_time_seconds", { ascending: true })
-      .order("submitted_at", { ascending: true })
-      .limit(100);
+    const [leaderboardResult, puzzleResult] = await Promise.all([
+      supabase
+        .from("leaderboards")
+        .select("completion_time_seconds, submitted_at, users!inner(username)")
+        .eq("puzzle_id", puzzleId)
+        .order("completion_time_seconds", { ascending: true })
+        .order("submitted_at", { ascending: true })
+        .limit(100),
+      supabase
+        .from("puzzles")
+        .select("puzzle_number")
+        .eq("id", puzzleId)
+        .single(),
+    ]);
 
-    if (error) {
-      console.error("Failed to fetch leaderboard:", error);
+    if (leaderboardResult.error) {
+      console.error("Failed to fetch leaderboard:", leaderboardResult.error);
       return { success: false, error: "Failed to load leaderboard" };
     }
 
-    // Calculate ranks dynamically based on sorted order
-    const entries: LeaderboardEntry[] = (data || []).map((entry, index) => {
+    if (puzzleResult.error) {
+      console.error("Failed to fetch puzzle number:", puzzleResult.error);
+      return { success: false, error: "Failed to load puzzle data" };
+    }
+
+    const entries: LeaderboardEntry[] = (leaderboardResult.data || []).map((entry, index) => {
       const users = Array.isArray(entry.users) ? entry.users[0] : entry.users;
       return {
-        rank: index + 1, // Rank is position in sorted list (1-based)
+        rank: index + 1,
         username: users?.username || "Unknown",
         completion_time_seconds: entry.completion_time_seconds,
       };
     });
 
-    return { success: true, data: entries };
+    return {
+      success: true,
+      data: {
+        entries,
+        puzzleNumber: puzzleResult.data.puzzle_number || 0,
+      },
+    };
   } catch (error) {
     console.error("Unexpected error fetching leaderboard:", error);
     return { success: false, error: "An unexpected error occurred" };

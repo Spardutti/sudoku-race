@@ -78,7 +78,7 @@ development_status:
   4-2-real-time-leaderboard-updates-supabase-realtime: done
   4-3-server-side-time-validation-anti-cheat: done
   4-4-leaderboard-ui-polish-accessibility: done
-  4-5-leaderboard-sharing-social-proof: backlog
+  4-5-leaderboard-sharing-social-proof: review # docs/stories/4-5-leaderboard-sharing-social-proof.md
   epic-4-retrospective: optional
 
   # Epic 5: Viral Social Mechanics (5 stories)

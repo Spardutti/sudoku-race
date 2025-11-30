@@ -27,18 +27,21 @@ describe("Leaderboard API", () => {
     });
 
     it("queryFn calls getLeaderboard", async () => {
-      const mockData = [
+      const mockEntries = [
         { rank: 1, username: "Alice", completion_time_seconds: 120 },
       ];
       (getLeaderboard as jest.Mock).mockResolvedValue({
         success: true,
-        data: mockData,
+        data: {
+          entries: mockEntries,
+          puzzleNumber: 42,
+        },
       });
 
       const { queryFn } = leaderboardKeys.list("puzzle-123");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await queryFn({} as any);
-      expect(result).toEqual(mockData);
+      expect(result).toEqual(mockEntries);
     });
 
     it("throws error when getLeaderboard fails", async () => {
@@ -55,12 +58,15 @@ describe("Leaderboard API", () => {
 
   describe("useLeaderboardQuery", () => {
     it("fetches leaderboard data", async () => {
-      const mockData = [
+      const mockEntries = [
         { rank: 1, username: "Alice", completion_time_seconds: 120 },
       ];
       (getLeaderboard as jest.Mock).mockResolvedValue({
         success: true,
-        data: mockData,
+        data: {
+          entries: mockEntries,
+          puzzleNumber: 42,
+        },
       });
 
       const { result } = renderHook(
@@ -69,7 +75,7 @@ describe("Leaderboard API", () => {
       );
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
-      expect(result.current.data).toEqual(mockData);
+      expect(result.current.data).toEqual(mockEntries);
     });
 
     it("does not fetch when disabled", () => {

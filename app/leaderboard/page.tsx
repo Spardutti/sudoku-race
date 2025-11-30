@@ -47,7 +47,7 @@ export default async function LeaderboardPage() {
     );
   }
 
-  const entries = leaderboardResult.data;
+  const { entries, puzzleNumber } = leaderboardResult.data;
 
   if (entries.length === 0) {
     return (
@@ -67,11 +67,6 @@ export default async function LeaderboardPage() {
     }
   }
 
-  const puzzleNumber = new Date(puzzle.puzzle_date)
-    .toISOString()
-    .split("T")[0]
-    .replace(/-/g, "");
-
   const shouldScrollToPersonalRank =
     !!personalRank && personalRank.rank <= 100;
 
@@ -83,18 +78,25 @@ export default async function LeaderboardPage() {
       <div className="container mx-auto max-w-4xl px-4 py-8 md:px-6 lg:max-w-3xl">
         <LeaderboardHeader
           puzzleDate={puzzle.puzzle_date}
-          puzzleNumber={Number(puzzleNumber)}
+          puzzleNumber={puzzleNumber}
           totalCompletions={entries.length}
         />
 
         <LeaderboardTable
           puzzleId={puzzle.id}
+          puzzleNumber={puzzleNumber}
           initialEntries={entries}
           personalRank={personalRank ?? undefined}
           currentUserId={userId ?? undefined}
         />
 
-        {personalRank && <PersonalRankFooter personalRank={personalRank} />}
+        {personalRank && (
+          <PersonalRankFooter
+            personalRank={personalRank}
+            puzzleId={puzzle.id}
+            puzzleNumber={puzzleNumber}
+          />
+        )}
       </div>
     </LeaderboardPageClient>
   );

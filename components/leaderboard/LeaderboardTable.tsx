@@ -4,9 +4,11 @@ import { useMemo } from "react";
 import { formatTime } from "@/lib/utils/formatTime";
 import type { LeaderboardEntry, PersonalRank } from "@/actions/leaderboard";
 import { useLeaderboardQuery } from "@/lib/api";
+import { ShareButton } from "./ShareButton";
 
 interface LeaderboardTableProps {
   puzzleId: string;
+  puzzleNumber: number;
   initialEntries: LeaderboardEntry[];
   personalRank?: PersonalRank;
   currentUserId?: string;
@@ -27,6 +29,7 @@ const getRankIcon = (rank: number): string => {
 
 export function LeaderboardTable({
   puzzleId,
+  puzzleNumber,
   initialEntries,
   personalRank: initialPersonalRank,
   currentUserId,
@@ -83,6 +86,14 @@ export function LeaderboardTable({
               >
                 Time
               </th>
+              {currentUserId && (
+                <th
+                  scope="col"
+                  className="px-4 py-3 text-left font-serif text-base font-bold uppercase sm:px-2 sm:py-2 sm:text-sm"
+                >
+                  <span className="sr-only">Share</span>
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -119,6 +130,18 @@ export function LeaderboardTable({
                   <td className="min-h-11 px-4 py-3 font-mono text-sm sm:px-2 sm:py-2">
                     {formatTime(entry.completion_time_seconds)}
                   </td>
+                  {currentUserId && (
+                    <td className="min-h-11 px-4 py-3 sm:px-2 sm:py-2">
+                      {isPersonalRow && (
+                        <ShareButton
+                          rank={entry.rank}
+                          time={entry.completion_time_seconds}
+                          puzzleNumber={puzzleNumber}
+                          puzzleId={puzzleId}
+                        />
+                      )}
+                    </td>
+                  )}
                 </tr>
               );
             })}
