@@ -110,8 +110,7 @@ export interface PuzzleActions {
   /**
    * Update elapsed time (alias for setElapsedTime)
    *
-   * Provides consistent naming with timer hook expectations.
-   *
+   * @deprecated Use setElapsedTime instead for consistency with other setters
    * @param seconds - Elapsed time in seconds
    */
   updateElapsedTime: (seconds: number) => void;
@@ -225,10 +224,20 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
         set(() => ({ isCompleted: true, completionTime: time })),
 
       restoreState: (state: Partial<PuzzleState>) =>
-        set((current) => ({
-          ...current,
-          ...state,
-        })),
+        set((current) => {
+          // Filter out undefined values to prevent overwriting initialized state
+          const filtered = Object.entries(state).reduce((acc, [key, value]) => {
+            if (value !== undefined) {
+              acc[key as keyof PuzzleState] = value as never;
+            }
+            return acc;
+          }, {} as Partial<PuzzleState>);
+
+          return {
+            ...current,
+            ...filtered,
+          };
+        }),
 
       resetPuzzle: () =>
         set(() => ({

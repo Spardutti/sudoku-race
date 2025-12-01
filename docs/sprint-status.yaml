@@ -72,13 +72,14 @@ development_status:
   3-5-auth-state-management-ui-indicators: done # docs/sprint-artifacts/3-5-auth-state-management-ui-indicators.md
   epic-3-retrospective: optional
 
-  # Epic 4: Competitive Leaderboards (5 stories)
+  # Epic 4: Competitive Leaderboards (6 stories - includes 1 bug fix)
   epic-4: backlog
   4-1-global-daily-leaderboard-top-100-personal-rank: done
   4-2-real-time-leaderboard-updates-supabase-realtime: done
   4-3-server-side-time-validation-anti-cheat: done
   4-4-leaderboard-ui-polish-accessibility: done
   4-5-leaderboard-sharing-social-proof: done # docs/stories/4-5-leaderboard-sharing-social-proof.md
+  4-6-critical-bug-fixes-dev-tooling: drafted # docs/stories/4-6-critical-bug-fixes-dev-tooling.md
   epic-4-retrospective: optional
 
   # Epic 5: Viral Social Mechanics (5 stories)

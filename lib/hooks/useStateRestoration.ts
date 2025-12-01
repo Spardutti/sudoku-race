@@ -65,16 +65,22 @@ export function useStateRestoration(
           if (result.success && result.data) {
             logger.info("State restored from database", {
               puzzleId,
-              hasEntries: result.data.userEntries.length > 0,
+              hasEntries: !!result.data.userEntries,
               elapsedTime: result.data.elapsedTime,
               isCompleted: result.data.isCompleted,
             });
 
-            restoreState({
-              userEntries: result.data.userEntries,
+            // Only restore userEntries if they exist AND are valid
+            const stateToRestore: Partial<typeof result.data> = {
               elapsedTime: result.data.elapsedTime,
               isCompleted: result.data.isCompleted,
-            });
+            };
+
+            if (result.data.userEntries && Array.isArray(result.data.userEntries) && result.data.userEntries.length > 0) {
+              stateToRestore.userEntries = result.data.userEntries;
+            }
+
+            restoreState(stateToRestore);
           } else if (result.success && !result.data) {
             logger.info("No saved progress found in database", { puzzleId });
           } else {

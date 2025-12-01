@@ -408,7 +408,7 @@ export async function completePuzzle(
  * Progress data returned from loadProgress
  */
 export type PuzzleProgress = {
-  userEntries: number[][];
+  userEntries?: number[][];
   elapsedTime: number;
   isCompleted: boolean;
 };
@@ -529,7 +529,7 @@ export async function loadProgress(
 
     const { data, error } = await supabase
       .from("completions")
-      .select("completion_data, completion_time_seconds, is_complete")
+      .select("completion_data, completion_time_seconds, is_complete, started_at")
       .eq("user_id", userId)
       .eq("puzzle_id", puzzleId)
       .maybeSingle();
@@ -561,19 +561,34 @@ export async function loadProgress(
     }
 
     const completionData = data.completion_data as { userEntries?: number[][] } | null;
+    const userEntries = completionData?.userEntries;
+
+    // Calculate current elapsed time from started_at (server time = source of truth)
+    let elapsedTime = 0;
+    if (data.is_complete) {
+      // Puzzle completed: use final completion_time_seconds
+      elapsedTime = data.completion_time_seconds || 0;
+    } else if (data.started_at) {
+      // Puzzle in progress: calculate from started_at to now
+      const startedAt = new Date(data.started_at);
+      const now = new Date();
+      elapsedTime = Math.floor((now.getTime() - startedAt.getTime()) / 1000);
+    }
 
     logger.info("Puzzle progress loaded", {
       userId,
       puzzleId,
-      hasProgress: !!completionData?.userEntries,
+      hasUserEntries: !!userEntries && userEntries.length > 0,
+      elapsedTime,
+      isComplete: data.is_complete,
       action: "loadProgress",
     });
 
     return {
       success: true,
       data: {
-        userEntries: completionData?.userEntries || [],
-        elapsedTime: data.completion_time_seconds || 0,
+        userEntries: userEntries && userEntries.length > 0 ? userEntries : undefined,
+        elapsedTime,
         isCompleted: data.is_complete || false,
       },
     };
@@ -703,6 +718,75 @@ export async function startTimer(
 }
 
 /**
+ * Get current elapsed time from server
+ *
+ * Calculates elapsed time based on server's started_at timestamp.
+ * Used to sync client timer with server time after page refresh.
+ *
+ * @param puzzleId - Unique puzzle identifier
+ * @returns Result with elapsed time in seconds, null if timer not started
+ */
+export async function getElapsedTime(
+  puzzleId: string
+): Promise<Result<number | null, string>> {
+  try {
+    const userId = await getCurrentUserId();
+
+    if (!userId) {
+      return {
+        success: true,
+        data: null, // Guest users don't have server timer
+      };
+    }
+
+    const supabase = await createServerActionClient();
+
+    const { data: completion } = await supabase
+      .from("completions")
+      .select("started_at, is_complete")
+      .eq("user_id", userId)
+      .eq("puzzle_id", puzzleId)
+      .maybeSingle();
+
+    if (!completion?.started_at) {
+      return {
+        success: true,
+        data: null, // Timer not started yet
+      };
+    }
+
+    if (completion.is_complete) {
+      return {
+        success: true,
+        data: null, // Puzzle already completed, don't update timer
+      };
+    }
+
+    // Calculate current elapsed time from started_at
+    const startedAt = new Date(completion.started_at);
+    const now = new Date();
+    const elapsedSeconds = Math.floor((now.getTime() - startedAt.getTime()) / 1000);
+
+    return {
+      success: true,
+      data: elapsedSeconds,
+    };
+  } catch (error) {
+    const elapsedError = error as Error;
+
+    logger.error("Exception getting elapsed time", elapsedError, {
+      puzzleId,
+      action: "getElapsedTime",
+    });
+
+    return {
+      success: false,
+      error: "Failed to get elapsed time.",
+    };
+  }
+}
+
+/**
  * Submit puzzle completion with server-side time validation
  *
  * Records completion timestamp and calculates server-side completion time.
@@ -715,7 +799,7 @@ export async function startTimer(
 export async function submitCompletion(
   puzzleId: string,
   userEntries: number[][]
-): Promise<Result<{ completionTime: number; flagged: boolean }, string>> {
+): Promise<Result<{ completionTime: number; flagged: boolean; rank?: number }, string>> {
   try {
     const userId = await getCurrentUserId();
 
@@ -777,8 +861,8 @@ export async function submitCompletion(
     );
 
     // AC2: Reject if time <60 seconds (too fast to be legitimate)
-    // In development, reduce to 10 seconds for testing
-    const MINIMUM_TIME_SECONDS = process.env.NODE_ENV === "production" ? 60 : 10;
+    // In development, disable minimum time check (0 seconds) for auto-solve testing
+    const MINIMUM_TIME_SECONDS = process.env.NODE_ENV === "production" ? 60 : 0;
     if (completionTimeSeconds < MINIMUM_TIME_SECONDS) {
       logger.warn("Completion rejected: time too short", {
         userId,
@@ -841,11 +925,48 @@ export async function submitCompletion(
       });
     }
 
+    // Calculate rank and insert into leaderboard
+    // Count how many have faster times to determine rank
+    const { count: fasterCount } = await supabase
+      .from("leaderboards")
+      .select("*", { count: "exact", head: true })
+      .eq("puzzle_id", puzzleId)
+      .lt("completion_time_seconds", completionTimeSeconds);
+
+    const calculatedRank = (fasterCount ?? 0) + 1;
+
+    // Insert into leaderboard (upsert to handle re-submissions)
+    const { error: leaderboardInsertError } = await supabase
+      .from("leaderboards")
+      .upsert(
+        {
+          puzzle_id: puzzleId,
+          user_id: userId,
+          rank: calculatedRank,
+          completion_time_seconds: completionTimeSeconds,
+          submitted_at: new Date().toISOString(),
+        },
+        { onConflict: "puzzle_id,user_id" }
+      );
+
+    if (leaderboardInsertError) {
+      logger.error("Failed to insert leaderboard entry", leaderboardInsertError, {
+        userId,
+        puzzleId,
+        action: "submitCompletion",
+      });
+      // Don't fail the whole submission - completion was saved
+    }
+
+    // Use calculated rank directly (we just inserted it)
+    const rank = leaderboardInsertError ? undefined : calculatedRank;
+
     return {
       success: true,
       data: {
         completionTime: completionTimeSeconds,
         flagged,
+        rank,
       },
     };
   } catch (error) {

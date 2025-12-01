@@ -76,6 +76,20 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
 
   const getCellValue = React.useCallback(
     (row: number, col: number): number => {
+      // Guard against out-of-bounds indices
+      if (row < 0 || row >= 9 || col < 0 || col >= 9) {
+        return 0;
+      }
+
+      // Guard against invalid state (should not happen with fixed restoreState)
+      if (!Array.isArray(userEntries) || !Array.isArray(puzzle)) {
+        return 0;
+      }
+
+      if (!userEntries[row] || !puzzle[row]) {
+        return 0;
+      }
+
       return userEntries[row][col] !== 0
         ? userEntries[row][col]
         : puzzle[row][col];

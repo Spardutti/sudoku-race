@@ -69,10 +69,12 @@ export function CompletionModal({
           </p>
         </div>
 
-        {isAuthenticated && rank !== undefined ? (
+        {isAuthenticated ? (
           <div className="mb-6 rounded-md bg-gray-50 p-4 text-center">
             <p className="text-sm text-gray-600">Your rank:</p>
-            <p className="text-2xl font-bold text-gray-900">#{rank}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {rank !== undefined ? `#${rank}` : "Calculating..."}
+            </p>
           </div>
         ) : (
           <div className="mb-6 rounded-md border-2 border-gray-200 bg-gray-50 p-4">

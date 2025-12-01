@@ -1,8 +1,8 @@
 /**
- * Timer Hook - Auto-Start, Pause on Visibility
+ * Timer Hook - Auto-Start
  *
- * Manages puzzle timer with automatic start, pause on tab visibility change,
- * and stop on completion. Updates Zustand store every second.
+ * Manages puzzle timer with automatic start and stop on completion.
+ * Updates Zustand store every second. Timer runs continuously (no pause on blur).
  *
  * @see docs/architecture.md (ADR-005: Server-Side Timer Validation)
  * @see docs/stories/2-5-timer-implementation-auto-start-fair-timing.md
@@ -37,7 +37,7 @@ const TIMER_INTERVAL_MS = 1000;
 /**
  * Timer Hook
  *
- * Auto-starts on mount, pauses on tab visibility change, stops when puzzle completed.
+ * Auto-starts on mount, runs continuously until puzzle completed.
  * Updates Zustand store `elapsedTime` every second.
  *
  * @returns Timer control methods and running state
@@ -77,13 +77,6 @@ export function useTimer(): UseTimerReturn {
     updateElapsedTime(0);
   };
 
-  // Stop timer when puzzle is completed
-  useEffect(() => {
-    if (isCompleted) {
-      setIsRunning(false);
-    }
-  }, [isCompleted]);
-
   // Timer interval - increment elapsed time every second
   useEffect(() => {
     if (!isRunning || isCompleted) {
@@ -107,24 +100,6 @@ export function useTimer(): UseTimerReturn {
       }
     };
   }, [isRunning, isCompleted, updateElapsedTime]);
-
-  // Page Visibility API - pause when tab loses focus
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        pause();
-      } else if (document.visibilityState === "visible") {
-        resume();
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isCompleted]);
 
   // Cleanup interval on unmount
   useEffect(() => {

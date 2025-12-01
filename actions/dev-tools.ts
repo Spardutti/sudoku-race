@@ -14,8 +14,10 @@ export async function devSubmitCompletion(
   username: string,
   completionTimeSeconds: number
 ): Promise<Result<{ rank: number }, string>> {
-  // Block in production
-  if (process.env.NODE_ENV === "production") {
+  // Block in production - use server-side runtime check
+  // process.env.DEV_TOOLS_ENABLED is server-only (not bundled to client)
+  const isDevToolsEnabled = process.env.DEV_TOOLS_ENABLED === "true";
+  if (!isDevToolsEnabled) {
     return {
       success: false,
       error: "Dev tools not available in production",
@@ -58,15 +60,6 @@ export async function devSubmitCompletion(
 
       userId = newUser.id;
     }
-
-    // Get current max rank for this puzzle (intentionally unused - for future use)
-    await supabase
-      .from("leaderboards")
-      .select("rank")
-      .eq("puzzle_id", puzzleId)
-      .order("rank", { ascending: false })
-      .limit(1)
-      .maybeSingle();
 
     // Calculate rank (sorted by time, then submitted_at)
     const { count } = await supabase
@@ -114,3 +107,85 @@ export async function devSubmitCompletion(
     };
   }
 }
+
+/**
+ * DEV ONLY: Delete completion and leaderboard records for testing
+ *
+ * Allows re-testing completion flows by removing server-side records.
+ * Only works for authenticated users on their own records.
+ * Deletes from both completions and leaderboards tables.
+ *
+ * @param puzzleId - The puzzle ID to delete records for
+ * @returns Result with void data on success, error message on failure
+ */
+export async function deleteCompletionRecord(
+  puzzleId: string
+): Promise<Result<void, string>> {
+  // Block in production - use server-side runtime check
+  // process.env.DEV_TOOLS_ENABLED is server-only (not bundled to client)
+  const isDevToolsEnabled = process.env.DEV_TOOLS_ENABLED === "true";
+  if (!isDevToolsEnabled) {
+    return {
+      success: false,
+      error: "Dev tools not available in production",
+    };
+  }
+
+  try {
+    // Import auth helper dynamically to avoid circular dependencies
+    const { getCurrentUserId } = await import("@/lib/auth/get-current-user");
+    const userId = await getCurrentUserId();
+
+    if (!userId) {
+      return {
+        success: false,
+        error: "Must be authenticated to delete records",
+      };
+    }
+
+    const supabase = createServiceRoleClient();
+
+    // Delete completion record
+    const { error: completionError } = await supabase
+      .from("completions")
+      .delete()
+      .eq("user_id", userId)
+      .eq("puzzle_id", puzzleId);
+
+    if (completionError) {
+      console.error("Failed to delete completion:", completionError);
+      return {
+        success: false,
+        error: "Failed to delete completion record",
+      };
+    }
+
+    // Delete leaderboard entry (if exists - non-fatal if missing)
+    const { error: leaderboardError } = await supabase
+      .from("leaderboards")
+      .delete()
+      .eq("user_id", userId)
+      .eq("puzzle_id", puzzleId);
+
+    // Leaderboard deletion failure is non-fatal (record may not exist yet)
+    if (leaderboardError) {
+      console.warn("Failed to delete leaderboard entry:", leaderboardError);
+    }
+
+    console.log(
+      `✅ Dev deletion: userId=${userId}, puzzleId=${puzzleId}`
+    );
+
+    return {
+      success: true,
+      data: undefined,
+    };
+  } catch (error) {
+    console.error("Dev deletion error:", error);
+    return {
+      success: false,
+      error: "Unexpected error during deletion",
+    };
+  }
+}
+

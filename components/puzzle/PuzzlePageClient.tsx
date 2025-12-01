@@ -23,7 +23,7 @@ import { useTimer } from "@/lib/hooks/useTimer";
 import { useNetworkStatus } from "@/lib/hooks/useNetworkStatus";
 import { validateSolution, submitCompletion, startTimer } from "@/actions/puzzle";
 import type { Puzzle } from "@/actions/puzzle";
-import { DevTools } from "@/components/puzzle/DevTools";
+import { DevToolbar } from "@/components/dev/DevToolbar";
 
 type PuzzlePageClientProps = {
   puzzle: Puzzle;
@@ -36,7 +36,6 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const selectedCell = usePuzzleStore((state) => state.selectedCell);
   const elapsedTime = usePuzzleStore((state) => state.elapsedTime);
   const isCompleted = usePuzzleStore((state) => state.isCompleted);
-  const completionTime = usePuzzleStore((state) => state.completionTime);
   const setPuzzle = usePuzzleStore((state) => state.setPuzzle);
   const updateCell = usePuzzleStore((state) => state.updateCell);
   const setSelectedCell = usePuzzleStore((state) => state.setSelectedCell);
@@ -47,6 +46,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const [showCompletionModal, setShowCompletionModal] = React.useState(false);
   const [showAnimation, setShowAnimation] = React.useState(false);
   const [serverCompletionTime, setServerCompletionTime] = React.useState<number | null>(null);
+  const [serverRank, setServerRank] = React.useState<number | undefined>(undefined);
 
   const isOnline = useNetworkStatus();
   const userId = initialUserId || null;
@@ -66,7 +66,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
 
 
   // State restoration (loads from localStorage or DB for auth users)
-  const isLoading = useStateRestoration(false, puzzle.id);
+  const isLoading = useStateRestoration(!!userId, puzzle.id);
 
   // Auto-save (localStorage for guests, DB for auth users)
   useAutoSave(false);
@@ -189,15 +189,19 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
       setShowCompletionModal(true);
     }, 1200);
 
-    const completionResult = await submitCompletion(puzzle.id, userEntries);
-    if (!completionResult.success) {
-      console.error("Failed to submit completion:", completionResult.error);
-    } else {
-      setServerCompletionTime(completionResult.data.completionTime);
+    // Only submit completion for authenticated users
+    if (userId) {
+      const completionResult = await submitCompletion(puzzle.id, userEntries);
+      if (!completionResult.success) {
+        console.error("Failed to submit completion:", completionResult.error);
+      } else {
+        setServerCompletionTime(completionResult.data.completionTime);
+        setServerRank(completionResult.data.rank);
+      }
     }
 
     setIsSubmitting(false);
-  }, [isGridComplete, isSubmitting, isCompleted, userEntries, elapsedTime, markCompleted, puzzle.id]);
+  }, [isGridComplete, isSubmitting, isCompleted, userEntries, elapsedTime, markCompleted, puzzle.id, userId]);
 
   if (isLoading) {
     return (
@@ -216,6 +220,15 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
 
     return (
       <div className="min-h-screen bg-white p-4 flex items-center justify-center">
+        {/* Dev Toolbar (only in development) */}
+        {process.env.NODE_ENV !== "production" && (
+          <DevToolbar
+            puzzleId={puzzle.id}
+            solution={puzzle.solution}
+            userId={userId}
+          />
+        )}
+
         <div className="max-w-md w-full space-y-6 text-center">
           <div className="space-y-2">
             <h1 className="text-3xl font-serif font-bold text-black">
@@ -294,8 +307,14 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
           </div>
         )}
 
-        {/* Dev Tools (only in development) */}
-        <DevTools puzzleId={puzzle.id} solution={puzzle.solution} />
+        {/* Dev Toolbar (only in development) */}
+        {process.env.NODE_ENV !== "production" && (
+          <DevToolbar
+            puzzleId={puzzle.id}
+            solution={puzzle.solution}
+            userId={userId}
+          />
+        )}
 
         {/* Mobile Number Pad (sticky bottom) */}
         <NumberPad
@@ -309,9 +328,10 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
         {/* Completion Modal */}
         <CompletionModal
           isOpen={showCompletionModal}
-          completionTime={serverCompletionTime || completionTime || elapsedTime}
+          completionTime={serverCompletionTime ?? elapsedTime}
           puzzleId={puzzle.id}
           isAuthenticated={!!userId}
+          rank={serverRank}
           onClose={() => setShowCompletionModal(false)}
         />
       </main>
