@@ -1,29 +1,31 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { toast } from "sonner";
+import dynamic from "next/dynamic";
 import { SudokuGrid } from "@/components/puzzle/SudokuGrid";
 import { NumberPad } from "@/components/puzzle/NumberPad";
 import { Timer } from "@/components/puzzle/Timer";
 import { SubmitButton } from "@/components/puzzle/SubmitButton";
-import dynamic from "next/dynamic";
-
-const CompletionModal = dynamic(
-  () => import("@/components/puzzle/CompletionModal").then((mod) => mod.CompletionModal),
-  { ssr: false }
-);
 import { PuzzleHeader } from "@/components/puzzle/PuzzleHeader";
 import { InstructionsCard } from "@/components/puzzle/InstructionsCard";
+import { PuzzleLoadingView } from "@/components/puzzle/PuzzleLoadingView";
+import { PuzzleCompletedView } from "@/components/puzzle/PuzzleCompletedView";
+import { DevToolbar } from "@/components/dev/DevToolbar";
 import { useKeyboardInput } from "@/lib/hooks/useKeyboardInput";
 import { usePuzzleStore } from "@/lib/stores/puzzleStore";
 import { useAutoSave } from "@/lib/hooks/useAutoSave";
 import { useStateRestoration } from "@/lib/hooks/useStateRestoration";
 import { useTimer } from "@/lib/hooks/useTimer";
 import { useNetworkStatus } from "@/lib/hooks/useNetworkStatus";
-import { validateSolution, submitCompletion, startTimer } from "@/actions/puzzle";
+import { usePuzzleSubmission } from "@/lib/hooks/usePuzzleSubmission";
+import { useMigrationNotification } from "@/lib/hooks/useMigrationNotification";
+import { startTimer } from "@/actions/puzzle";
 import type { Puzzle } from "@/actions/puzzle";
-import { DevToolbar } from "@/components/dev/DevToolbar";
+
+const CompletionModal = dynamic(
+  () => import("@/components/puzzle/CompletionModal").then((mod) => mod.CompletionModal),
+  { ssr: false }
+);
 
 type PuzzlePageClientProps = {
   puzzle: Puzzle;
@@ -39,21 +41,12 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const setPuzzle = usePuzzleStore((state) => state.setPuzzle);
   const updateCell = usePuzzleStore((state) => state.updateCell);
   const setSelectedCell = usePuzzleStore((state) => state.setSelectedCell);
-  const markCompleted = usePuzzleStore((state) => state.markCompleted);
-
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [validationMessage, setValidationMessage] = React.useState<string | null>(null);
-  const [showCompletionModal, setShowCompletionModal] = React.useState(false);
-  const [showAnimation, setShowAnimation] = React.useState(false);
-  const [serverCompletionTime, setServerCompletionTime] = React.useState<number | null>(null);
-  const [serverRank, setServerRank] = React.useState<number | undefined>(undefined);
 
   const isOnline = useNetworkStatus();
   const userId = initialUserId || null;
   const alreadyCompleted = initialCompletionStatus?.isCompleted || false;
   const previousCompletionTime = initialCompletionStatus?.completionTime || null;
 
-  // Initialize puzzle on mount
   React.useEffect(() => {
     const storedPuzzleId = usePuzzleStore.getState().puzzleId;
 
@@ -64,17 +57,11 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     }
   }, [puzzle.id, puzzle.puzzle_data, setPuzzle]);
 
-
-  // State restoration (loads from localStorage or DB for auth users)
   const isLoading = useStateRestoration(!!userId, puzzle.id);
-
-  // Auto-save (localStorage for guests, DB for auth users)
   useAutoSave(false);
-
-  // Timer - auto-starts on mount
   useTimer();
+  useMigrationNotification();
 
-  // Start server-side timer for authenticated users
   React.useEffect(() => {
     if (userId && !alreadyCompleted) {
       startTimer(puzzle.id).catch((error) => {
@@ -83,29 +70,6 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     }
   }, [userId, puzzle.id, alreadyCompleted]);
 
-  // Check for migration success/failure on mount
-  React.useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const migrated = urlParams.get("migrated");
-    const rank = urlParams.get("rank");
-    const migrationFailed = urlParams.get("migrationFailed");
-
-    if (migrated === "true" && rank) {
-      toast.success(`Your completion time saved! You ranked #${rank} on today's puzzle.`, {
-        duration: 5000,
-      });
-      window.history.replaceState({}, "", "/puzzle");
-    } else if (migrationFailed === "true") {
-      toast.error("Sign-in successful, but progress sync failed. Please contact support.", {
-        duration: 8000,
-      });
-      window.history.replaceState({}, "", "/puzzle");
-    }
-  }, []);
-
-  // Auto-focus grid on mount
   React.useEffect(() => {
     const timer = setTimeout(() => {
       const firstCell = document.querySelector<HTMLButtonElement>(
@@ -146,7 +110,6 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     [selectedCell, handleNumberChange]
   );
 
-  // Desktop keyboard shortcuts
   useKeyboardInput({
     selectedCell,
     onNumberChange: handleNumberChange,
@@ -157,95 +120,35 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     return userEntries.every((row) => row.every((cell) => cell !== 0));
   }, [userEntries]);
 
-  const handleSubmit = React.useCallback(async () => {
-    if (!isGridComplete || isSubmitting || isCompleted) return;
-
-    setIsSubmitting(true);
-    setValidationMessage(null);
-
-    const result = await validateSolution(puzzle.id, userEntries);
-
-    if (!result.success) {
-      setValidationMessage(result.error);
-      setIsSubmitting(false);
-      setTimeout(() => setValidationMessage(null), 4000);
-      return;
-    }
-
-    if (!result.data.isValid) {
-      setValidationMessage("Not quite right. Keep trying!");
-      setIsSubmitting(false);
-      setTimeout(() => {
-        setValidationMessage(null);
-      }, 4000);
-      return;
-    }
-
-    markCompleted(elapsedTime);
-    setShowAnimation(true);
-
-    setTimeout(() => {
-      setShowAnimation(false);
-      setShowCompletionModal(true);
-    }, 1200);
-
-    // Only submit completion for authenticated users
-    if (userId) {
-      const completionResult = await submitCompletion(puzzle.id, userEntries);
-      if (!completionResult.success) {
-        console.error("Failed to submit completion:", completionResult.error);
-      } else {
-        setServerCompletionTime(completionResult.data.completionTime);
-        setServerRank(completionResult.data.rank);
-      }
-    }
-
-    setIsSubmitting(false);
-  }, [isGridComplete, isSubmitting, isCompleted, userEntries, elapsedTime, markCompleted, puzzle.id, userId]);
+  const {
+    isSubmitting,
+    validationMessage,
+    showAnimation,
+    showCompletionModal,
+    serverCompletionTime,
+    serverRank,
+    handleSubmit,
+    setShowCompletionModal,
+  } = usePuzzleSubmission({
+    puzzleId: puzzle.id,
+    userEntries,
+    isGridComplete,
+    elapsedTime,
+    userId,
+  });
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white p-4 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-pulse text-gray-600">Loading puzzle...</div>
-        </div>
-      </div>
-    );
+    return <PuzzleLoadingView />;
   }
 
   if (alreadyCompleted && previousCompletionTime) {
-    const minutes = Math.floor(previousCompletionTime / 60);
-    const seconds = previousCompletionTime % 60;
-    const timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-
     return (
-      <div className="min-h-screen bg-white p-4 flex items-center justify-center">
-        {/* Dev Toolbar (only in development) */}
-        {process.env.NODE_ENV !== "production" && (
-          <DevToolbar
-            puzzleId={puzzle.id}
-            solution={puzzle.solution}
-            userId={userId}
-          />
-        )}
-
-        <div className="max-w-md w-full space-y-6 text-center">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-serif font-bold text-black">
-              Puzzle Complete!
-            </h1>
-            <p className="text-gray-600">
-              You&apos;ve already completed today&apos;s puzzle in {timeString}
-            </p>
-          </div>
-          <Link
-            href="/"
-            className="inline-block w-full px-6 py-3 bg-black text-white font-semibold hover:bg-gray-800 transition-colors"
-          >
-            Back to Home
-          </Link>
-        </div>
-      </div>
+      <PuzzleCompletedView
+        completionTime={previousCompletionTime}
+        puzzleId={puzzle.id}
+        solution={puzzle.solution}
+        userId={userId}
+      />
     );
   }
 
@@ -285,7 +188,6 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
           />
         </div>
 
-        {/* Validation Message */}
         {validationMessage && (
           <div
             role="alert"
@@ -295,7 +197,6 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
           </div>
         )}
 
-        {/* Offline Message */}
         {!isOnline && (
           <div
             role="alert"
@@ -307,7 +208,6 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
           </div>
         )}
 
-        {/* Dev Toolbar (only in development) */}
         {process.env.NODE_ENV !== "production" && (
           <DevToolbar
             puzzleId={puzzle.id}
@@ -316,7 +216,6 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
           />
         )}
 
-        {/* Mobile Number Pad (sticky bottom) */}
         <NumberPad
           onNumberChange={handleNumberPadChange}
           selectedCell={selectedCell}
@@ -325,7 +224,6 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
           }
         />
 
-        {/* Completion Modal */}
         <CompletionModal
           isOpen={showCompletionModal}
           completionTime={serverCompletionTime ?? elapsedTime}

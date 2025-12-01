@@ -172,9 +172,9 @@ describe("Auth Server Actions", () => {
   describe("deleteAccount", () => {
     let mockFrom: jest.Mock;
     let mockEq: jest.Mock;
+    let mockDelete: jest.Mock;
 
     beforeEach(() => {
-      // Mock must return a promise-like object with .then() for await
       mockEq = jest.fn().mockResolvedValue({ error: null });
       mockDelete = jest.fn().mockReturnValue({
         eq: mockEq

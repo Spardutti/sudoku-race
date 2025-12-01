@@ -79,7 +79,7 @@ development_status:
   4-3-server-side-time-validation-anti-cheat: done
   4-4-leaderboard-ui-polish-accessibility: done
   4-5-leaderboard-sharing-social-proof: done # docs/stories/4-5-leaderboard-sharing-social-proof.md
-  4-6-critical-bug-fixes-dev-tooling: drafted # docs/stories/4-6-critical-bug-fixes-dev-tooling.md
+  4-6-critical-bug-fixes-dev-tooling: done # docs/stories/4-6-critical-bug-fixes-dev-tooling.md
   epic-4-retrospective: optional
 
   # Epic 5: Viral Social Mechanics (5 stories)

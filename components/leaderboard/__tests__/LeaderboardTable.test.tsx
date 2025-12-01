@@ -16,6 +16,7 @@ describe("LeaderboardTable", () => {
     render(
       <LeaderboardTable
         puzzleId="test-puzzle"
+        puzzleNumber={1}
         initialEntries={[
           {
             rank: 1,
@@ -48,6 +49,7 @@ describe("LeaderboardTable", () => {
     render(
       <LeaderboardTable
         puzzleId="test-puzzle"
+        puzzleNumber={1}
         initialEntries={[
           {
             rank: 1,
@@ -80,6 +82,7 @@ describe("LeaderboardTable", () => {
     render(
       <LeaderboardTable
         puzzleId="test-puzzle"
+        puzzleNumber={1}
         initialEntries={[]}
         currentUserId="user-1"
       />
@@ -117,7 +120,7 @@ describe("LeaderboardTable", () => {
     });
 
     render(
-      <LeaderboardTable puzzleId="test-puzzle" initialEntries={[]} />
+      <LeaderboardTable puzzleId="test-puzzle" puzzleNumber={1} initialEntries={[]} />
     );
 
     expect(screen.getByText("🥇")).toBeInTheDocument();
@@ -139,7 +142,7 @@ describe("LeaderboardTable", () => {
     });
 
     render(
-      <LeaderboardTable puzzleId="test-puzzle" initialEntries={[]} />
+      <LeaderboardTable puzzleId="test-puzzle" puzzleNumber={1} initialEntries={[]} />
     );
 
     expect(screen.getByText("#1")).toBeInTheDocument();
@@ -154,7 +157,7 @@ describe("LeaderboardTable", () => {
     });
 
     render(
-      <LeaderboardTable puzzleId="test-puzzle" initialEntries={[]} />
+      <LeaderboardTable puzzleId="test-puzzle" puzzleNumber={1} initialEntries={[]} />
     );
 
     expect(useLeaderboardQuery).toHaveBeenCalledWith({

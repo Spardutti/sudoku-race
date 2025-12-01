@@ -9,7 +9,7 @@ describe("PersonalRankFooter", () => {
       completion_time_seconds: 300,
     };
 
-    render(<PersonalRankFooter personalRank={personalRank} />);
+    render(<PersonalRankFooter puzzleId="test-puzzle" puzzleNumber={1} personalRank={personalRank} />);
 
     expect(screen.getByText(/Your rank:/i)).toBeInTheDocument();
     expect(screen.getByText(/#150/i)).toBeInTheDocument();
@@ -22,7 +22,7 @@ describe("PersonalRankFooter", () => {
       completion_time_seconds: 200,
     };
 
-    const { container } = render(<PersonalRankFooter personalRank={personalRank} />);
+    const { container } = render(<PersonalRankFooter puzzleId="test-puzzle" puzzleNumber={1} personalRank={personalRank} />);
 
     expect(container.firstChild).toBeNull();
   });
@@ -33,7 +33,7 @@ describe("PersonalRankFooter", () => {
       completion_time_seconds: 250,
     };
 
-    const { container } = render(<PersonalRankFooter personalRank={personalRank} />);
+    const { container } = render(<PersonalRankFooter puzzleId="test-puzzle" puzzleNumber={1} personalRank={personalRank} />);
 
     expect(container.firstChild).toBeNull();
   });
@@ -44,7 +44,7 @@ describe("PersonalRankFooter", () => {
       completion_time_seconds: 754,
     };
 
-    render(<PersonalRankFooter personalRank={personalRank} />);
+    render(<PersonalRankFooter puzzleId="test-puzzle" puzzleNumber={1} personalRank={personalRank} />);
 
     expect(screen.getByText(/12:34/i)).toBeInTheDocument();
   });

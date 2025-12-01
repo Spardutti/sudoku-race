@@ -229,9 +229,12 @@ describe("Timer Server Actions", () => {
     it("rejects completion when time is less than 60 seconds (AC2)", async () => {
       mockGetCurrentUserId.mockResolvedValue(mockUserId);
 
-      // Set NODE_ENV to production to enforce 60s minimum
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = "production";
+      Object.defineProperty(process.env, "NODE_ENV", {
+        value: "production",
+        writable: true,
+        configurable: true,
+      });
 
       const startedAt = new Date(Date.now() - 30 * 1000).toISOString();
 
@@ -257,8 +260,11 @@ describe("Timer Server Actions", () => {
         expect(result.error).toContain("Minimum time: 1 minute");
       }
 
-      // Restore NODE_ENV
-      process.env.NODE_ENV = originalEnv;
+      Object.defineProperty(process.env, "NODE_ENV", {
+        value: originalEnv,
+        writable: true,
+        configurable: true,
+      });
     });
 
     it("flags completion when time is less than 120 seconds (AC3)", async () => {

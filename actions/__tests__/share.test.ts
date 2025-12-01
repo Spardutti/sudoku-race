@@ -62,7 +62,9 @@ describe("share actions", () => {
       const result = await logShareEvent(validParams);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("User not authenticated");
+      if (!result.success) {
+        expect(result.error).toBe("User not authenticated");
+      }
       expect(mockSupabase.insert).not.toHaveBeenCalled();
     });
 
@@ -80,7 +82,9 @@ describe("share actions", () => {
       const result = await logShareEvent(validParams);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Failed to log share event");
+      if (!result.success) {
+        expect(result.error).toBe("Failed to log share event");
+      }
     });
 
     it("handles all channel types correctly", async () => {
@@ -111,7 +115,9 @@ describe("share actions", () => {
       const result = await logShareEvent(validParams);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("An unexpected error occurred");
+      if (!result.success) {
+        expect(result.error).toBe("An unexpected error occurred");
+      }
     });
   });
 });
