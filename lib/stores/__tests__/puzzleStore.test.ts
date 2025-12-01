@@ -375,4 +375,99 @@ describe("usePuzzleStore", () => {
       expect(parsed.state.userEntries[1][1]).toBe(7);
     });
   });
+
+  describe("trackCellEntry", () => {
+    it("tracks first entry with isCorrection=false", () => {
+      const { result } = renderHook(() => usePuzzleStore());
+
+      act(() => {
+        result.current.trackCellEntry(0, 0, 5);
+      });
+
+      expect(result.current.solvePath).toHaveLength(1);
+      expect(result.current.solvePath[0]).toMatchObject({
+        row: 0,
+        col: 0,
+        value: 5,
+        isCorrection: false,
+      });
+      expect(result.current.solvePath[0].timestamp).toBeGreaterThan(0);
+    });
+
+    it("tracks second entry as correction", () => {
+      const { result } = renderHook(() => usePuzzleStore());
+
+      act(() => {
+        result.current.trackCellEntry(2, 3, 7);
+        result.current.trackCellEntry(2, 3, 9);
+      });
+
+      expect(result.current.solvePath).toHaveLength(2);
+      expect(result.current.solvePath[0].isCorrection).toBe(false);
+      expect(result.current.solvePath[1]).toMatchObject({
+        row: 2,
+        col: 3,
+        value: 9,
+        isCorrection: true,
+      });
+    });
+
+    it("tracks timestamps monotonically increasing", () => {
+      const { result } = renderHook(() => usePuzzleStore());
+
+      act(() => {
+        result.current.trackCellEntry(1, 1, 3);
+      });
+
+      const firstTimestamp = result.current.solvePath[0].timestamp;
+
+      act(() => {
+        result.current.trackCellEntry(1, 2, 4);
+      });
+
+      const secondTimestamp = result.current.solvePath[1].timestamp;
+
+      expect(secondTimestamp).toBeGreaterThanOrEqual(firstTimestamp);
+    });
+
+    it("distinguishes entries in different cells", () => {
+      const { result } = renderHook(() => usePuzzleStore());
+
+      act(() => {
+        result.current.trackCellEntry(0, 0, 1);
+        result.current.trackCellEntry(0, 1, 2);
+        result.current.trackCellEntry(0, 0, 3);
+      });
+
+      expect(result.current.solvePath).toHaveLength(3);
+      expect(result.current.solvePath[0].isCorrection).toBe(false);
+      expect(result.current.solvePath[1].isCorrection).toBe(false);
+      expect(result.current.solvePath[2].isCorrection).toBe(true);
+    });
+
+    it("resets solve path when puzzle is reset", () => {
+      const { result } = renderHook(() => usePuzzleStore());
+
+      act(() => {
+        result.current.trackCellEntry(5, 5, 8);
+        result.current.resetPuzzle();
+      });
+
+      expect(result.current.solvePath).toHaveLength(0);
+    });
+
+    it("resets solve path when new puzzle is set", () => {
+      const { result } = renderHook(() => usePuzzleStore());
+      const testPuzzle = Array(9)
+        .fill(null)
+        .map(() => Array(9).fill(0));
+
+      act(() => {
+        result.current.trackCellEntry(3, 4, 6);
+        result.current.setPuzzle("puzzle-123", testPuzzle);
+      });
+
+      expect(result.current.solvePath).toHaveLength(0);
+    });
+  });
 });

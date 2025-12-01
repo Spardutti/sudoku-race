@@ -11,6 +11,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { SolvePath } from '@/lib/types/solve-path';
 
 /**
  * Puzzle state interface
@@ -61,6 +62,12 @@ export interface PuzzleState {
    * Null until puzzle is completed
    */
   completionTime: number | null;
+
+  /**
+   * Solve path tracking each cell entry during gameplay
+   * Array of entries with row, col, value, timestamp, and isCorrection flag
+   */
+  solvePath: SolvePath;
 }
 
 /**
@@ -147,6 +154,18 @@ export interface PuzzleActions {
    * Clears all user entries and progress. Useful for "new puzzle" or "restart".
    */
   resetPuzzle: () => void;
+
+  /**
+   * Track a cell entry in the solve path
+   *
+   * Records each number entry with metadata for emoji grid generation.
+   * Determines if entry is a correction (cell already has entry) or first fill.
+   *
+   * @param row - Row index (0-8)
+   * @param col - Column index (0-8)
+   * @param value - Number value (1-9)
+   */
+  trackCellEntry: (row: number, col: number, value: number) => void;
 }
 
 /**
@@ -188,6 +207,7 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
       elapsedTime: 0,
       isCompleted: false,
       completionTime: null,
+      solvePath: [],
 
       // Actions
       setPuzzle: (id: string, puzzle: number[][]) =>
@@ -199,6 +219,7 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           elapsedTime: 0,
           isCompleted: false,
           completionTime: null,
+          solvePath: [],
         })),
 
       updateCell: (row: number, col: number, value: number) =>
@@ -248,7 +269,28 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           elapsedTime: 0,
           isCompleted: false,
           completionTime: null,
+          solvePath: [],
         })),
+
+      trackCellEntry: (row: number, col: number, value: number) =>
+        set((state) => {
+          const existingEntries = state.solvePath.filter(
+            (e) => e.row === row && e.col === col
+          );
+
+          return {
+            solvePath: [
+              ...state.solvePath,
+              {
+                row,
+                col,
+                value,
+                timestamp: Date.now(),
+                isCorrection: existingEntries.length > 0,
+              },
+            ],
+          };
+        }),
     }),
     {
       name: 'sudoku-race-puzzle-state',
@@ -259,6 +301,7 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
         elapsedTime: state.elapsedTime,
         isCompleted: state.isCompleted,
         completionTime: state.completionTime,
+        solvePath: state.solvePath,
       }),
     }
   )

@@ -41,6 +41,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const setPuzzle = usePuzzleStore((state) => state.setPuzzle);
   const updateCell = usePuzzleStore((state) => state.updateCell);
   const setSelectedCell = usePuzzleStore((state) => state.setSelectedCell);
+  const trackCellEntry = usePuzzleStore((state) => state.trackCellEntry);
 
   const isOnline = useNetworkStatus();
   const userId = initialUserId || null;
@@ -90,9 +91,16 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
 
   const handleNumberChange = React.useCallback(
     (row: number, col: number, value: number) => {
+      if (puzzle.puzzle_data[row][col] !== 0) return;
+      if (value === 0) {
+        updateCell(row, col, value);
+        return;
+      }
+
       updateCell(row, col, value);
+      trackCellEntry(row, col, value);
     },
-    [updateCell]
+    [updateCell, trackCellEntry, puzzle.puzzle_data]
   );
 
   const isClueCell = React.useCallback(

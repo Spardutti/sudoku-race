@@ -30,6 +30,7 @@ export function usePuzzleSubmission({
 }: UsePuzzleSubmissionProps): UsePuzzleSubmissionReturn {
   const isCompleted = usePuzzleStore((state) => state.isCompleted);
   const markCompleted = usePuzzleStore((state) => state.markCompleted);
+  const solvePath = usePuzzleStore((state) => state.solvePath);
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [validationMessage, setValidationMessage] = React.useState<string | null>(null);
@@ -71,7 +72,7 @@ export function usePuzzleSubmission({
     }, 1200);
 
     if (userId) {
-      const completionResult = await submitCompletion(puzzleId, userEntries);
+      const completionResult = await submitCompletion(puzzleId, userEntries, solvePath);
       if (!completionResult.success) {
         console.error("Failed to submit completion:", completionResult.error);
       } else {
@@ -81,7 +82,7 @@ export function usePuzzleSubmission({
     }
 
     setIsSubmitting(false);
-  }, [isGridComplete, isSubmitting, isCompleted, userEntries, elapsedTime, markCompleted, puzzleId, userId]);
+  }, [isGridComplete, isSubmitting, isCompleted, userEntries, elapsedTime, markCompleted, puzzleId, userId, solvePath]);
 
   return {
     isSubmitting,

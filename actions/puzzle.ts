@@ -6,6 +6,7 @@ import { getClientIP } from "@/lib/utils/ip-utils";
 import { ABUSE_ERRORS } from "@/lib/constants/errors";
 import { logger } from "@/lib/utils/logger";
 import type { Result } from "@/lib/types/result";
+import type { SolvePath } from "@/lib/types/solve-path";
 import * as Sentry from "@sentry/nextjs";
 import { isValidGrid, gridsEqual, isValidSudoku } from "@/lib/sudoku/grid-validator";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
@@ -798,7 +799,8 @@ export async function getElapsedTime(
  */
 export async function submitCompletion(
   puzzleId: string,
-  userEntries: number[][]
+  userEntries: number[][],
+  solvePath: SolvePath = []
 ): Promise<Result<{ completionTime: number; flagged: boolean; rank?: number }, string>> {
   try {
     const userId = await getCurrentUserId();
@@ -891,6 +893,7 @@ export async function submitCompletion(
         flagged_for_review: flagged,
         is_complete: true,
         completion_data: { userEntries },
+        solve_path: solvePath,
       })
       .eq("user_id", userId)
       .eq("puzzle_id", puzzleId);
