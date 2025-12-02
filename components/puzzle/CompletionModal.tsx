@@ -13,6 +13,9 @@ import { AuthButtons } from "@/components/auth/AuthButtons";
 import { generateEmojiGrid } from "@/lib/utils/emoji-grid";
 import type { SolvePath } from "@/lib/types/solve-path";
 import { generateEmojiShareText, getPuzzleUrl } from "@/lib/utils/share-text";
+import { openTwitterShare, openWhatsAppShare, detectPopupBlocked } from "@/lib/utils/share";
+import { logShareEvent } from "@/actions/share";
+import { toast } from "sonner";
 import { Twitter, MessageCircle, Clipboard, Check } from "lucide-react";
 
 interface CompletionModalProps {
@@ -85,7 +88,8 @@ export function CompletionModal({
         puzzleNumber,
         completionTime,
         emojiGrid,
-        puzzleUrl
+        puzzleUrl,
+        'clipboard'
       );
       setShareText(text);
     }
@@ -94,18 +98,32 @@ export function CompletionModal({
   const guestRank = hypotheticalRank ?? null;
 
   const handleCopyToClipboard = async () => {
-    if (!shareText) return;
+    if (!shareText || !emojiGrid) return;
 
     setCopyError(false);
 
+    const clipboardShareText = generateEmojiShareText(
+      puzzleNumber,
+      completionTime,
+      emojiGrid,
+      getPuzzleUrl(),
+      'clipboard'
+    );
+
     try {
-      await navigator.clipboard.writeText(shareText);
+      await navigator.clipboard.writeText(clipboardShareText);
       setCopied(true);
       if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
       copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
+
+      logShareEvent({
+        puzzleId,
+        channel: 'clipboard',
+        rankAtShare: rank,
+      }).catch(() => {});
     } catch {
       const textarea = document.createElement("textarea");
-      textarea.value = shareText;
+      textarea.value = clipboardShareText;
       document.body.appendChild(textarea);
       textarea.select();
       const success = document.execCommand("copy");
@@ -115,6 +133,12 @@ export function CompletionModal({
         setCopied(true);
         if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
         copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
+
+        logShareEvent({
+          puzzleId,
+          channel: 'clipboard',
+          rankAtShare: rank,
+        }).catch(() => {});
       } else {
         setCopyError(true);
         if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
@@ -124,11 +148,59 @@ export function CompletionModal({
   };
 
   const handleTwitterShare = () => {
-    console.log("[CompletionModal] Twitter share clicked - Story 5.4 will implement");
+    if (!emojiGrid) return;
+
+    const twitterShareText = generateEmojiShareText(
+      puzzleNumber,
+      completionTime,
+      emojiGrid,
+      getPuzzleUrl(),
+      'twitter'
+    );
+
+    logShareEvent({
+      puzzleId,
+      channel: 'twitter',
+      rankAtShare: rank,
+    }).catch(() => {});
+
+    const popup = openTwitterShare(twitterShareText);
+
+    if (detectPopupBlocked(popup)) {
+      const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterShareText)}`;
+      toast.error("Popup blocked", {
+        description: `Click here to share on Twitter: ${shareUrl}`,
+        duration: 5000,
+      });
+    }
   };
 
   const handleWhatsAppShare = () => {
-    console.log("[CompletionModal] WhatsApp share clicked - Story 5.4 will implement");
+    if (!emojiGrid) return;
+
+    const whatsappShareText = generateEmojiShareText(
+      puzzleNumber,
+      completionTime,
+      emojiGrid,
+      getPuzzleUrl(),
+      'whatsapp'
+    );
+
+    logShareEvent({
+      puzzleId,
+      channel: 'whatsapp',
+      rankAtShare: rank,
+    }).catch(() => {});
+
+    const popup = openWhatsAppShare(whatsappShareText);
+
+    if (detectPopupBlocked(popup)) {
+      const shareUrl = `https://wa.me/?text=${encodeURIComponent(whatsappShareText)}`;
+      toast.error("Popup blocked", {
+        description: `Click here to share on WhatsApp: ${shareUrl}`,
+        duration: 5000,
+      });
+    }
   };
 
   React.useEffect(() => {

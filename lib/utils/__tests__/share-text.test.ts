@@ -5,6 +5,7 @@ import {
   generateEmojiShareText,
   calculatePuzzleNumber,
   getPuzzleUrl,
+  getPuzzleUrlWithUTM,
 } from "../share-text";
 
 describe("share-text utilities", () => {
@@ -136,6 +137,38 @@ describe("share-text utilities", () => {
     it("formats time using MM:SS format", () => {
       const result = generateEmojiShareText(1, 65, "🟩", "https://test.com");
       expect(result).toContain("⏱️ 1:05");
+    });
+
+    it("includes UTM parameters when channel is provided", () => {
+      const emojiGrid = "🟩";
+      const result = generateEmojiShareText(1, 100, emojiGrid, "https://test.com", "twitter");
+
+      expect(result).toContain("utm_source=share");
+      expect(result).toContain("utm_medium=twitter");
+    });
+
+    it("uses provided puzzleUrl when no channel is specified", () => {
+      const emojiGrid = "🟩";
+      const customUrl = "https://custom.com/puzzle";
+      const result = generateEmojiShareText(1, 100, emojiGrid, customUrl);
+
+      expect(result).toContain(customUrl);
+      expect(result).not.toContain("utm_source");
+    });
+  });
+
+  describe("getPuzzleUrlWithUTM", () => {
+    it("generates URL with UTM parameters for each channel", () => {
+      const twitterUrl = getPuzzleUrlWithUTM("twitter");
+      expect(twitterUrl).toContain("/puzzle");
+      expect(twitterUrl).toContain("utm_source=share");
+      expect(twitterUrl).toContain("utm_medium=twitter");
+
+      const whatsappUrl = getPuzzleUrlWithUTM("whatsapp");
+      expect(whatsappUrl).toContain("utm_medium=whatsapp");
+
+      const clipboardUrl = getPuzzleUrlWithUTM("clipboard");
+      expect(clipboardUrl).toContain("utm_medium=clipboard");
     });
   });
 

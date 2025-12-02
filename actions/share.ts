@@ -6,7 +6,7 @@ import type { Result } from "@/lib/types/result";
 export interface LogShareEventParams {
   puzzleId: string;
   channel: "twitter" | "whatsapp" | "clipboard";
-  rankAtShare: number;
+  rankAtShare?: number;
 }
 
 export async function logShareEvent({
@@ -19,18 +19,13 @@ export async function logShareEvent({
 
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      return { success: false, error: "User not authenticated" };
-    }
-
     const { error: insertError } = await supabase.from("share_events").insert({
-      user_id: user.id,
+      user_id: user?.id || null,
       puzzle_id: puzzleId,
       channel,
-      rank_at_share: rankAtShare,
+      rank_at_share: rankAtShare || null,
     });
 
     if (insertError) {

@@ -53,19 +53,27 @@ describe("share actions", () => {
       });
     });
 
-    it("returns error when user is not authenticated", async () => {
+    it("successfully logs share event for guest user (not authenticated)", async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: null },
-        error: new Error("Not authenticated"),
+        error: null,
+      });
+
+      mockSupabase.insert.mockResolvedValue({
+        data: null,
+        error: null,
       });
 
       const result = await logShareEvent(validParams);
 
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe("User not authenticated");
-      }
-      expect(mockSupabase.insert).not.toHaveBeenCalled();
+      expect(result.success).toBe(true);
+      expect(mockSupabase.from).toHaveBeenCalledWith("share_events");
+      expect(mockSupabase.insert).toHaveBeenCalledWith({
+        user_id: null,
+        puzzle_id: "test-puzzle-id",
+        channel: "twitter",
+        rank_at_share: 23,
+      });
     });
 
     it("returns error when database insert fails", async () => {
