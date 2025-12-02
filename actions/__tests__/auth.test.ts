@@ -172,13 +172,9 @@ describe("Auth Server Actions", () => {
   describe("deleteAccount", () => {
     let mockFrom: jest.Mock;
     let mockEq: jest.Mock;
-    let mockDelete: jest.Mock;
 
     beforeEach(() => {
       mockEq = jest.fn().mockResolvedValue({ error: null });
-      mockDelete = jest.fn().mockReturnValue({
-        eq: mockEq
-      });
       mockFrom = jest.fn().mockReturnValue({
         delete: jest.fn().mockReturnValue({ eq: mockEq })
       });

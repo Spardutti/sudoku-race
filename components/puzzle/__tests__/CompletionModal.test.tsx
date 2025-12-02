@@ -2,19 +2,40 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { CompletionModal } from "../CompletionModal";
 import { getHypotheticalRank } from "@/actions/leaderboard";
+import { generateEmojiGrid } from "@/lib/utils/emoji-grid";
 
 jest.mock("@/actions/leaderboard");
 jest.mock("@/components/auth/AuthButtons", () => ({
   AuthButtons: () => <div data-testid="auth-buttons">Mock Auth Buttons</div>,
 }));
+jest.mock("@/lib/utils/emoji-grid");
 
 const mockGetHypotheticalRank = getHypotheticalRank as jest.MockedFunction<
   typeof getHypotheticalRank
 >;
+const mockGenerateEmojiGrid = generateEmojiGrid as jest.MockedFunction<typeof generateEmojiGrid>;
+
+const mockPuzzle = [
+  [5, 3, 0, 0, 7, 0, 0, 0, 0],
+  [6, 0, 0, 1, 9, 5, 0, 0, 0],
+  [0, 9, 8, 0, 0, 0, 0, 6, 0],
+  [8, 0, 0, 0, 6, 0, 0, 0, 3],
+  [4, 0, 0, 8, 0, 3, 0, 0, 1],
+  [7, 0, 0, 0, 2, 0, 0, 0, 6],
+  [0, 6, 0, 0, 0, 0, 2, 8, 0],
+  [0, 0, 0, 4, 1, 9, 0, 0, 5],
+  [0, 0, 0, 0, 8, 0, 0, 7, 9],
+];
+
+const mockSolvePath = [
+  { row: 0, col: 2, value: 4, timestamp: 1000, isCorrection: false },
+  { row: 0, col: 3, value: 6, timestamp: 2000, isCorrection: false },
+];
 
 describe("CompletionModal", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGenerateEmojiGrid.mockReturnValue("🟩🟩⬜\n⬜🟩🟩\n🟩⬜🟩");
   });
 
   describe("Authenticated User", () => {
@@ -23,10 +44,13 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={180}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05"
           rank={42}
           isAuthenticated={true}
           onClose={jest.fn()}
+          puzzle={mockPuzzle}
+          solvePath={mockSolvePath}
+          puzzleNumber={5}
         />
       );
 
@@ -41,7 +65,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={180}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           rank={10}
           isAuthenticated={true}
           onClose={jest.fn()}
@@ -63,7 +87,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={300}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           isAuthenticated={false}
           onClose={jest.fn()}
         />
@@ -79,7 +103,7 @@ describe("CompletionModal", () => {
         ).toBeInTheDocument();
       });
 
-      expect(mockGetHypotheticalRank).toHaveBeenCalledWith("puzzle-123", 300);
+      expect(mockGetHypotheticalRank).toHaveBeenCalledWith("2025-01-05", 300);
     });
 
     it("should display Sign In button for guests", async () => {
@@ -92,7 +116,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={250}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           isAuthenticated={false}
           onClose={jest.fn()}
         />
@@ -115,7 +139,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={200}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           isAuthenticated={false}
           onClose={jest.fn()}
         />
@@ -141,7 +165,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={300}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           isAuthenticated={false}
           onClose={jest.fn()}
         />
@@ -159,7 +183,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={false}
           completionTime={300}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           isAuthenticated={false}
           onClose={jest.fn()}
         />
@@ -180,7 +204,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={200}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           isAuthenticated={false}
           onClose={jest.fn()}
         />
@@ -203,7 +227,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={250}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           isAuthenticated={false}
           onClose={jest.fn()}
         />
@@ -229,7 +253,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={275}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           isAuthenticated={false}
           onClose={jest.fn()}
         />
@@ -255,7 +279,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={280}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           isAuthenticated={false}
           onClose={jest.fn()}
         />
@@ -289,7 +313,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={300}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           isAuthenticated={false}
           onClose={onClose}
         />
@@ -310,7 +334,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={200}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           rank={10}
           isAuthenticated={true}
           onClose={jest.fn()}
@@ -328,7 +352,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={185}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           rank={1}
           isAuthenticated={true}
           onClose={jest.fn()}
@@ -343,7 +367,7 @@ describe("CompletionModal", () => {
         <CompletionModal
           isOpen={true}
           completionTime={123}
-          puzzleId="puzzle-123"
+          puzzleId="2025-01-05" puzzle={mockPuzzle} solvePath={mockSolvePath} puzzleNumber={5}
           rank={1}
           isAuthenticated={true}
           onClose={jest.fn()}
@@ -351,6 +375,145 @@ describe("CompletionModal", () => {
       );
 
       expect(screen.getByText("02:03")).toBeInTheDocument();
+    });
+  });
+
+  describe("Emoji Grid and Share Functionality", () => {
+    it("should generate and display emoji grid on modal open", async () => {
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={180}
+          puzzleId="2025-01-05"
+          rank={42}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+          puzzle={mockPuzzle}
+          solvePath={mockSolvePath}
+          puzzleNumber={5}
+        />
+      );
+
+      await waitFor(() => {
+        expect(mockGenerateEmojiGrid).toHaveBeenCalledWith(mockPuzzle, mockSolvePath);
+      });
+
+      expect(screen.getByText("Preview share text:")).toBeInTheDocument();
+      const emojiElements = screen.getAllByText(/🟩/);
+      expect(emojiElements.length).toBeGreaterThan(0);
+    });
+
+    it("should display share text preview", async () => {
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={754}
+          puzzleId="2025-01-05"
+          rank={23}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+          puzzle={mockPuzzle}
+          solvePath={mockSolvePath}
+          puzzleNumber={5}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Preview share text:")).toBeInTheDocument();
+      });
+
+      const shareTextElement = screen.getByText(/Sudoku Race #5/);
+      expect(shareTextElement).toBeInTheDocument();
+      expect(shareTextElement.textContent).toContain("⏱️ 12:34");
+    });
+
+    it("should display share buttons", async () => {
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={180}
+          puzzleId="2025-01-05"
+          rank={42}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+          puzzle={mockPuzzle}
+          solvePath={mockSolvePath}
+          puzzleNumber={5}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Share puzzle results on Twitter/i })).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole("button", { name: /Share puzzle results via WhatsApp/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Copy puzzle results to clipboard/i })).toBeInTheDocument();
+    });
+
+    it("should handle copy to clipboard", async () => {
+      Object.assign(navigator, {
+        clipboard: {
+          writeText: jest.fn().mockResolvedValue(undefined),
+        },
+      });
+
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={180}
+          puzzleId="2025-01-05"
+          rank={42}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+          puzzle={mockPuzzle}
+          solvePath={mockSolvePath}
+          puzzleNumber={5}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Copy puzzle results to clipboard/i })).toBeInTheDocument();
+      });
+
+      const copyButton = screen.getByRole("button", { name: /Copy puzzle results to clipboard/i });
+      fireEvent.click(copyButton);
+
+      await waitFor(() => {
+        expect(screen.getByText("Copied!")).toBeInTheDocument();
+      });
+    });
+
+    it("should handle emoji grid generation error gracefully", async () => {
+      mockGenerateEmojiGrid.mockImplementation(() => {
+        throw new Error("Grid generation failed");
+      });
+
+      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={180}
+          puzzleId="2025-01-05"
+          rank={42}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+          puzzle={mockPuzzle}
+          solvePath={mockSolvePath}
+          puzzleNumber={5}
+        />
+      );
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          "[CompletionModal] Failed to generate emoji grid:",
+          expect.any(Error)
+        );
+      });
+
+      expect(screen.queryByText("Your solving journey:")).not.toBeInTheDocument();
+
+      consoleErrorSpy.mockRestore();
     });
   });
 });

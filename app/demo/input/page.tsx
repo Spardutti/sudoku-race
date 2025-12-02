@@ -55,6 +55,7 @@ export default function InputDemoPage() {
   const elapsedTime = usePuzzleStore((state) => state.elapsedTime);
   const isCompleted = usePuzzleStore((state) => state.isCompleted);
   const completionTime = usePuzzleStore((state) => state.completionTime);
+  const solvePath = usePuzzleStore((state) => state.solvePath);
   const setPuzzle = usePuzzleStore((state) => state.setPuzzle);
   const updateCell = usePuzzleStore((state) => state.updateCell);
   const setSelectedCell = usePuzzleStore((state) => state.setSelectedCell);
@@ -288,6 +289,9 @@ export default function InputDemoPage() {
           puzzleId={PUZZLE_ID}
           isAuthenticated={false}
           onClose={() => setShowCompletionModal(false)}
+          puzzle={puzzle || DEMO_PUZZLE}
+          solvePath={solvePath}
+          puzzleNumber={1}
         />
       </div>
     </div>

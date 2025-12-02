@@ -21,6 +21,7 @@ import { usePuzzleSubmission } from "@/lib/hooks/usePuzzleSubmission";
 import { useMigrationNotification } from "@/lib/hooks/useMigrationNotification";
 import { startTimer } from "@/actions/puzzle";
 import type { Puzzle } from "@/actions/puzzle";
+import { calculatePuzzleNumber } from "@/lib/utils/share-text";
 
 const CompletionModal = dynamic(
   () => import("@/components/puzzle/CompletionModal").then((mod) => mod.CompletionModal),
@@ -42,6 +43,8 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const updateCell = usePuzzleStore((state) => state.updateCell);
   const setSelectedCell = usePuzzleStore((state) => state.setSelectedCell);
   const trackCellEntry = usePuzzleStore((state) => state.trackCellEntry);
+  const puzzleData = usePuzzleStore((state) => state.puzzle);
+  const solvePath = usePuzzleStore((state) => state.solvePath);
 
   const isOnline = useNetworkStatus();
   const userId = initialUserId || null;
@@ -239,6 +242,9 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
           isAuthenticated={!!userId}
           rank={serverRank}
           onClose={() => setShowCompletionModal(false)}
+          puzzle={puzzleData ?? puzzle.puzzle_data}
+          solvePath={solvePath}
+          puzzleNumber={calculatePuzzleNumber(puzzle.puzzle_date)}
         />
       </main>
     </div>
