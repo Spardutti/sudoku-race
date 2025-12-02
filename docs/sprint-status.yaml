@@ -85,7 +85,7 @@ development_status:
   # Epic 5: Viral Social Mechanics (5 stories)
   epic-5: backlog
   5-1-solve-path-tracking-during-gameplay: done # docs/stories/5-1-solve-path-tracking-during-gameplay.md
-  5-2-emoji-grid-generation-algorithm: backlog
+  5-2-emoji-grid-generation-algorithm: done # docs/stories/5-2-emoji-grid-generation-algorithm.md
   5-3-share-completion-modal-emoji-grid-preview: backlog
   5-4-one-tap-sharing-twitter-whatsapp-clipboard: backlog
   5-5-shareable-link-social-meta-tags-open-graph: backlog
