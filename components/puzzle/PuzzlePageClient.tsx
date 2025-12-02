@@ -128,8 +128,13 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   });
 
   const isGridComplete = React.useMemo(() => {
-    return userEntries.every((row) => row.every((cell) => cell !== 0));
-  }, [userEntries]);
+    return userEntries.every((row, rowIndex) =>
+      row.every((cell, colIndex) => {
+        const isClue = puzzle.puzzle_data[rowIndex][colIndex] !== 0;
+        return isClue || cell !== 0;
+      })
+    );
+  }, [userEntries, puzzle.puzzle_data]);
 
   const {
     isSubmitting,
@@ -142,6 +147,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     setShowCompletionModal,
   } = usePuzzleSubmission({
     puzzleId: puzzle.id,
+    puzzle: puzzle.puzzle_data,
     userEntries,
     isGridComplete,
     elapsedTime,

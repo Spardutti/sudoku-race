@@ -2,8 +2,18 @@ import * as React from "react";
 import { usePuzzleStore } from "@/lib/stores/puzzleStore";
 import { validateSolution, submitCompletion } from "@/actions/puzzle";
 
+function mergeGrids(puzzle: number[][], userEntries: number[][]): number[][] {
+  return puzzle.map((row, rowIndex) =>
+    row.map((cell, colIndex) => {
+      // If puzzle has a clue (non-zero), use it; otherwise use user entry
+      return cell !== 0 ? cell : userEntries[rowIndex][colIndex];
+    })
+  );
+}
+
 interface UsePuzzleSubmissionProps {
   puzzleId: string;
+  puzzle: number[][];
   userEntries: number[][];
   isGridComplete: boolean;
   elapsedTime: number;
@@ -23,6 +33,7 @@ interface UsePuzzleSubmissionReturn {
 
 export function usePuzzleSubmission({
   puzzleId,
+  puzzle,
   userEntries,
   isGridComplete,
   elapsedTime,
@@ -50,7 +61,8 @@ export function usePuzzleSubmission({
     setIsSubmitting(true);
     setValidationMessage(null);
 
-    const result = await validateSolution(puzzleId, userEntries);
+    const completeGrid = mergeGrids(puzzle, userEntries);
+    const result = await validateSolution(puzzleId, completeGrid);
 
     if (!result.success) {
       setValidationMessage(result.error);
@@ -72,7 +84,7 @@ export function usePuzzleSubmission({
     setShowAnimation(true);
 
     if (userId) {
-      const completionResult = await submitCompletion(puzzleId, userEntries, solvePath);
+      const completionResult = await submitCompletion(puzzleId, completeGrid, solvePath);
       if (!completionResult.success) {
         console.error("Failed to submit completion:", completionResult.error);
       } else {
@@ -86,7 +98,7 @@ export function usePuzzleSubmission({
       setShowCompletionModal(true);
       setIsSubmitting(false);
     }, 1200);
-  }, [isGridComplete, isSubmitting, isCompleted, userEntries, elapsedTime, markCompleted, puzzleId, userId, solvePath]);
+  }, [isGridComplete, isSubmitting, isCompleted, puzzle, userEntries, elapsedTime, markCompleted, puzzleId, userId, solvePath]);
 
   return {
     isSubmitting,
