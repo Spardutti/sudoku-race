@@ -251,8 +251,9 @@ export default function InputDemoPage() {
         <div className="max-w-xs mx-auto">
           <SubmitButton
             onSubmit={handleSubmit}
-            isDisabled={!isGridComplete || isCompleted}
+            isDisabled={!isGridComplete}
             isLoading={isSubmitting}
+            isCompleted={isCompleted}
           />
         </div>
 

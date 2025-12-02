@@ -194,8 +194,9 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
         <div className="max-w-xs mx-auto">
           <SubmitButton
             onSubmit={handleSubmit}
-            isDisabled={!isGridComplete || isCompleted}
+            isDisabled={!isGridComplete}
             isLoading={isSubmitting}
+            isCompleted={isCompleted}
           />
         </div>
 

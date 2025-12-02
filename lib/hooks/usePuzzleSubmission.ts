@@ -40,7 +40,12 @@ export function usePuzzleSubmission({
   const [serverRank, setServerRank] = React.useState<number | undefined>(undefined);
 
   const handleSubmit = React.useCallback(async () => {
-    if (!isGridComplete || isSubmitting || isCompleted) return;
+    if (!isGridComplete || isSubmitting) return;
+
+    if (isCompleted) {
+      setShowCompletionModal(true);
+      return;
+    }
 
     setIsSubmitting(true);
     setValidationMessage(null);
@@ -66,11 +71,6 @@ export function usePuzzleSubmission({
     markCompleted(elapsedTime);
     setShowAnimation(true);
 
-    setTimeout(() => {
-      setShowAnimation(false);
-      setShowCompletionModal(true);
-    }, 1200);
-
     if (userId) {
       const completionResult = await submitCompletion(puzzleId, userEntries, solvePath);
       if (!completionResult.success) {
@@ -81,7 +81,11 @@ export function usePuzzleSubmission({
       }
     }
 
-    setIsSubmitting(false);
+    setTimeout(() => {
+      setShowAnimation(false);
+      setShowCompletionModal(true);
+      setIsSubmitting(false);
+    }, 1200);
   }, [isGridComplete, isSubmitting, isCompleted, userEntries, elapsedTime, markCompleted, puzzleId, userId, solvePath]);
 
   return {
