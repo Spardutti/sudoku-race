@@ -184,7 +184,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
         <InstructionsCard />
 
         {/* Puzzle Grid */}
-        <section className="flex justify-center pb-32 lg:pb-0" aria-label="Sudoku grid">
+        <section className="flex justify-center px-2" aria-label="Sudoku grid">
           <div className={showAnimation ? "animate-completion" : ""}>
             <SudokuGrid
               puzzle={puzzle.puzzle_data}
@@ -197,7 +197,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
         </section>
 
         {/* Submit Button */}
-        <div className="max-w-xs mx-auto">
+        <div className="max-w-xs mx-auto pb-48 lg:pb-0">
           <SubmitButton
             onSubmit={handleSubmit}
             isDisabled={!isGridComplete}

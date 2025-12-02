@@ -46,7 +46,7 @@ const SudokuCell = React.memo<SudokuCellProps>(function SudokuCell({
       className={cn(
         "w-full aspect-square flex items-center justify-center",
         "text-lg font-sans border border-gray-300",
-        "transition-colors duration-100 min-w-11 min-h-11",
+        "transition-colors duration-100 sm:min-w-11 sm:min-h-11",
         isClue
           ? "text-neutral bg-white cursor-default"
           : "text-primary bg-white cursor-pointer hover:bg-gray-50",
@@ -183,7 +183,7 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
       aria-label="Sudoku puzzle grid"
       className={cn(
         "grid grid-cols-9 grid-rows-9",
-        "w-full max-w-[360px] sm:max-w-[540px] mx-auto",
+        "w-full max-w-[360px] sm:max-w-[540px] mx-auto box-border",
         "border-2 border-black",
         "focus:outline-none"
       )}
