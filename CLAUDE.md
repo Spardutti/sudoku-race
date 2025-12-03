@@ -2,6 +2,34 @@
 
 This file contains project-wide rules that ALL AI agents must follow when working on this codebase.
 
+## Global Agent Rules
+
+**🔒 MANDATORY FOR ALL AGENTS - NO EXCEPTIONS**
+
+These rules are automatically enforced via Claude Code hooks and apply to ALL agents (SM, Dev, Architect, PM, etc.):
+
+### Universal Constraints
+1. **500 LOC Limit**: All deliverables (stories, code files, docs) MUST be under 500 lines
+   - Stories exceeding 500 LOC MUST be split into multiple stories
+   - Code files exceeding 500 LOC MUST be refactored into smaller modules
+
+2. **No Over-Specification**: Trust the team - provide clear requirements without tutorial-style hand-holding
+   - Focus on WHAT and WHY, not HOW (unless architecturally critical)
+   - Avoid verbose examples and explanations
+   - Keep documentation minimal and actionable
+
+3. **No JSDoc**: Code should be self-descriptive with TypeScript types
+   - Don't add docstrings or JSDoc comments
+   - Only comment where logic isn't self-evident (security, anti-cheat, complex business rules)
+
+4. **Testing Required**: ALL tests must pass 100% before marking work done
+   - No exceptions - broken tests = blocked story
+   - Follow existing test patterns in codebase
+
+5. **Single Responsibility**: One file = one purpose
+   - Keep files focused and cohesive
+   - Prefer composition over large monolithic files
+
 ## Story Creation Rules
 
 ### Story Size Constraint (CRITICAL)

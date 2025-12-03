@@ -88,7 +88,7 @@ development_status:
   5-2-emoji-grid-generation-algorithm: done # docs/stories/5-2-emoji-grid-generation-algorithm.md
   5-3-share-completion-modal-emoji-grid-preview: done # docs/stories/5-3-share-completion-modal-emoji-grid-preview.md
   5-4-one-tap-sharing-twitter-whatsapp-clipboard: done # docs/stories/5-4-one-tap-sharing-twitter-whatsapp-clipboard.md
-  5-5-shareable-link-social-meta-tags-open-graph: backlog
+  5-5-shareable-link-social-meta-tags-open-graph: done # docs/stories/5-5-shareable-link-social-meta-tags-open-graph.md
   epic-5-retrospective: optional
 
   # Epic 6: Engagement & Retention (5 stories)
