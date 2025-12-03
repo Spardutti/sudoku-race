@@ -17,6 +17,7 @@ import { openTwitterShare, openWhatsAppShare, detectPopupBlocked } from "@/lib/u
 import { logShareEvent } from "@/actions/share";
 import { toast } from "sonner";
 import { Twitter, MessageCircle, Clipboard, Check } from "lucide-react";
+import type { StreakData } from "@/lib/types/streak";
 
 interface CompletionModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ interface CompletionModalProps {
   puzzle: number[][];
   solvePath: SolvePath;
   puzzleNumber: number;
+  streakData?: StreakData;
 }
 
 function formatTime(seconds: number): string {
@@ -46,6 +48,7 @@ export function CompletionModal({
   puzzle,
   solvePath,
   puzzleNumber,
+  streakData,
 }: CompletionModalProps) {
   const [hypotheticalRank, setHypotheticalRank] = React.useState<number | null>(null);
   const [isLoadingRank, setIsLoadingRank] = React.useState(false);
@@ -299,6 +302,9 @@ export function CompletionModal({
             <p className="text-2xl font-bold text-gray-900">
               {rank !== undefined ? `#${rank}` : "Calculating..."}
             </p>
+            {streakData?.freezeAvailable && (
+              <p className="text-xs text-gray-500 mt-2">(Freeze protection: Active ✓)</p>
+            )}
           </div>
         ) : (
           <div className="mb-6 rounded-md border-2 border-gray-200 bg-gray-50 p-4">

@@ -47,6 +47,8 @@ export async function updateStreak(userId: string): Promise<Result<StreakData, s
         lastCompletionDate: streakRecord.last_completion_date,
         freezeAvailable: streakRecord.freeze_available,
         lastFreezeResetDate: streakRecord.last_freeze_reset_date,
+        freezeWasUsed: streakRecord.freeze_was_used,
+        streakWasReset: streakRecord.streak_was_reset,
       },
     };
   } catch (error) {

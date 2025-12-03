@@ -143,6 +143,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     showCompletionModal,
     serverCompletionTime,
     serverRank,
+    streakData,
     handleSubmit,
     setShowCompletionModal,
   } = usePuzzleSubmission({
@@ -252,6 +253,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
           puzzle={puzzleData ?? puzzle.puzzle_data}
           solvePath={solvePath}
           puzzleNumber={calculatePuzzleNumber(puzzle.puzzle_date)}
+          streakData={streakData}
         />
       </main>
     </div>

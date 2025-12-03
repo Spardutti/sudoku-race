@@ -4,4 +4,6 @@ export type StreakData = {
   lastCompletionDate: string;
   freezeAvailable: boolean;
   lastFreezeResetDate: string | null;
+  freezeWasUsed: boolean;
+  streakWasReset: boolean;
 };

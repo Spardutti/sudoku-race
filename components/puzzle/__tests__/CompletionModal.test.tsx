@@ -516,4 +516,74 @@ describe("CompletionModal", () => {
       consoleErrorSpy.mockRestore();
     });
   });
+
+  describe("Streak Freeze Indicator", () => {
+    it("should show freeze protection indicator when freeze is available", () => {
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={180}
+          puzzleId="2025-01-05"
+          rank={42}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+          puzzle={mockPuzzle}
+          solvePath={mockSolvePath}
+          puzzleNumber={5}
+          streakData={{
+            currentStreak: 5,
+            longestStreak: 10,
+            lastCompletionDate: "2025-01-05",
+            freezeAvailable: true,
+            lastFreezeResetDate: null,
+          }}
+        />
+      );
+
+      expect(screen.getByText("(Freeze protection: Active ✓)")).toBeInTheDocument();
+    });
+
+    it("should not show freeze protection indicator when freeze is not available", () => {
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={180}
+          puzzleId="2025-01-05"
+          rank={42}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+          puzzle={mockPuzzle}
+          solvePath={mockSolvePath}
+          puzzleNumber={5}
+          streakData={{
+            currentStreak: 5,
+            longestStreak: 10,
+            lastCompletionDate: "2025-01-05",
+            freezeAvailable: false,
+            lastFreezeResetDate: "2025-01-05",
+          }}
+        />
+      );
+
+      expect(screen.queryByText("(Freeze protection: Active ✓)")).not.toBeInTheDocument();
+    });
+
+    it("should not show freeze protection indicator when streakData is undefined", () => {
+      render(
+        <CompletionModal
+          isOpen={true}
+          completionTime={180}
+          puzzleId="2025-01-05"
+          rank={42}
+          isAuthenticated={true}
+          onClose={jest.fn()}
+          puzzle={mockPuzzle}
+          solvePath={mockSolvePath}
+          puzzleNumber={5}
+        />
+      );
+
+      expect(screen.queryByText("(Freeze protection: Active ✓)")).not.toBeInTheDocument();
+    });
+  });
 });

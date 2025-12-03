@@ -107,4 +107,50 @@ describe("updateStreak", () => {
     expect(result.success).toBe(true);
     expect(result.data?.lastFreezeResetDate).toBeNull();
   });
+
+  it("should return freezeWasUsed flag when freeze is consumed", async () => {
+    mockRpc.mockResolvedValue({
+      data: [
+        {
+          current_streak: 5,
+          longest_streak: 10,
+          last_completion_date: "2025-12-03",
+          freeze_available: false,
+          last_freeze_reset_date: "2025-12-03",
+          freeze_was_used: true,
+          streak_was_reset: false,
+        },
+      ],
+      error: null,
+    });
+
+    const result = await updateStreak(userId);
+
+    expect(result.success).toBe(true);
+    expect(result.data?.freezeWasUsed).toBe(true);
+    expect(result.data?.streakWasReset).toBe(false);
+  });
+
+  it("should return streakWasReset flag when streak resets", async () => {
+    mockRpc.mockResolvedValue({
+      data: [
+        {
+          current_streak: 1,
+          longest_streak: 10,
+          last_completion_date: "2025-12-03",
+          freeze_available: true,
+          last_freeze_reset_date: null,
+          freeze_was_used: false,
+          streak_was_reset: true,
+        },
+      ],
+      error: null,
+    });
+
+    const result = await updateStreak(userId);
+
+    expect(result.success).toBe(true);
+    expect(result.data?.freezeWasUsed).toBe(false);
+    expect(result.data?.streakWasReset).toBe(true);
+  });
 });

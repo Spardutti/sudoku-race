@@ -27,6 +27,12 @@ export default async function ProfilePage() {
     .select("*", { count: "exact", head: true })
     .eq("user_id", userId);
 
+  const { data: streakData } = await supabase
+    .from("streaks")
+    .select("current_streak, longest_streak, last_completion_date, freeze_available, last_freeze_reset_date")
+    .eq("user_id", userId)
+    .single();
+
   return (
     <ProfilePageClient
       user={{
@@ -39,6 +45,17 @@ export default async function ProfilePage() {
       stats={{
         totalPuzzlesSolved: completionCount ?? 0,
       }}
+      streak={
+        streakData
+          ? {
+              currentStreak: streakData.current_streak,
+              longestStreak: streakData.longest_streak,
+              lastCompletionDate: streakData.last_completion_date,
+              freezeAvailable: streakData.freeze_available,
+              lastFreezeResetDate: streakData.last_freeze_reset_date,
+            }
+          : null
+      }
     />
   );
 }

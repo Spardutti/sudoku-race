@@ -1,6 +1,8 @@
 import * as React from "react";
 import { usePuzzleStore } from "@/lib/stores/puzzleStore";
 import { validateSolution, submitCompletion } from "@/actions/puzzle";
+import { toast } from "sonner";
+import type { StreakData } from "@/lib/types/streak";
 
 function mergeGrids(puzzle: number[][], userEntries: number[][]): number[][] {
   return puzzle.map((row, rowIndex) =>
@@ -27,6 +29,7 @@ interface UsePuzzleSubmissionReturn {
   showCompletionModal: boolean;
   serverCompletionTime: number | null;
   serverRank: number | undefined;
+  streakData: StreakData | undefined;
   handleSubmit: () => Promise<void>;
   setShowCompletionModal: (show: boolean) => void;
 }
@@ -49,6 +52,7 @@ export function usePuzzleSubmission({
   const [showAnimation, setShowAnimation] = React.useState(false);
   const [serverCompletionTime, setServerCompletionTime] = React.useState<number | null>(null);
   const [serverRank, setServerRank] = React.useState<number | undefined>(undefined);
+  const [streakData, setStreakData] = React.useState<StreakData | undefined>(undefined);
 
   const handleSubmit = React.useCallback(async () => {
     if (!isGridComplete || isSubmitting) return;
@@ -90,6 +94,21 @@ export function usePuzzleSubmission({
       } else {
         setServerCompletionTime(completionResult.data.completionTime);
         setServerRank(completionResult.data.rank);
+        setStreakData(completionResult.data.streakData);
+
+        if (completionResult.data.streakData?.freezeWasUsed) {
+          toast.success("Streak Freeze Used!", {
+            description: "You missed a day, but your streak is protected! 🛡️",
+            duration: 4000,
+          });
+        }
+
+        if (completionResult.data.streakData?.streakWasReset) {
+          toast.info("Streak Reset", {
+            description: "Your streak was reset, but today starts a new one! Keep going! 💪",
+            duration: 4000,
+          });
+        }
       }
     }
 
@@ -107,6 +126,7 @@ export function usePuzzleSubmission({
     showCompletionModal,
     serverCompletionTime,
     serverRank,
+    streakData,
     handleSubmit,
     setShowCompletionModal,
   };
