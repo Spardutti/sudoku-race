@@ -4,6 +4,7 @@ import { getCurrentUserId } from "@/lib/auth/get-current-user";
 import { submissionLimiter } from "@/lib/abuse-prevention/rate-limiters";
 import { getClientIP } from "@/lib/utils/ip-utils";
 import { headers } from "next/headers";
+import { updateStreak } from "../streak";
 
 // Mock dependencies
 jest.mock("@/lib/supabase/server");
@@ -13,6 +14,7 @@ jest.mock("@sentry/nextjs");
 jest.mock("@/lib/abuse-prevention/rate-limiters");
 jest.mock("@/lib/utils/ip-utils");
 jest.mock("next/headers");
+jest.mock("../streak");
 
 const mockCreateServerActionClient = createServerActionClient as jest.MockedFunction<
   typeof createServerActionClient
@@ -374,6 +376,85 @@ describe("Timer Server Actions", () => {
       }
 
       expect(mockSubmissionLimiter.check).toHaveBeenCalledWith(3, mockUserId);
+    });
+
+    it("should update user streak after successful completion", async () => {
+      const mockUserId = "user-123";
+      const mockPuzzleId = "puzzle-456";
+      const mockUserEntries = Array(9).fill(Array(9).fill(5));
+
+      mockGetCurrentUserId.mockResolvedValue(mockUserId);
+
+      const mockSupabase = {
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        lt: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn().mockResolvedValue({
+          data: { started_at: new Date(Date.now() - 120000).toISOString() },
+        }),
+        single: jest.fn(),
+        update: jest.fn().mockReturnThis(),
+        upsert: jest.fn().mockResolvedValue({ error: null }),
+      };
+
+      mockCreateServerActionClient.mockResolvedValue(mockSupabase as unknown);
+
+      const mockStreakData = {
+        currentStreak: 5,
+        longestStreak: 10,
+        lastCompletionDate: "2025-12-03",
+        freezeAvailable: true,
+      };
+
+      (updateStreak as jest.MockedFunction<typeof updateStreak>).mockResolvedValue({
+        success: true,
+        data: mockStreakData,
+      });
+
+      const result = await submitCompletion(mockPuzzleId, mockUserEntries);
+
+      expect(result.success).toBe(true);
+      expect(updateStreak).toHaveBeenCalledWith(mockUserId);
+      if (result.success) {
+        expect(result.data.streakData).toEqual(mockStreakData);
+      }
+    });
+
+    it("should not fail completion if streak update fails", async () => {
+      const mockUserId = "user-123";
+      const mockPuzzleId = "puzzle-456";
+      const mockUserEntries = Array(9).fill(Array(9).fill(5));
+
+      mockGetCurrentUserId.mockResolvedValue(mockUserId);
+
+      const mockSupabase = {
+        from: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        lt: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn().mockResolvedValue({
+          data: { started_at: new Date(Date.now() - 120000).toISOString() },
+        }),
+        single: jest.fn(),
+        update: jest.fn().mockReturnThis(),
+        upsert: jest.fn().mockResolvedValue({ error: null }),
+      };
+
+      mockCreateServerActionClient.mockResolvedValue(mockSupabase as unknown);
+
+      (updateStreak as jest.MockedFunction<typeof updateStreak>).mockResolvedValue({
+        success: false,
+        error: "Streak update failed",
+      });
+
+      const result = await submitCompletion(mockPuzzleId, mockUserEntries);
+
+      expect(result.success).toBe(true);
+      expect(updateStreak).toHaveBeenCalledWith(mockUserId);
+      if (result.success) {
+        expect(result.data.streakData).toBeUndefined();
+      }
     });
   });
 });

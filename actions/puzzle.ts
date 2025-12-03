@@ -12,6 +12,8 @@ import { isValidGrid, gridsEqual, isValidSudoku } from "@/lib/sudoku/grid-valida
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
 import { validationLimiter, submissionLimiter } from "@/lib/abuse-prevention/rate-limiters";
 import { trackViolation } from "@/lib/abuse-prevention/violation-tracker";
+import { updateStreak } from "./streak";
+import type { StreakData } from "@/lib/types/streak";
 
 export type Puzzle = {
   id: string;
@@ -801,7 +803,12 @@ export async function submitCompletion(
   puzzleId: string,
   userEntries: number[][],
   solvePath: SolvePath = []
-): Promise<Result<{ completionTime: number; flagged: boolean; rank?: number }, string>> {
+): Promise<
+  Result<
+    { completionTime: number; flagged: boolean; rank?: number; streakData?: StreakData },
+    string
+  >
+> {
   try {
     const userId = await getCurrentUserId();
 
@@ -964,12 +971,32 @@ export async function submitCompletion(
     // Use calculated rank directly (we just inserted it)
     const rank = leaderboardInsertError ? undefined : calculatedRank;
 
+    // Update user streak (atomic with completion)
+    const streakResult = await updateStreak(userId);
+    let streakData: StreakData | undefined;
+
+    if (streakResult.success) {
+      streakData = streakResult.data;
+      logger.info("Streak updated successfully", {
+        userId,
+        currentStreak: streakData.currentStreak,
+        longestStreak: streakData.longestStreak,
+      });
+    } else {
+      logger.warn("Streak update failed - completion succeeded", {
+        userId,
+        puzzleId,
+        streakError: streakResult.error,
+      });
+    }
+
     return {
       success: true,
       data: {
         completionTime: completionTimeSeconds,
         flagged,
         rank,
+        streakData,
       },
     };
   } catch (error) {

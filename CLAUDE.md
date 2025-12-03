@@ -1,68 +1,58 @@
-# Project Rules for AI Agents
+# Claude Development Guidelines
 
-This file contains project-wide rules that ALL AI agents must follow when working on this codebase.
+## Project Standards
 
-## Global Agent Rules
+### File Length Limits
 
-**🔒 MANDATORY FOR ALL AGENTS - NO EXCEPTIONS**
+- **Documentation files**: Maximum 500 lines of code
+- **Code files**: Maximum 200 lines of code
+- If a file exceeds limits, split it into smaller, focused modules
 
-These rules are automatically enforced via Claude Code hooks and apply to ALL agents (SM, Dev, Architect, PM, etc.):
+### Code Quality
 
-### Universal Constraints
-1. **500 LOC Limit**: All deliverables (stories, code files, docs) MUST be under 500 lines
-   - Stories exceeding 500 LOC MUST be split into multiple stories
-   - Code files exceeding 500 LOC MUST be refactored into smaller modules
+- **Always run ESLint** before committing changes
+- **Always run build** to check for TypeScript/compilation errors
+- Fix all errors before marking work complete
 
-2. **No Over-Specification**: Trust the team - provide clear requirements without tutorial-style hand-holding
-   - Focus on WHAT and WHY, not HOW (unless architecturally critical)
-   - Avoid verbose examples and explanations
-   - Keep documentation minimal and actionable
+### Documentation Style
 
-3. **No JSDoc**: Code should be self-descriptive with TypeScript types
-   - Don't add docstrings or JSDoc comments
-   - Only comment where logic isn't self-evident (security, anti-cheat, complex business rules)
+- **NO JSDocs** - code should be self-documenting
+- **NO extensive comments** - write clear code instead
+- Comments only when logic is non-obvious or complex
 
-4. **Testing Required**: ALL tests must pass 100% before marking work done
-   - No exceptions - broken tests = blocked story
-   - Follow existing test patterns in codebase
+### Code Principles
 
-5. **Single Responsibility**: One file = one purpose
-   - Keep files focused and cohesive
-   - Prefer composition over large monolithic files
+- **Single Responsibility Principle**: Each function/component does ONE thing
+- Keep functions small and focused
+- Extract complex logic into separate, named functions
 
-## Story Creation Rules
+### Library Research
 
-### Story Size Constraint (CRITICAL)
-- **Maximum story length: 500 lines of code (LOC)**
-- Stories exceeding 500 LOC MUST be split into multiple smaller stories
-- This limit ensures:
-  - Stories remain focused and testable
-  - Faster review cycles
-  - Reduced merge conflicts
-  - Clear acceptance criteria
-  - Manageable implementation scope
+- **Use Context7** for researching library documentation and APIs
+- Always check latest library versions and best practices
+- Verify examples against official documentation
 
-### Story Quality Standards
-- Stories must be concise and focus ONLY on acceptance criteria
-- Avoid unnecessary examples, verbose descriptions, or tutorial-style content
-- Keep tasks/subtasks actionable and specific
-- Documentation should be minimal and purpose-driven
-- Trust the dev team - provide clear requirements without over-specifying implementation
+## Workflow
 
-## Code Quality Rules
+1. Read and understand requirements
+2. Check existing code patterns
+3. Research libraries with Context7 if needed
+4. Write focused, single-purpose code
+5. Run ESLint: `npm run lint`
+6. Run build: `npm run build`
+7. Fix any errors before completing
 
-### Single Responsibility Principle (SRP)
-- Keep files under 500 LOC
-- Prefer small, focused modules over large monolithic files
-- Code should be self-documenting - avoid unnecessary comments
+## Quick Reference
 
-### Testing Standards
-- ALL tests must pass 100% before marking stories as done
-- Follow existing test patterns in the codebase
-- Include unit and integration tests as appropriate
+```bash
+# Lint check
+npm run lint
 
-## Documentation Standards
-- Avoid comment bloat - code should be self-explanatory
-- Only add comments where logic isn't self-evident
-- Don't add docstrings to code you didn't change
-- Keep documentation concise and actionable
+# Build check
+npm run build
+
+# Both checks
+npm run lint && npm run build
+```
+
+Remember: **Clean, focused, error-free code over extensive documentation.**
