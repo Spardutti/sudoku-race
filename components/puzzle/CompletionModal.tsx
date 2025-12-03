@@ -18,6 +18,12 @@ import { logShareEvent } from "@/actions/share";
 import { toast } from "sonner";
 import { Twitter, MessageCircle, Clipboard, Check } from "lucide-react";
 import type { StreakData } from "@/lib/types/streak";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface CompletionModalProps {
   isOpen: boolean;
@@ -302,8 +308,25 @@ export function CompletionModal({
             <p className="text-2xl font-bold text-gray-900">
               {rank !== undefined ? `#${rank}` : "Calculating..."}
             </p>
-            {streakData?.freezeAvailable && (
-              <p className="text-xs text-gray-500 mt-2">(Freeze protection: Active ✓)</p>
+            {streakData && streakData.currentStreak > 0 && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="text-sm text-gray-600 mt-2 cursor-help">
+                      {streakData.currentStreak} day streak 🔥
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      {streakData.freezeWasUsed
+                        ? "Freeze used to protect this streak"
+                        : streakData.freezeAvailable
+                          ? "Freeze ready - protects next missed day"
+                          : "Complete tomorrow to keep your streak"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </div>
         ) : (
