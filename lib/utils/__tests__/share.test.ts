@@ -152,7 +152,52 @@ describe('share utilities', () => {
       );
     });
 
-    it('uses wa.me URL on desktop', () => {
+    it('uses Web Share API on desktop Chrome/Edge when available', async () => {
+      Object.defineProperty(navigator, 'userAgent', {
+        value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        configurable: true
+      });
+
+      const mockShare = jest.fn().mockResolvedValue(undefined);
+      Object.defineProperty(navigator, 'share', {
+        value: mockShare,
+        configurable: true
+      });
+      navigatorShareSpy = jest.spyOn(navigator, 'share');
+
+      const shareText = 'Sudoku Race #42\n⏱️ 12:34\n\n🟩🟩⬜';
+      const result = openWhatsAppShare(shareText);
+
+      expect(result).toBeNull();
+      expect(mockShare).toHaveBeenCalledWith({ text: shareText });
+      expect(windowOpenSpy).not.toHaveBeenCalled();
+    });
+
+    it('falls back to wa.me on desktop when Web Share API is cancelled', async () => {
+      Object.defineProperty(navigator, 'userAgent', {
+        value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        configurable: true
+      });
+
+      const mockShare = jest.fn().mockRejectedValue(new Error('Share cancelled'));
+      Object.defineProperty(navigator, 'share', {
+        value: mockShare,
+        configurable: true
+      });
+
+      const shareText = 'Test message';
+      openWhatsAppShare(shareText);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(windowOpenSpy).toHaveBeenCalledWith(
+        `https://wa.me/?text=${encodeURIComponent(shareText)}`,
+        '_blank',
+        'noopener,noreferrer'
+      );
+    });
+
+    it('uses wa.me URL on desktop Firefox without Web Share API', () => {
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
         configurable: true

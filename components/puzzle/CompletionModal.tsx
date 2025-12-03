@@ -192,6 +192,18 @@ export function CompletionModal({
       rankAtShare: rank,
     }).catch(() => {});
 
+    const isDesktop = typeof navigator !== 'undefined' &&
+      !/Mobile|Android|iPhone/i.test(navigator.userAgent);
+    const isFirefox = typeof navigator !== 'undefined' &&
+      /Firefox/i.test(navigator.userAgent);
+
+    if (isDesktop && isFirefox && !navigator.share) {
+      toast.info("Emoji Tip", {
+        description: "For best emoji support on Firefox, use the Copy to Clipboard button instead",
+        duration: 4000,
+      });
+    }
+
     const popup = openWhatsAppShare(whatsappShareText);
 
     if (detectPopupBlocked(popup)) {

@@ -36,6 +36,15 @@ export function openWhatsAppShare(shareText: string): Window | null {
     return window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   }
 
+  if (typeof navigator !== 'undefined' && navigator.share) {
+    navigator.share({ text: shareText }).catch(() => {
+      const encodedText = encodeURIComponent(shareText);
+      const shareUrl = `https://wa.me/?text=${encodedText}`;
+      window.open(shareUrl, '_blank', 'noopener,noreferrer');
+    });
+    return null;
+  }
+
   const encodedText = encodeURIComponent(shareText);
   const shareUrl = `https://wa.me/?text=${encodedText}`;
 
