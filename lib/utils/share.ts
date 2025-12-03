@@ -19,7 +19,7 @@ export function openTwitterShare(shareText: string): Window | null {
   );
 }
 
-export function openWhatsAppShare(shareText: string): Window | null {
+export function openWhatsAppShare(shareText: string): Window | null | undefined {
   const isMobile = typeof navigator !== 'undefined' &&
     /Mobile|Android|iPhone/i.test(navigator.userAgent);
 
@@ -28,7 +28,7 @@ export function openWhatsAppShare(shareText: string): Window | null {
       const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(shareText)}`;
       window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     });
-    return null;
+    return undefined;
   }
 
   if (isMobile) {
@@ -42,7 +42,7 @@ export function openWhatsAppShare(shareText: string): Window | null {
       const shareUrl = `https://wa.me/?text=${encodedText}`;
       window.open(shareUrl, '_blank', 'noopener,noreferrer');
     });
-    return null;
+    return undefined;
   }
 
   const encodedText = encodeURIComponent(shareText);
@@ -51,7 +51,10 @@ export function openWhatsAppShare(shareText: string): Window | null {
   return window.open(shareUrl, '_blank', 'noopener,noreferrer');
 }
 
-export function detectPopupBlocked(windowRef: Window | null): boolean {
+export function detectPopupBlocked(windowRef: Window | null | undefined): boolean {
+  if (windowRef === undefined) {
+    return false;
+  }
   if (!windowRef || windowRef.closed || typeof windowRef.closed === 'undefined') {
     return true;
   }

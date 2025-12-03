@@ -106,7 +106,7 @@ describe('share utilities', () => {
       const shareText = 'Sudoku Race #42\n⏱️ 12:34\n\n🟩🟩⬜';
       const result = openWhatsAppShare(shareText);
 
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
       expect(mockShare).toHaveBeenCalledWith({ text: shareText });
       expect(windowOpenSpy).not.toHaveBeenCalled();
     });
@@ -168,7 +168,7 @@ describe('share utilities', () => {
       const shareText = 'Sudoku Race #42\n⏱️ 12:34\n\n🟩🟩⬜';
       const result = openWhatsAppShare(shareText);
 
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
       expect(mockShare).toHaveBeenCalledWith({ text: shareText });
       expect(windowOpenSpy).not.toHaveBeenCalled();
     });
@@ -234,6 +234,10 @@ describe('share utilities', () => {
   });
 
   describe('detectPopupBlocked', () => {
+    it('returns false if window reference is undefined (Web Share API)', () => {
+      expect(detectPopupBlocked(undefined)).toBe(false);
+    });
+
     it('returns true if window reference is null', () => {
       expect(detectPopupBlocked(null)).toBe(true);
     });
