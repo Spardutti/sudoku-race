@@ -5,6 +5,8 @@ import { Typography } from "@/components/ui/typography";
 import { LogoutButton } from "./LogoutButton";
 import { DeleteAccountButton } from "./DeleteAccountButton";
 import { StreakFreezeCard } from "./StreakFreezeCard";
+import { StatItem } from "./StatItem";
+import { formatTime } from "@/lib/utils/formatTime";
 
 interface ProfilePageClientProps {
   user: {
@@ -16,6 +18,8 @@ interface ProfilePageClientProps {
   };
   stats: {
     totalPuzzlesSolved: number;
+    averageTime: number | null;
+    bestTime: number | null;
   };
   streak: {
     currentStreak: number;
@@ -97,19 +101,34 @@ export function ProfilePageClient({ user, stats, streak }: ProfilePageClientProp
             Statistics
           </Typography>
 
-          <div>
-            <p className="text-sm text-gray-600">
-              Total Puzzles Solved
-            </p>
-            <p className="text-3xl font-bold">
-              {stats.totalPuzzlesSolved}
-            </p>
-            {stats.totalPuzzlesSolved === 0 && (
-              <p className="text-sm text-gray-500 mt-2">
-                Complete your first puzzle!
-              </p>
-            )}
-          </div>
+          {stats.totalPuzzlesSolved === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Complete your first puzzle to see your stats!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+              <StatItem
+                label="Total Puzzles Solved"
+                value={stats.totalPuzzlesSolved}
+              />
+              <StatItem
+                label="Current Streak"
+                value={streak?.currentStreak ?? 0}
+              />
+              <StatItem
+                label="Longest Streak"
+                value={streak?.longestStreak ?? 0}
+              />
+              <StatItem
+                label="Average Time"
+                value={stats.averageTime ? formatTime(stats.averageTime) : "—"}
+              />
+              <StatItem
+                label="Best Time"
+                value={stats.bestTime ? formatTime(stats.bestTime) : "—"}
+              />
+            </div>
+          )}
         </Card>
 
         {streak && (

@@ -9,6 +9,19 @@ jest.mock("../DeleteAccountButton", () => ({
   DeleteAccountButton: () => <button>Delete Account</button>,
 }));
 
+jest.mock("../StreakFreezeCard", () => ({
+  StreakFreezeCard: () => <div>Streak Freeze Card</div>,
+}));
+
+jest.mock("../StatItem", () => ({
+  StatItem: ({ label, value }: { label: string; value: string | number }) => (
+    <div data-testid="stat-item">
+      <span>{label}</span>
+      <span>{value}</span>
+    </div>
+  ),
+}));
+
 describe("ProfilePageClient", () => {
   const mockUser = {
     id: "test-user-id",
@@ -20,10 +33,20 @@ describe("ProfilePageClient", () => {
 
   const mockStats = {
     totalPuzzlesSolved: 42,
+    averageTime: 180,
+    bestTime: 120,
+  };
+
+  const mockStreak = {
+    currentStreak: 5,
+    longestStreak: 10,
+    lastCompletionDate: "2025-12-04",
+    freezeAvailable: true,
+    lastFreezeResetDate: null,
   };
 
   it("should render user information correctly", () => {
-    render(<ProfilePageClient user={mockUser} stats={mockStats} />);
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />);
 
     expect(screen.getByText("testuser")).toBeInTheDocument();
     expect(screen.getByText("test@example.com")).toBeInTheDocument();
@@ -31,23 +54,85 @@ describe("ProfilePageClient", () => {
     expect(screen.getByText(/Google/)).toBeInTheDocument();
   });
 
-  it("should render statistics correctly", () => {
-    render(<ProfilePageClient user={mockUser} stats={mockStats} />);
-
-    expect(screen.getByText("42")).toBeInTheDocument();
-    expect(screen.getByText("Total Puzzles Solved")).toBeInTheDocument();
-  });
-
-  it("should show empty state when no puzzles solved", () => {
+  it("should show empty state when totalPuzzlesSolved equals 0", () => {
     render(
-      <ProfilePageClient user={mockUser} stats={{ totalPuzzlesSolved: 0 }} />
+      <ProfilePageClient
+        user={mockUser}
+        stats={{ totalPuzzlesSolved: 0, averageTime: null, bestTime: null }}
+        streak={null}
+      />
     );
 
-    expect(screen.getByText("Complete your first puzzle!")).toBeInTheDocument();
+    expect(
+      screen.getByText("Complete your first puzzle to see your stats!")
+    ).toBeInTheDocument();
+  });
+
+  it("should render stats grid when user has completions", () => {
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />);
+
+    const statItems = screen.getAllByTestId("stat-item");
+    expect(statItems).toHaveLength(5);
+  });
+
+  it("should render all 5 stats correctly", () => {
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />);
+
+    expect(screen.getByText("Total Puzzles Solved")).toBeInTheDocument();
+    expect(screen.getByText("Current Streak")).toBeInTheDocument();
+    expect(screen.getByText("Longest Streak")).toBeInTheDocument();
+    expect(screen.getByText("Average Time")).toBeInTheDocument();
+    expect(screen.getByText("Best Time")).toBeInTheDocument();
+  });
+
+  it("should apply grid layout classes", () => {
+    const { container } = render(
+      <ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />
+    );
+
+    const grid = container.querySelector(".grid");
+    expect(grid).toHaveClass("grid-cols-2", "gap-4", "md:grid-cols-3");
+  });
+
+  it("should format time values correctly", () => {
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />);
+
+    expect(screen.getByText("03:00")).toBeInTheDocument();
+    expect(screen.getByText("02:00")).toBeInTheDocument();
+  });
+
+  it("should handle null averageTime and bestTime", () => {
+    const statsWithNullTimes = {
+      totalPuzzlesSolved: 5,
+      averageTime: null,
+      bestTime: null,
+    };
+
+    render(
+      <ProfilePageClient user={mockUser} stats={statsWithNullTimes} streak={mockStreak} />
+    );
+
+    const emDashes = screen.getAllByText("—");
+    expect(emDashes).toHaveLength(2);
+  });
+
+  it("should handle null streak data", () => {
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={null} />);
+
+    const statItems = screen.getAllByTestId("stat-item");
+    const currentStreakItem = statItems.find(
+      (item) => item.textContent?.includes("Current Streak")
+    );
+    expect(currentStreakItem).toHaveTextContent("0");
+
+    const longestStreakItem = statItems.find(
+      (item) => item.textContent?.includes("Longest Streak")
+    );
+    expect(longestStreakItem).toHaveTextContent("0");
   });
 
   it("should render logout and delete account buttons", () => {
-    render(<ProfilePageClient user={mockUser} stats={mockStats} />);
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />);
 
     expect(screen.getByText("Logout")).toBeInTheDocument();
     expect(screen.getByText("Delete Account")).toBeInTheDocument();
@@ -59,7 +144,9 @@ describe("ProfilePageClient", () => {
       createdAt: "2024-12-25T00:00:00Z",
     };
 
-    render(<ProfilePageClient user={userWithDifferentDate} stats={mockStats} />);
+    render(
+      <ProfilePageClient user={userWithDifferentDate} stats={mockStats} streak={mockStreak} />
+    );
 
     expect(screen.getByText("December 2024")).toBeInTheDocument();
   });
@@ -70,7 +157,9 @@ describe("ProfilePageClient", () => {
       oauthProvider: "unknown-provider",
     };
 
-    render(<ProfilePageClient user={userWithUnknownProvider} stats={mockStats} />);
+    render(
+      <ProfilePageClient user={userWithUnknownProvider} stats={mockStats} streak={mockStreak} />
+    );
 
     expect(screen.getByText(/unknown-provider/)).toBeInTheDocument();
   });

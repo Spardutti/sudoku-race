@@ -27,6 +27,20 @@ export default async function ProfilePage() {
     .select("*", { count: "exact", head: true })
     .eq("user_id", userId);
 
+  const { data: completions } = await supabase
+    .from("completions")
+    .select("completion_time_seconds")
+    .eq("user_id", userId)
+    .eq("is_complete", true)
+    .not("completion_time_seconds", "is", null);
+
+  const times = completions?.map((c) => c.completion_time_seconds) || [];
+  const averageTime =
+    times.length > 0
+      ? Math.round(times.reduce((sum, t) => sum + t, 0) / times.length)
+      : null;
+  const bestTime = times.length > 0 ? Math.min(...times) : null;
+
   const { data: streakData } = await supabase
     .from("streaks")
     .select("current_streak, longest_streak, last_completion_date, freeze_available, last_freeze_reset_date")
@@ -44,6 +58,8 @@ export default async function ProfilePage() {
       }}
       stats={{
         totalPuzzlesSolved: completionCount ?? 0,
+        averageTime,
+        bestTime,
       }}
       streak={
         streakData
