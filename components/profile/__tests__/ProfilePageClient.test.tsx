@@ -45,8 +45,11 @@ describe("ProfilePageClient", () => {
     lastFreezeResetDate: null,
   };
 
+  const mockCompletionMap = {};
+  const mockTodayISO = "2025-12-04";
+
   it("should render user information correctly", () => {
-    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />);
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} completionMap={mockCompletionMap} todayISO={mockTodayISO} />);
 
     expect(screen.getByText("testuser")).toBeInTheDocument();
     expect(screen.getByText("test@example.com")).toBeInTheDocument();
@@ -60,6 +63,8 @@ describe("ProfilePageClient", () => {
         user={mockUser}
         stats={{ totalPuzzlesSolved: 0, averageTime: null, bestTime: null }}
         streak={null}
+        completionMap={mockCompletionMap}
+        todayISO={mockTodayISO}
       />
     );
 
@@ -69,14 +74,14 @@ describe("ProfilePageClient", () => {
   });
 
   it("should render stats grid when user has completions", () => {
-    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />);
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} completionMap={mockCompletionMap} todayISO={mockTodayISO} />);
 
     const statItems = screen.getAllByTestId("stat-item");
     expect(statItems).toHaveLength(5);
   });
 
   it("should render all 5 stats correctly", () => {
-    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />);
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} completionMap={mockCompletionMap} todayISO={mockTodayISO} />);
 
     expect(screen.getByText("Total Puzzles Solved")).toBeInTheDocument();
     expect(screen.getByText("Current Streak")).toBeInTheDocument();
@@ -87,7 +92,7 @@ describe("ProfilePageClient", () => {
 
   it("should apply grid layout classes", () => {
     const { container } = render(
-      <ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />
+      <ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} completionMap={mockCompletionMap} todayISO={mockTodayISO} />
     );
 
     const grid = container.querySelector(".grid");
@@ -95,7 +100,7 @@ describe("ProfilePageClient", () => {
   });
 
   it("should format time values correctly", () => {
-    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />);
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} completionMap={mockCompletionMap} todayISO={mockTodayISO} />);
 
     expect(screen.getByText("03:00")).toBeInTheDocument();
     expect(screen.getByText("02:00")).toBeInTheDocument();
@@ -109,7 +114,7 @@ describe("ProfilePageClient", () => {
     };
 
     render(
-      <ProfilePageClient user={mockUser} stats={statsWithNullTimes} streak={mockStreak} />
+      <ProfilePageClient user={mockUser} stats={statsWithNullTimes} streak={mockStreak} completionMap={mockCompletionMap} todayISO={mockTodayISO} />
     );
 
     const emDashes = screen.getAllByText("—");
@@ -117,7 +122,7 @@ describe("ProfilePageClient", () => {
   });
 
   it("should handle null streak data", () => {
-    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={null} />);
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={null} completionMap={mockCompletionMap} todayISO={mockTodayISO} />);
 
     const statItems = screen.getAllByTestId("stat-item");
     const currentStreakItem = statItems.find(
@@ -132,7 +137,7 @@ describe("ProfilePageClient", () => {
   });
 
   it("should render logout and delete account buttons", () => {
-    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} />);
+    render(<ProfilePageClient user={mockUser} stats={mockStats} streak={mockStreak} completionMap={mockCompletionMap} todayISO={mockTodayISO} />);
 
     expect(screen.getByText("Logout")).toBeInTheDocument();
     expect(screen.getByText("Delete Account")).toBeInTheDocument();
@@ -145,7 +150,7 @@ describe("ProfilePageClient", () => {
     };
 
     render(
-      <ProfilePageClient user={userWithDifferentDate} stats={mockStats} streak={mockStreak} />
+      <ProfilePageClient user={userWithDifferentDate} stats={mockStats} streak={mockStreak} completionMap={mockCompletionMap} todayISO={mockTodayISO} />
     );
 
     expect(screen.getByText("December 2024")).toBeInTheDocument();
@@ -158,7 +163,7 @@ describe("ProfilePageClient", () => {
     };
 
     render(
-      <ProfilePageClient user={userWithUnknownProvider} stats={mockStats} streak={mockStreak} />
+      <ProfilePageClient user={userWithUnknownProvider} stats={mockStats} streak={mockStreak} completionMap={mockCompletionMap} todayISO={mockTodayISO} />
     );
 
     expect(screen.getByText(/unknown-provider/)).toBeInTheDocument();

@@ -95,7 +95,7 @@ development_status:
   epic-6: backlog
   6-1-streak-tracking-system-consecutive-days: done # docs/stories/6-1-streak-tracking-system-consecutive-days.md
   6-2-streak-freeze-mechanic-healthy-engagement: done # docs/stories/6-2-streak-freeze-mechanic-healthy-engagement.md
-  6-3-personal-statistics-dashboard: donev
-  6-4-completion-history-calendar-view: backlog
+  6-3-personal-statistics-dashboard: done
+  6-4-completion-history-calendar-view: ready-for-dev # docs/stories/6-4-completion-history-calendar-view.md
   6-5-engagement-hooks-notifications-post-mvp-prep: backlog
   epic-6-retrospective: optional

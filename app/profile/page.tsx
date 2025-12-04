@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
 import { createServerClient } from "@/lib/supabase/server";
 import { ProfilePageClient } from "@/components/profile/ProfilePageClient";
+import { dateToKey } from "@/lib/utils/calendar-utils";
 
 export default async function ProfilePage() {
   const userId = await getCurrentUserId();
@@ -22,17 +23,18 @@ export default async function ProfilePage() {
     redirect("/?message=Failed to load profile");
   }
 
-  const { count: completionCount } = await supabase
-    .from("completions")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", userId);
+  const CALENDAR_DAYS = 30;
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setUTCDate(thirtyDaysAgo.getUTCDate() - CALENDAR_DAYS);
 
   const { data: completions } = await supabase
     .from("completions")
-    .select("completion_time_seconds")
+    .select("completed_at, completion_time_seconds")
     .eq("user_id", userId)
     .eq("is_complete", true)
     .not("completion_time_seconds", "is", null);
+
+  const completionCount = completions?.length ?? 0;
 
   const times = completions?.map((c) => c.completion_time_seconds) || [];
   const averageTime =
@@ -46,6 +48,17 @@ export default async function ProfilePage() {
     .select("current_streak, longest_streak, last_completion_date, freeze_available, last_freeze_reset_date")
     .eq("user_id", userId)
     .single();
+
+  const completionMap = completions
+    ?.filter((c) => c.completed_at && new Date(c.completed_at) >= thirtyDaysAgo)
+    .reduce((acc, c) => {
+      if (!c.completed_at) return acc;
+      const dateKey = dateToKey(new Date(c.completed_at));
+      acc[dateKey] = { time: c.completion_time_seconds, completed: true };
+      return acc;
+    }, {} as Record<string, { time: number; completed: boolean }>) || {};
+
+  const todayISO = dateToKey(new Date());
 
   return (
     <ProfilePageClient
@@ -72,6 +85,8 @@ export default async function ProfilePage() {
             }
           : null
       }
+      completionMap={completionMap}
+      todayISO={todayISO}
     />
   );
 }

@@ -7,6 +7,7 @@ import { DeleteAccountButton } from "./DeleteAccountButton";
 import { StreakFreezeCard } from "./StreakFreezeCard";
 import { StatItem } from "./StatItem";
 import { formatTime } from "@/lib/utils/formatTime";
+import { CompletionCalendar } from "@/components/calendar/CompletionCalendar";
 
 interface ProfilePageClientProps {
   user: {
@@ -28,9 +29,11 @@ interface ProfilePageClientProps {
     freezeAvailable: boolean;
     lastFreezeResetDate: string | null;
   } | null;
+  completionMap: Record<string, { time: number; completed: boolean }>;
+  todayISO: string;
 }
 
-export function ProfilePageClient({ user, stats, streak }: ProfilePageClientProps) {
+export function ProfilePageClient({ user, stats, streak, completionMap, todayISO }: ProfilePageClientProps) {
   const memberSince = new Date(user.createdAt).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
@@ -137,6 +140,8 @@ export function ProfilePageClient({ user, stats, streak }: ProfilePageClientProp
             lastFreezeResetDate={streak.lastFreezeResetDate}
           />
         )}
+
+        <CompletionCalendar completionMap={completionMap} todayISO={todayISO} />
 
         <Card className="p-6 space-y-4">
           <Typography variant="h2" className="text-2xl">
