@@ -14,6 +14,7 @@ describe("SubmitButton", () => {
         onSubmit={mockOnSubmit}
         isDisabled={false}
         isLoading={false}
+        isCompleted={false}
       />
     );
 
@@ -26,6 +27,7 @@ describe("SubmitButton", () => {
         onSubmit={mockOnSubmit}
         isDisabled={false}
         isLoading={true}
+        isCompleted={false}
       />
     );
 
@@ -38,6 +40,7 @@ describe("SubmitButton", () => {
         onSubmit={mockOnSubmit}
         isDisabled={false}
         isLoading={false}
+        isCompleted={false}
       />
     );
 
@@ -52,6 +55,7 @@ describe("SubmitButton", () => {
         onSubmit={mockOnSubmit}
         isDisabled={true}
         isLoading={false}
+        isCompleted={false}
       />
     );
 
@@ -68,6 +72,7 @@ describe("SubmitButton", () => {
         onSubmit={mockOnSubmit}
         isDisabled={false}
         isLoading={true}
+        isCompleted={false}
       />
     );
 
@@ -84,6 +89,7 @@ describe("SubmitButton", () => {
         onSubmit={mockOnSubmit}
         isDisabled={false}
         isLoading={true}
+        isCompleted={false}
       />
     );
 
@@ -96,6 +102,7 @@ describe("SubmitButton", () => {
         onSubmit={mockOnSubmit}
         isDisabled={false}
         isLoading={false}
+        isCompleted={false}
       />
     );
 

@@ -22,7 +22,7 @@ describe("updateStreak", () => {
     const mockSupabase = {
       rpc: mockRpc,
     };
-    mockCreateServerActionClient.mockResolvedValue(mockSupabase as unknown);
+    mockCreateServerActionClient.mockResolvedValue(mockSupabase as never);
   });
 
   afterEach(() => {
@@ -47,8 +47,10 @@ describe("updateStreak", () => {
     const result = await updateStreak(userId);
 
     expect(result.success).toBe(true);
-    expect(result.data?.currentStreak).toBe(5);
-    expect(result.data?.longestStreak).toBe(10);
+    if (result.success) {
+      expect(result.data.currentStreak).toBe(5);
+      expect(result.data.longestStreak).toBe(10);
+    }
     expect(mockRpc).toHaveBeenCalledWith("update_user_streak", {
       p_user_id: userId,
       p_today: "2025-12-03",
@@ -59,7 +61,9 @@ describe("updateStreak", () => {
     const result = await updateStreak("");
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("Invalid user ID");
+    if (!result.success) {
+      expect(result.error).toBe("Invalid user ID");
+    }
     expect(mockRpc).not.toHaveBeenCalled();
   });
 
@@ -72,7 +76,9 @@ describe("updateStreak", () => {
     const result = await updateStreak(userId);
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("Failed to update streak");
+    if (!result.success) {
+      expect(result.error).toBe("Failed to update streak");
+    }
     expect(logger.error).toHaveBeenCalled();
   });
 
@@ -85,7 +91,9 @@ describe("updateStreak", () => {
     const result = await updateStreak(userId);
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("Failed to update streak");
+    if (!result.success) {
+      expect(result.error).toBe("Failed to update streak");
+    }
   });
 
   it("should handle null lastFreezeResetDate", async () => {
@@ -105,7 +113,9 @@ describe("updateStreak", () => {
     const result = await updateStreak(userId);
 
     expect(result.success).toBe(true);
-    expect(result.data?.lastFreezeResetDate).toBeNull();
+    if (result.success) {
+      expect(result.data.lastFreezeResetDate).toBeNull();
+    }
   });
 
   it("should return freezeWasUsed flag when freeze is consumed", async () => {
@@ -127,8 +137,10 @@ describe("updateStreak", () => {
     const result = await updateStreak(userId);
 
     expect(result.success).toBe(true);
-    expect(result.data?.freezeWasUsed).toBe(true);
-    expect(result.data?.streakWasReset).toBe(false);
+    if (result.success) {
+      expect(result.data.freezeWasUsed).toBe(true);
+      expect(result.data.streakWasReset).toBe(false);
+    }
   });
 
   it("should return streakWasReset flag when streak resets", async () => {
@@ -150,7 +162,9 @@ describe("updateStreak", () => {
     const result = await updateStreak(userId);
 
     expect(result.success).toBe(true);
-    expect(result.data?.freezeWasUsed).toBe(false);
-    expect(result.data?.streakWasReset).toBe(true);
+    if (result.success) {
+      expect(result.data.freezeWasUsed).toBe(false);
+      expect(result.data.streakWasReset).toBe(true);
+    }
   });
 });

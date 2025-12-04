@@ -398,19 +398,22 @@ describe("Timer Server Actions", () => {
         upsert: jest.fn().mockResolvedValue({ error: null }),
       };
 
-      mockCreateServerActionClient.mockResolvedValue(mockSupabase as unknown);
+      mockCreateServerActionClient.mockResolvedValue(mockSupabase as never);
 
       const mockStreakData = {
         currentStreak: 5,
         longestStreak: 10,
         lastCompletionDate: "2025-12-03",
         freezeAvailable: true,
+        lastFreezeResetDate: null,
+        freezeWasUsed: false,
+        streakWasReset: false,
       };
 
       (updateStreak as jest.MockedFunction<typeof updateStreak>).mockResolvedValue({
         success: true,
         data: mockStreakData,
-      });
+      } as never);
 
       const result = await submitCompletion(mockPuzzleId, mockUserEntries);
 
@@ -441,7 +444,7 @@ describe("Timer Server Actions", () => {
         upsert: jest.fn().mockResolvedValue({ error: null }),
       };
 
-      mockCreateServerActionClient.mockResolvedValue(mockSupabase as unknown);
+      mockCreateServerActionClient.mockResolvedValue(mockSupabase as never);
 
       (updateStreak as jest.MockedFunction<typeof updateStreak>).mockResolvedValue({
         success: false,

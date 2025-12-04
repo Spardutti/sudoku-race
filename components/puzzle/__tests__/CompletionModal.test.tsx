@@ -536,6 +536,8 @@ describe("CompletionModal", () => {
             lastCompletionDate: "2025-01-05",
             freezeAvailable: true,
             lastFreezeResetDate: null,
+            freezeWasUsed: false,
+            streakWasReset: false,
           }}
         />
       );
@@ -561,6 +563,8 @@ describe("CompletionModal", () => {
             lastCompletionDate: "2025-01-05",
             freezeAvailable: false,
             lastFreezeResetDate: "2025-01-05",
+            freezeWasUsed: false,
+            streakWasReset: false,
           }}
         />
       );
