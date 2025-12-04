@@ -1,8 +1,20 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
 import { createServerClient } from "@/lib/supabase/server";
-import { ProfilePageClient } from "@/components/profile/ProfilePageClient";
-import { dateToKey } from "@/lib/utils/calendar-utils";
+import { ProfileHeader } from "@/components/profile/ProfileHeader";
+import { ProfileStats } from "@/components/profile/ProfileStats";
+import { ProfileCalendar } from "@/components/profile/ProfileCalendar";
+import { ProfileStreak } from "@/components/profile/ProfileStreak";
+import { ProfileStatsSkeleton } from "@/components/profile/ProfileStatsSkeleton";
+import { ProfileCalendarSkeleton } from "@/components/profile/ProfileCalendarSkeleton";
+import { ProfileStreakSkeleton } from "@/components/profile/ProfileStreakSkeleton";
+import { Card } from "@/components/ui/card";
+import { Typography } from "@/components/ui/typography";
+import { LogoutButton } from "@/components/profile/LogoutButton";
+import { DeleteAccountButton } from "@/components/profile/DeleteAccountButton";
+
+export const dynamic = 'force-dynamic';
 
 export default async function ProfilePage() {
   const userId = await getCurrentUserId();
@@ -23,70 +35,42 @@ export default async function ProfilePage() {
     redirect("/?message=Failed to load profile");
   }
 
-  const CALENDAR_DAYS = 30;
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setUTCDate(thirtyDaysAgo.getUTCDate() - CALENDAR_DAYS);
-
-  const { data: completions } = await supabase
-    .from("completions")
-    .select("completed_at, completion_time_seconds")
-    .eq("user_id", userId)
-    .eq("is_complete", true)
-    .not("completion_time_seconds", "is", null);
-
-  const completionCount = completions?.length ?? 0;
-
-  const times = completions?.map((c) => c.completion_time_seconds) || [];
-  const averageTime =
-    times.length > 0
-      ? Math.round(times.reduce((sum, t) => sum + t, 0) / times.length)
-      : null;
-  const bestTime = times.length > 0 ? Math.min(...times) : null;
-
-  const { data: streakData } = await supabase
-    .from("streaks")
-    .select("current_streak, longest_streak, last_completion_date, freeze_available, last_freeze_reset_date")
-    .eq("user_id", userId)
-    .single();
-
-  const completionMap = completions
-    ?.filter((c) => c.completed_at && new Date(c.completed_at) >= thirtyDaysAgo)
-    .reduce((acc, c) => {
-      if (!c.completed_at) return acc;
-      const dateKey = dateToKey(new Date(c.completed_at));
-      acc[dateKey] = { time: c.completion_time_seconds, completed: true };
-      return acc;
-    }, {} as Record<string, { time: number; completed: boolean }>) || {};
-
-  const todayISO = dateToKey(new Date());
-
   return (
-    <ProfilePageClient
-      user={{
-        id: userId,
-        username: userData.username,
-        email: userData.email,
-        createdAt: userData.created_at,
-        oauthProvider: userData.oauth_provider,
-      }}
-      stats={{
-        totalPuzzlesSolved: completionCount ?? 0,
-        averageTime,
-        bestTime,
-      }}
-      streak={
-        streakData
-          ? {
-              currentStreak: streakData.current_streak,
-              longestStreak: streakData.longest_streak,
-              lastCompletionDate: streakData.last_completion_date,
-              freezeAvailable: streakData.freeze_available,
-              lastFreezeResetDate: streakData.last_freeze_reset_date,
-            }
-          : null
-      }
-      completionMap={completionMap}
-      todayISO={todayISO}
-    />
+    <>
+      <ProfileHeader
+        user={{
+          username: userData.username,
+          email: userData.email,
+          createdAt: userData.created_at,
+          oauthProvider: userData.oauth_provider,
+        }}
+      />
+
+      <div className="container max-w-4xl mx-auto px-4 pb-8 space-y-6">
+        <Suspense fallback={<ProfileStatsSkeleton />}>
+          <ProfileStats userId={userId} />
+        </Suspense>
+
+        <Suspense fallback={<ProfileStreakSkeleton />}>
+          <ProfileStreak userId={userId} />
+        </Suspense>
+
+        <Suspense fallback={<ProfileCalendarSkeleton />}>
+          <ProfileCalendar userId={userId} />
+        </Suspense>
+
+        <Card className="p-6 space-y-4">
+          <Typography variant="h2" className="text-2xl">
+            Account Actions
+          </Typography>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <LogoutButton />
+          </div>
+        </Card>
+
+        <DeleteAccountButton userId={userId} />
+      </div>
+    </>
   );
 }
