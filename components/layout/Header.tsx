@@ -68,7 +68,6 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
   const navLinks = [
     { href: '/', label: "Today's Puzzle" },
     { href: '/leaderboard', label: 'Leaderboard' },
-    { href: '/profile', label: 'Profile' },
   ]
 
   return (
@@ -161,16 +160,26 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
 
             {/* Mobile Auth State */}
             {isAuthenticated ? (
-              <button
-                onClick={() => {
-                  closeMenu()
-                  handleSignOut()
-                }}
-                className="border-b border-gray-200 px-4 py-3 text-left text-black transition-colors hover:bg-gray-50 hover:text-[#1a73e8] flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </button>
+              <>
+                <Link
+                  href="/profile"
+                  onClick={closeMenu}
+                  className="border-b border-gray-200 px-4 py-3 text-black transition-colors hover:bg-gray-50 hover:text-[#1a73e8] flex items-center gap-2"
+                >
+                  <UserIcon className="h-4 w-4" />
+                  Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    closeMenu()
+                    handleSignOut()
+                  }}
+                  className="border-b border-gray-200 px-4 py-3 text-left text-black transition-colors hover:bg-gray-50 hover:text-[#1a73e8] flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+              </>
             ) : (
               <button
                 onClick={() => {
