@@ -11,6 +11,9 @@ import { InstructionsCard } from "@/components/puzzle/InstructionsCard";
 import { PuzzleLoadingView } from "@/components/puzzle/PuzzleLoadingView";
 import { PuzzleCompletedView } from "@/components/puzzle/PuzzleCompletedView";
 import { DevToolbar } from "@/components/dev/DevToolbar";
+import { StartScreen } from "@/components/puzzle/StartScreen";
+import { PauseOverlay } from "@/components/puzzle/PauseOverlay";
+import { PauseButton } from "@/components/puzzle/PauseButton";
 import { useKeyboardInput } from "@/lib/hooks/useKeyboardInput";
 import { usePuzzleStore } from "@/lib/stores/puzzleStore";
 import { useAutoSave } from "@/lib/hooks/useAutoSave";
@@ -19,6 +22,7 @@ import { useTimer } from "@/lib/hooks/useTimer";
 import { useNetworkStatus } from "@/lib/hooks/useNetworkStatus";
 import { usePuzzleSubmission } from "@/lib/hooks/usePuzzleSubmission";
 import { useMigrationNotification } from "@/lib/hooks/useMigrationNotification";
+import { useTimerActions } from "@/lib/hooks/useTimerActions";
 import { startTimer } from "@/actions/puzzle";
 import type { Puzzle } from "@/actions/puzzle";
 import { calculatePuzzleNumber } from "@/lib/utils/share-text";
@@ -39,6 +43,8 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const selectedCell = usePuzzleStore((state) => state.selectedCell);
   const elapsedTime = usePuzzleStore((state) => state.elapsedTime);
   const isCompleted = usePuzzleStore((state) => state.isCompleted);
+  const isStarted = usePuzzleStore((state) => state.isStarted);
+  const isPaused = usePuzzleStore((state) => state.isPaused);
   const setPuzzle = usePuzzleStore((state) => state.setPuzzle);
   const updateCell = usePuzzleStore((state) => state.updateCell);
   const setSelectedCell = usePuzzleStore((state) => state.setSelectedCell);
@@ -50,6 +56,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const toggleNoteMode = usePuzzleStore((state) => state.toggleNoteMode);
   const addPencilMark = usePuzzleStore((state) => state.addPencilMark);
   const removePencilMark = usePuzzleStore((state) => state.removePencilMark);
+  const startPuzzle = usePuzzleStore((state) => state.startPuzzle);
 
   const isOnline = useNetworkStatus();
   const userId = initialUserId || null;
@@ -71,13 +78,44 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   useTimer();
   useMigrationNotification();
 
-  React.useEffect(() => {
-    if (userId && !alreadyCompleted) {
+  const {
+    handlePause,
+    handleResume,
+    isPauseLoading,
+    isResumeLoading,
+    lastError: timerError,
+  } = useTimerActions({
+    puzzleId: puzzle.id,
+    userId,
+  });
+
+  const handleStart = React.useCallback(() => {
+    startPuzzle();
+    if (userId) {
       startTimer(puzzle.id).catch((error) => {
         console.error("Failed to start server timer:", error);
       });
     }
-  }, [userId, puzzle.id, alreadyCompleted]);
+  }, [startPuzzle, userId, puzzle.id]);
+
+  React.useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'p' && isStarted && !isCompleted) {
+        e.preventDefault();
+
+        if (isPauseLoading || isResumeLoading) return;
+
+        if (isPaused) {
+          handleResume();
+        } else {
+          handlePause();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isStarted, isPaused, isCompleted, isPauseLoading, isResumeLoading, handlePause, handleResume]);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -190,8 +228,15 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     );
   }
 
+  const puzzleNumber = calculatePuzzleNumber(puzzle.puzzle_date);
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
+      {!isStarted && !alreadyCompleted && (
+        <StartScreen puzzleNumber={puzzleNumber} onStart={handleStart} />
+      )}
+      {isPaused && !isCompleted && <PauseOverlay onResume={handleResume} disabled={isPauseLoading || isResumeLoading} />}
+
       <main className="max-w-2xl mx-auto p-4 space-y-6">
         {/* Header */}
         <PuzzleHeader
@@ -200,9 +245,12 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
           onToggleNoteMode={toggleNoteMode}
         />
 
-        {/* Timer */}
-        <div className="flex justify-center">
+        {/* Timer and Pause Button */}
+        <div className="flex justify-center items-center gap-4">
           <Timer elapsedTime={elapsedTime} isCompleted={isCompleted} />
+          {isStarted && !isPaused && !isCompleted && (
+            <PauseButton onPause={handlePause} disabled={isPauseLoading || isResumeLoading} />
+          )}
         </div>
 
         {/* Instructions (first visit only) */}
@@ -218,6 +266,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
               onCellSelect={handleCellSelect}
               onNumberChange={handleNumberChange}
               pencilMarks={pencilMarks}
+              isBlurred={!isStarted || isPaused}
             />
           </div>
         </section>
@@ -249,6 +298,15 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
             <p className="text-orange-900 font-semibold">
               You&apos;re offline. Please check your connection.
             </p>
+          </div>
+        )}
+
+        {timerError && (
+          <div
+            role="alert"
+            className="max-w-xs mx-auto p-4 bg-red-50 border-2 border-red-200 rounded-md text-center"
+          >
+            <p className="text-red-900 font-semibold">{timerError}</p>
           </div>
         )}
 

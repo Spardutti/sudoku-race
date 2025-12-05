@@ -18,6 +18,9 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
       solvePath: [],
       noteMode: false,
       pencilMarks: {},
+      isStarted: false,
+      isPaused: false,
+      pausedAt: null,
 
       setPuzzle: (id: string, puzzle: number[][]) =>
         set(() => ({
@@ -31,6 +34,9 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           solvePath: [],
           noteMode: false,
           pencilMarks: {},
+          isStarted: false,
+          isPaused: false,
+          pausedAt: null,
         })),
 
       updateCell: (row: number, col: number, value: number) =>
@@ -93,6 +99,9 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           solvePath: [],
           noteMode: false,
           pencilMarks: {},
+          isStarted: false,
+          isPaused: false,
+          pausedAt: null,
         })),
 
       trackCellEntry: (row: number, col: number, value: number) =>
@@ -152,6 +161,23 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           delete newMarks[key];
           return { pencilMarks: newMarks };
         }),
+
+      startPuzzle: () =>
+        set(() => ({
+          isStarted: true,
+        })),
+
+      pausePuzzle: () =>
+        set(() => ({
+          isPaused: true,
+          pausedAt: Date.now(),
+        })),
+
+      resumePuzzle: () =>
+        set(() => ({
+          isPaused: false,
+          pausedAt: null,
+        })),
     }),
     {
       name: 'sudoku-race-puzzle-state',
@@ -165,6 +191,9 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
         solvePath: state.solvePath,
         noteMode: state.noteMode,
         pencilMarks: state.pencilMarks,
+        isStarted: state.isStarted,
+        isPaused: state.isPaused,
+        pausedAt: state.pausedAt,
       }),
     }
   )

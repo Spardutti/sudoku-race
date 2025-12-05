@@ -11,6 +11,7 @@ export interface SudokuGridProps {
   onCellSelect: (row: number, col: number) => void;
   onNumberChange: (row: number, col: number, value: number) => void;
   pencilMarks?: Record<string, number[]>;
+  isBlurred?: boolean;
 }
 
 export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
@@ -19,6 +20,7 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
   selectedCell,
   onCellSelect,
   pencilMarks = {},
+  isBlurred = false,
 }) {
   const gridRef = React.useRef<HTMLDivElement>(null);
 
@@ -131,7 +133,9 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
         "grid grid-cols-9 grid-rows-9",
         "w-full max-w-[360px] sm:max-w-[540px] mx-auto box-border",
         "border-2 border-black",
-        "focus:outline-none"
+        "focus:outline-none",
+        "transition-all duration-200",
+        isBlurred && "blur-lg pointer-events-none"
       )}
       onKeyDown={handleKeyDown}
       tabIndex={0}

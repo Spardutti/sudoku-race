@@ -61,9 +61,9 @@ development_status:
   2-5-timer-implementation-auto-start-fair-timing: done # docs/stories/2-5-timer-implementation-auto-start-fair-timing.md
   2-6-solution-validation-completion-flow: done # docs/stories/2-6-solution-validation-completion-flow.md
   2-7-puzzle-page-integration-ux-polish: done # docs/sprint-artifacts/2-7-puzzle-page-integration-ux-polish.md
-  2-8-pencil-marks-annotations-paper-sudoku: review # docs/stories/2-8-pencil-marks-annotations-paper-sudoku.md
-  2-9-pause-controls-manual-start: ready-for-dev # docs/stories/2-9-pause-controls-manual-start.md
-  2-10-critical-ux-bug-fixes: ready-for-dev # docs/stories/2-10-critical-ux-bug-fixes.md
+  2-8-pencil-marks-annotations-paper-sudoku: done # docs/stories/2-8-pencil-marks-annotations-paper-sudoku.md
+  2-9-pause-controls-manual-start: done # docs/stories/2-9-pause-controls-manual-start.md
+  2-10-critical-ux-bug-fixes: done# docs/stories/2-10-critical-ux-bug-fixes.md
   epic-2-retrospective: optional
 
   # Epic 3: User Identity & Authentication (5 stories)

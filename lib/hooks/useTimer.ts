@@ -54,9 +54,10 @@ const TIMER_INTERVAL_MS = 1000;
  * ```
  */
 export function useTimer(): UseTimerReturn {
-  const { updateElapsedTime, isCompleted } = usePuzzleStore();
-  const [isRunning, setIsRunning] = useState(!isCompleted);
+  const { updateElapsedTime, isCompleted, isStarted, isPaused } = usePuzzleStore();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const shouldRun = isStarted && !isPaused && !isCompleted;
+  const [isRunning, setIsRunning] = useState(shouldRun);
 
   const pause = () => {
     setIsRunning(false);
@@ -79,7 +80,7 @@ export function useTimer(): UseTimerReturn {
 
   // Timer interval - increment elapsed time every second
   useEffect(() => {
-    if (!isRunning || isCompleted) {
+    if (!shouldRun) {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -88,7 +89,6 @@ export function useTimer(): UseTimerReturn {
     }
 
     intervalRef.current = setInterval(() => {
-      // Use functional update to access current state without dependency
       const currentTime = usePuzzleStore.getState().elapsedTime;
       updateElapsedTime(currentTime + 1);
     }, TIMER_INTERVAL_MS);
@@ -99,7 +99,11 @@ export function useTimer(): UseTimerReturn {
         intervalRef.current = null;
       }
     };
-  }, [isRunning, isCompleted, updateElapsedTime]);
+  }, [shouldRun, updateElapsedTime]);
+
+  useEffect(() => {
+    setIsRunning(shouldRun);
+  }, [shouldRun]);
 
   // Cleanup interval on unmount
   useEffect(() => {

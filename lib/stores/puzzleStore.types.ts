@@ -11,6 +11,9 @@ export interface PuzzleState {
   solvePath: SolvePath;
   noteMode: boolean;
   pencilMarks: Record<string, number[]>;
+  isStarted: boolean;
+  isPaused: boolean;
+  pausedAt: number | null;
 }
 
 export interface PuzzleActions {
@@ -28,4 +31,7 @@ export interface PuzzleActions {
   addPencilMark: (row: number, col: number, value: number) => void;
   removePencilMark: (row: number, col: number, value: number) => void;
   clearCellPencilMarks: (row: number, col: number) => void;
+  startPuzzle: () => void;
+  pausePuzzle: () => void;
+  resumePuzzle: () => void;
 }

@@ -14,6 +14,33 @@ import { updateStreak } from "./streak";
 import type { StreakData } from "@/lib/types/streak";
 import { insertLeaderboardEntry } from "./puzzle-leaderboard";
 
+type TimerEvent = {
+  type: "start" | "pause" | "resume" | "complete";
+  timestamp: string;
+};
+
+function calculateActiveTime(events: TimerEvent[], completedAt: Date): number {
+  let totalActive = 0;
+  let lastStart: Date | null = null;
+
+  for (const event of events) {
+    if (event.type === "start" || event.type === "resume") {
+      lastStart = new Date(event.timestamp);
+    } else if (event.type === "pause") {
+      if (lastStart) {
+        totalActive += new Date(event.timestamp).getTime() - lastStart.getTime();
+        lastStart = null;
+      }
+    }
+  }
+
+  if (lastStart) {
+    totalActive += completedAt.getTime() - lastStart.getTime();
+  }
+
+  return Math.floor(totalActive / 1000);
+}
+
 export async function submitCompletion(
   puzzleId: string,
   userEntries: number[][],
@@ -57,7 +84,7 @@ export async function submitCompletion(
 
     const { data: completion } = await supabase
       .from("completions")
-      .select("started_at")
+      .select("started_at, timer_events")
       .eq("user_id", userId)
       .eq("puzzle_id", puzzleId)
       .maybeSingle();
@@ -77,9 +104,11 @@ export async function submitCompletion(
 
     const completedAt = new Date();
     const startedAt = new Date(completion.started_at);
-    const completionTimeSeconds = Math.floor(
-      (completedAt.getTime() - startedAt.getTime()) / 1000
-    );
+
+    const timerEvents = completion.timer_events || [];
+    const completionTimeSeconds = timerEvents.length > 0
+      ? calculateActiveTime(timerEvents, completedAt)
+      : Math.floor((completedAt.getTime() - startedAt.getTime()) / 1000);
 
     const MINIMUM_TIME_SECONDS = process.env.NODE_ENV === "production" ? 60 : 0;
     if (completionTimeSeconds < MINIMUM_TIME_SECONDS) {
