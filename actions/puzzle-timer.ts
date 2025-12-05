@@ -271,10 +271,35 @@ export async function resumeTimer(
       .maybeSingle();
 
     if (!existing) {
-      return {
-        success: false,
-        error: "Completion record not found",
-      };
+      const startedAt = new Date().toISOString();
+      const startEvent: TimerEvent = { type: "start", timestamp: startedAt };
+
+      const { error: insertError } = await supabase.from("completions").insert({
+        user_id: userId,
+        puzzle_id: puzzleId,
+        started_at: startedAt,
+        timer_events: [startEvent],
+      });
+
+      if (insertError) {
+        logger.error("Failed to create completion record", insertError, {
+          userId,
+          puzzleId,
+          action: "resumeTimer",
+        });
+
+        return {
+          success: false,
+          error: "Failed to create completion record",
+        };
+      }
+
+      logger.info("Created missing completion record", {
+        userId,
+        puzzleId,
+        startedAt,
+        action: "resumeTimer",
+      });
     }
 
     const resumedAt = new Date().toISOString();

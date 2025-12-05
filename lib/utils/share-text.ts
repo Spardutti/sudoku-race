@@ -59,7 +59,8 @@ export function generateEmojiShareText(
   completionTime: number,
   emojiGrid: string,
   puzzleUrl: string,
-  channel?: 'twitter' | 'whatsapp' | 'clipboard'
+  channel?: 'twitter' | 'whatsapp' | 'clipboard',
+  locale?: string
 ): string {
   const timeStr = formatTimeForShare(completionTime);
 
@@ -67,7 +68,9 @@ export function generateEmojiShareText(
     ? getPuzzleUrlWithUTM(channel)
     : puzzleUrl;
 
-  return `Sudoku Race #${puzzleNumber}\n⏱️ ${timeStr}\n\n${emojiGrid}\n\nPlay today's puzzle: ${url}`;
+  const playText = locale === 'es' ? 'Juega el puzzle de hoy:' : 'Play today\'s puzzle:';
+
+  return `Sudoku Race #${puzzleNumber}\n⏱️ ${timeStr}\n\n${emojiGrid}\n\n${playText} ${url}`;
 }
 
 export function getPuzzleUrlWithUTM(channel: 'twitter' | 'whatsapp' | 'clipboard'): string {

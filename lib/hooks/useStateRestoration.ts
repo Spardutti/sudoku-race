@@ -70,13 +70,20 @@ export function useStateRestoration(
               isCompleted: result.data.isCompleted,
             });
 
-            // Only restore userEntries if they exist AND are valid
+            const hasEntries =
+              result.data.userEntries &&
+              Array.isArray(result.data.userEntries) &&
+              result.data.userEntries.length > 0;
+
             const stateToRestore: Partial<typeof result.data> = {
               elapsedTime: result.data.elapsedTime,
               isCompleted: result.data.isCompleted,
+              isStarted: result.data.elapsedTime > 0 || hasEntries,
+              isPaused: false,
+              pausedAt: null,
             };
 
-            if (result.data.userEntries && Array.isArray(result.data.userEntries) && result.data.userEntries.length > 0) {
+            if (hasEntries) {
               stateToRestore.userEntries = result.data.userEntries;
             }
 

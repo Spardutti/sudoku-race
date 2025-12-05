@@ -1,6 +1,7 @@
 {
   "common": {
     "submit": "Enviar",
+    "copy": "Copiar",
     "cancel": "Cancelar",
     "save": "Guardar",
     "delete": "Eliminar",
@@ -48,8 +49,9 @@
     },
     "loading": "Cargando puzzle...",
     "completed": "¡Puzzle Completado!",
-    "yourTime": "Tu Tiempo",
+    "yourTime": "Tu tiempo:",
     "yourRank": "Tu Posición",
+    "yourRankLabel": "Tu posición:",
     "hypotheticalRank": "Posición Hipotética",
     "signInToSave": "Inicia sesión para guardar tu tiempo y competir en la clasificación",
     "shareYourResult": "Comparte Tu Resultado",
@@ -60,8 +62,6 @@
     "copyFailed": "Error al copiar",
     "viewLeaderboard": "Ver Clasificación",
     "congratulations": "¡Felicitaciones!",
-    "yourTime": "Tu tiempo:",
-    "yourRankLabel": "Tu posición:",
     "calculating": "Calculando...",
     "dayStreak": "Racha de {count} días",
     "freezeUsedProtect": "Congelador usado para proteger esta racha",
@@ -110,11 +110,13 @@
     "calendar": "Calendario de Actividad",
     "streak": "Racha",
     "totalCompleted": "Total Completados",
+    "totalPuzzlesSolved": "Total de Puzzles Resueltos",
     "averageTime": "Tiempo Promedio",
     "bestTime": "Mejor Tiempo",
     "currentStreak": "Racha Actual",
     "longestStreak": "Racha Más Larga",
     "daysCompleted": "{count} días",
+    "completeFirstPuzzle": "¡Completa tu primer puzzle para ver tus estadísticas!",
     "accountActions": "Acciones de Cuenta",
     "logout": "Cerrar Sesión",
     "loggingOut": "Cerrando sesión...",
@@ -203,22 +205,9 @@
     "format": "{minutes}:{seconds}"
   },
   "calendar": {
-    "months": [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre"
-    ],
-    "weekdays": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
     "completed": "Completado",
-    "notCompleted": "No completado"
+    "notCompleted": "No completado",
+    "completionHistory": "Historial de Completados",
+    "startYourHabit": "¡Comienza tu hábito diario de puzzles!"
   }
 }

@@ -1,6 +1,7 @@
 {
   "common": {
     "submit": "Submit",
+    "copy": "Copy",
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
@@ -48,8 +49,9 @@
     },
     "loading": "Loading puzzle...",
     "completed": "Puzzle Completed!",
-    "yourTime": "Your Time",
+    "yourTime": "Your time:",
     "yourRank": "Your Rank",
+    "yourRankLabel": "Your rank:",
     "hypotheticalRank": "Hypothetical Rank",
     "signInToSave": "Sign in to save your time and compete on the leaderboard",
     "shareYourResult": "Share Your Result",
@@ -60,8 +62,6 @@
     "copyFailed": "Failed to copy",
     "viewLeaderboard": "View Leaderboard",
     "congratulations": "Congratulations!",
-    "yourTime": "Your time:",
-    "yourRankLabel": "Your rank:",
     "calculating": "Calculating...",
     "dayStreak": "{count} day streak",
     "freezeUsedProtect": "Freeze used to protect this streak",
@@ -110,11 +110,13 @@
     "calendar": "Activity Calendar",
     "streak": "Streak",
     "totalCompleted": "Total Completed",
+    "totalPuzzlesSolved": "Total Puzzles Solved",
     "averageTime": "Average Time",
     "bestTime": "Best Time",
     "currentStreak": "Current Streak",
     "longestStreak": "Longest Streak",
     "daysCompleted": "{count} days",
+    "completeFirstPuzzle": "Complete your first puzzle to see your stats!",
     "accountActions": "Account Actions",
     "logout": "Logout",
     "loggingOut": "Logging out...",
@@ -203,22 +205,9 @@
     "format": "{minutes}:{seconds}"
   },
   "calendar": {
-    "months": [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
-    ],
-    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     "completed": "Completed",
-    "notCompleted": "Not completed"
+    "notCompleted": "Not completed",
+    "completionHistory": "Completion History",
+    "startYourHabit": "Start your daily puzzle habit!"
   }
 }

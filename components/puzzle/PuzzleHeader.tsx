@@ -1,8 +1,9 @@
 'use client';
 
 import { format } from "date-fns";
+import { es, enUS } from "date-fns/locale";
 import { NoteModeToggle } from "./NoteModeToggle";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 type PuzzleHeaderProps = {
   puzzleDate: string;
@@ -13,7 +14,9 @@ type PuzzleHeaderProps = {
 
 export function PuzzleHeader({ puzzleDate, puzzleNumber, noteMode = false, onToggleNoteMode }: PuzzleHeaderProps) {
   const t = useTranslations('puzzle');
-  const formattedDate = format(new Date(puzzleDate), "MMMM d, yyyy");
+  const locale = useLocale();
+  const dateLocale = locale === "es" ? es : enUS;
+  const formattedDate = format(new Date(puzzleDate), "MMMM d, yyyy", { locale: dateLocale });
 
   return (
     <header className="text-center space-y-2">
@@ -26,7 +29,7 @@ export function PuzzleHeader({ puzzleDate, puzzleNumber, noteMode = false, onTog
         )}
       </div>
       <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-gray-600">
-        <time dateTime={puzzleDate} className="text-sm md:text-base">
+        <time dateTime={puzzleDate} className="text-sm md:text-base capitalize">
           {formattedDate}
         </time>
         {puzzleNumber && (

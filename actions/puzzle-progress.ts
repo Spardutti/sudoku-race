@@ -10,6 +10,9 @@ export type PuzzleProgress = {
   userEntries?: number[][];
   elapsedTime: number;
   isCompleted: boolean;
+  isStarted?: boolean;
+  isPaused?: boolean;
+  pausedAt?: number | null;
 };
 
 export async function saveProgress(

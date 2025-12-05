@@ -24,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 interface CompletionModalProps {
   isOpen: boolean;
@@ -59,6 +59,7 @@ export function CompletionModal({
 }: CompletionModalProps) {
   const t = useTranslations('puzzle');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const [hypotheticalRank, setHypotheticalRank] = React.useState<number | null>(null);
   const [isLoadingRank, setIsLoadingRank] = React.useState(false);
   const [showAuthButtons, setShowAuthButtons] = React.useState(false);
@@ -101,11 +102,12 @@ export function CompletionModal({
         completionTime,
         emojiGrid,
         puzzleUrl,
-        'clipboard'
+        'clipboard',
+        locale
       );
       setShareText(text);
     }
-  }, [emojiGrid, shareText, puzzleNumber, completionTime]);
+  }, [emojiGrid, shareText, puzzleNumber, completionTime, locale]);
 
   const guestRank = hypotheticalRank ?? null;
 
@@ -119,7 +121,8 @@ export function CompletionModal({
       completionTime,
       emojiGrid,
       getPuzzleUrl(),
-      'clipboard'
+      'clipboard',
+      locale
     );
 
     try {
@@ -167,7 +170,8 @@ export function CompletionModal({
       completionTime,
       emojiGrid,
       getPuzzleUrl(),
-      'twitter'
+      'twitter',
+      locale
     );
 
     logShareEvent({
@@ -195,7 +199,8 @@ export function CompletionModal({
       completionTime,
       emojiGrid,
       getPuzzleUrl(),
-      'whatsapp'
+      'whatsapp',
+      locale
     );
 
     logShareEvent({
@@ -270,7 +275,7 @@ export function CompletionModal({
               aria-label="Share puzzle results on Twitter"
             >
               <Twitter className="mr-2 h-4 w-4" />
-              {t('shareOnTwitter')}
+              Twitter
             </Button>
             <Button
               onClick={handleWhatsAppShare}
@@ -298,7 +303,7 @@ export function CompletionModal({
               ) : (
                 <>
                   <Clipboard className="mr-2 h-4 w-4" />
-                  {tCommon('submit')}
+                  {tCommon('copy')}
                 </>
               )}
             </Button>

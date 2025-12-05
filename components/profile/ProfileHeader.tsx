@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Typography } from "@/components/ui/typography";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 interface ProfileHeaderProps {
   user: {
@@ -15,10 +15,12 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ user }: ProfileHeaderProps) {
   const t = useTranslations('profile');
-  const memberSince = new Date(user.createdAt).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
+  const locale = useLocale();
+
+  const date = new Date(user.createdAt);
+  const month = new Intl.DateTimeFormat(locale, { month: "long" }).format(date);
+  const year = date.getFullYear();
+  const memberSince = `${month} ${year}`;
 
   const providerDisplay: Record<string, { name: string; icon: string }> = {
     google: { name: "Google", icon: "🔵" },
@@ -65,7 +67,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             <p className="text-sm text-gray-600">
               {t('memberSince')}
             </p>
-            <p>{memberSince}</p>
+            <p className="capitalize">{memberSince}</p>
           </div>
 
           <div>
