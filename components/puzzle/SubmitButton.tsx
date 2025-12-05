@@ -1,4 +1,7 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 interface SubmitButtonProps {
   onSubmit: () => void;
@@ -13,10 +16,12 @@ export function SubmitButton({
   isLoading,
   isCompleted,
 }: SubmitButtonProps) {
+  const t = useTranslations('puzzle');
+
   const getButtonText = () => {
-    if (isLoading) return "Checking...";
+    if (isLoading) return t('checkingSubmission');
     if (isCompleted) return "View Results";
-    return "Submit";
+    return t('submitButton');
   };
 
   const getAriaLabel = () => {

@@ -1,30 +1,12 @@
-/**
- * Timer Component
- *
- * Displays elapsed time in MM:SS format for puzzle solving.
- * Display-only component - actual timing validation happens server-side.
- *
- * @see docs/architecture.md (ADR-005: Server-Side Timer Validation)
- * @see docs/stories/2-5-timer-implementation-auto-start-fair-timing.md
- */
+'use client';
+
+import { useTranslations } from 'next-intl';
 
 interface TimerProps {
-  /**
-   * Elapsed time in seconds
-   */
   elapsedTime: number;
-  /**
-   * Whether the puzzle is completed (timer stops when true)
-   */
   isCompleted: boolean;
 }
 
-/**
- * Format seconds to MM:SS display format
- *
- * @param seconds - Total elapsed seconds
- * @returns Formatted string (e.g., "05:42", "12:08")
- */
 function formatTime(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
@@ -36,6 +18,8 @@ function formatTime(seconds: number): string {
 }
 
 export function Timer({ elapsedTime, isCompleted }: TimerProps) {
+  const t = useTranslations('puzzle');
+
   return (
     <div
       className="flex items-center gap-2"
@@ -65,7 +49,7 @@ export function Timer({ elapsedTime, isCompleted }: TimerProps) {
       </time>
       {isCompleted && (
         <span className="text-sm text-gray-500" aria-label="Timer stopped">
-          (completed)
+          ({t('timerStopped')})
         </span>
       )}
     </div>

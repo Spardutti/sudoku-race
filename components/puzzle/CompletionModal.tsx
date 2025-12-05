@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTranslations } from "next-intl";
 
 interface CompletionModalProps {
   isOpen: boolean;
@@ -56,6 +57,8 @@ export function CompletionModal({
   puzzleNumber,
   streakData,
 }: CompletionModalProps) {
+  const t = useTranslations('puzzle');
+  const tCommon = useTranslations('common');
   const [hypotheticalRank, setHypotheticalRank] = React.useState<number | null>(null);
   const [isLoadingRank, setIsLoadingRank] = React.useState(false);
   const [showAuthButtons, setShowAuthButtons] = React.useState(false);
@@ -237,12 +240,12 @@ export function CompletionModal({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-center font-serif text-3xl font-bold text-gray-900">
-            Congratulations!
+            {t('congratulations')}
           </DialogTitle>
         </DialogHeader>
 
         <div className="text-center mb-6">
-          <p className="mb-2 text-gray-600">Your time:</p>
+          <p className="mb-2 text-gray-600">{t('yourTime')}</p>
           <p className="font-mono text-4xl font-bold text-gray-900">
             {formatTime(completionTime)}
           </p>
@@ -250,7 +253,7 @@ export function CompletionModal({
 
         {shareText && (
           <div className="mb-6">
-            <p className="mb-2 text-sm text-gray-600">Preview share text:</p>
+            <p className="mb-2 text-sm text-gray-600">{t('previewShareText')}</p>
             <div className="rounded-md border border-gray-200 bg-gray-50 p-3">
               <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs text-gray-700">
                 {shareText}
@@ -267,7 +270,7 @@ export function CompletionModal({
               aria-label="Share puzzle results on Twitter"
             >
               <Twitter className="mr-2 h-4 w-4" />
-              Share on X
+              {t('shareOnTwitter')}
             </Button>
             <Button
               onClick={handleWhatsAppShare}
@@ -285,17 +288,17 @@ export function CompletionModal({
               {copyError ? (
                 <>
                   <span className="mr-2 text-red-500">✗</span>
-                  Failed
+                  {t('failed')}
                 </>
               ) : copied ? (
                 <>
                   <Check className="mr-2 h-4 w-4" />
-                  Copied!
+                  {t('copied')}
                 </>
               ) : (
                 <>
                   <Clipboard className="mr-2 h-4 w-4" />
-                  Copy
+                  {tCommon('submit')}
                 </>
               )}
             </Button>
@@ -304,25 +307,25 @@ export function CompletionModal({
 
         {isAuthenticated ? (
           <div className="mb-6 rounded-md bg-gray-50 p-4 text-center">
-            <p className="text-sm text-gray-600">Your rank:</p>
+            <p className="text-sm text-gray-600">{t('yourRankLabel')}</p>
             <p className="text-2xl font-bold text-gray-900">
-              {rank !== undefined ? `#${rank}` : "Calculating..."}
+              {rank !== undefined ? `#${rank}` : t('calculating')}
             </p>
             {streakData && streakData.currentStreak > 0 && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <p className="text-sm text-gray-600 mt-2 cursor-help">
-                      {streakData.currentStreak} day streak 🔥
+                      {t('dayStreak', { count: streakData.currentStreak })} 🔥
                     </p>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
                       {streakData.freezeWasUsed
-                        ? "Freeze used to protect this streak"
+                        ? t('freezeUsedProtect')
                         : streakData.freezeAvailable
-                          ? "Freeze ready - protects next missed day"
-                          : "Complete tomorrow to keep your streak"}
+                          ? t('freezeReady')
+                          : t('completeTomorrow')}
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -333,26 +336,26 @@ export function CompletionModal({
           <div className="mb-6 rounded-md border-2 border-gray-200 bg-gray-50 p-4">
             <p className="mb-3 text-lg font-semibold text-gray-900">
               {isLoadingRank
-                ? "Calculating your rank..."
+                ? t('calculatingRank')
                 : guestRank !== null
-                  ? `Nice time! You'd be #${guestRank}! Sign in to claim your rank on the leaderboard.`
-                  : "Sign in to claim your rank on the leaderboard!"}
+                  ? t('niceTime', { rank: guestRank })
+                  : t('signInToClaim')}
             </p>
             <p className="mb-4 text-xs text-gray-500">
-              Without signing in: No leaderboard rank • No streaks • No stats
+              {t('withoutSignIn')}
             </p>
             {showAuthButtons ? (
               <div className="flex flex-col gap-2">
                 <AuthButtons />
                 <Button onClick={() => setShowAuthButtons(false)} variant="secondary" className="w-full">
-                  Back
+                  {t('back')}
                 </Button>
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                <Button onClick={() => setShowAuthButtons(true)} className="w-full">Sign In</Button>
+                <Button onClick={() => setShowAuthButtons(true)} className="w-full">{t('signIn')}</Button>
                 <Button onClick={onClose} variant="secondary" className="w-full">
-                  Maybe Later
+                  {t('maybeLater')}
                 </Button>
               </div>
             )}

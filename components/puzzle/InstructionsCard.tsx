@@ -10,10 +10,12 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 const STORAGE_KEY = "hasSeenInstructions";
 
 export function InstructionsCard() {
+  const t = useTranslations("puzzle.instructions");
   const [isOpen, setIsOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -32,13 +34,10 @@ export function InstructionsCard() {
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-serif">How to Play</DialogTitle>
+          <DialogTitle className="text-2xl font-serif">{t("title")}</DialogTitle>
           <DialogDescription asChild>
             <div className="text-base pt-4 space-y-3">
-              <p>
-                Fill the 9×9 grid so that each row, column, and 3×3 box contains
-                the numbers 1-9.
-              </p>
+              <p>{t("fillGrid")}</p>
               <p className="text-sm text-gray-600">
                 <strong>Mobile:</strong> Tap a cell, then use the number pad below.
               </p>

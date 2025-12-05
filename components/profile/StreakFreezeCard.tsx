@@ -1,5 +1,8 @@
+'use client';
+
 import { Card } from "@/components/ui/card";
 import { getDaysDifference } from "@/lib/utils/date-utils";
+import { useTranslations } from "next-intl";
 
 interface StreakFreezeCardProps {
   freezeAvailable: boolean;
@@ -10,32 +13,31 @@ export function StreakFreezeCard({
   freezeAvailable,
   lastFreezeResetDate,
 }: StreakFreezeCardProps) {
+  const t = useTranslations('profile');
   const daysUntilReset = lastFreezeResetDate
     ? Math.max(0, 7 - getDaysDifference(new Date(lastFreezeResetDate), new Date()))
     : null;
 
   return (
     <Card className="p-6 space-y-4">
-      <h2 className="text-2xl font-bold font-serif">Streak Freeze</h2>
+      <h2 className="text-2xl font-bold font-serif">{t('streakFreeze')}</h2>
       <div className="space-y-3">
         <div>
-          <p className="text-sm text-gray-600">Status</p>
+          <p className="text-sm text-gray-600">{t('status')}</p>
           <p
             className={`font-semibold text-lg ${freezeAvailable ? "text-green-600" : "text-gray-500"}`}
           >
-            {freezeAvailable ? "✓ Available" : "Used"}
+            {freezeAvailable ? `✓ ${t('available')}` : t('used')}
           </p>
         </div>
         {!freezeAvailable && lastFreezeResetDate && daysUntilReset !== null && (
           <div>
-            <p className="text-sm text-gray-600">Resets in</p>
-            <p className="font-mono text-sm text-gray-700">{daysUntilReset} days</p>
+            <p className="text-sm text-gray-600">{t('resetsIn')}</p>
+            <p className="font-mono text-sm text-gray-700">{daysUntilReset} {t('days')}</p>
           </div>
         )}
         <p className="text-xs text-gray-500 leading-relaxed">
-          {freezeAvailable
-            ? "If you miss a day, your freeze will automatically protect your streak."
-            : "Your freeze will be available again in a few days."}
+          {freezeAvailable ? t('freezeAvailableDesc') : t('freezeUsedDesc')}
         </p>
       </div>
     </Card>

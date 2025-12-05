@@ -8,12 +8,14 @@ import { Typography } from "@/components/ui/typography";
 import { DeleteAccountModal } from "./DeleteAccountModal";
 import { deleteAccount } from "@/actions/auth";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface DeleteAccountButtonProps {
   userId: string;
 }
 
 export function DeleteAccountButton({ userId }: DeleteAccountButtonProps) {
+  const t = useTranslations('profile');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -24,11 +26,11 @@ export function DeleteAccountButton({ userId }: DeleteAccountButtonProps) {
     const result = await deleteAccount(userId);
 
     if (result.success) {
-      toast.success("Account deleted");
+      toast.success(t('accountDeleted'));
       router.push("/");
       router.refresh();
     } else {
-      toast.error(result.error || "Deletion failed. Contact support.");
+      toast.error(result.error || t('deletionFailed'));
       setIsDeleting(false);
       setIsModalOpen(false);
     }
@@ -39,18 +41,17 @@ export function DeleteAccountButton({ userId }: DeleteAccountButtonProps) {
       <Card className="p-6 border-red-200 bg-red-50">
         <div className="space-y-4">
           <Typography variant="h2" className="text-2xl text-red-900">
-            Danger Zone
+            {t('dangerZone')}
           </Typography>
           <p className="text-sm text-red-800">
-            Permanently delete your account and all associated data. This action
-            cannot be undone.
+            {t('dangerZoneWarning')}
           </p>
           <Button
             variant="primary"
             onClick={() => setIsModalOpen(true)}
             className="w-full sm:w-auto bg-red-600 border-red-600 hover:bg-red-700 hover:border-red-700"
           >
-            Delete Account
+            {t('deleteAccount')}
           </Button>
         </div>
       </Card>

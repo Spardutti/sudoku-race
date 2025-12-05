@@ -5,6 +5,7 @@ import { formatTime } from "@/lib/utils/formatTime";
 import type { LeaderboardEntry, PersonalRank } from "@/actions/leaderboard";
 import { useLeaderboardQuery } from "@/lib/api";
 import { ShareButton } from "./ShareButton";
+import { useTranslations } from "next-intl";
 
 interface LeaderboardTableProps {
   puzzleId: string;
@@ -34,6 +35,7 @@ export function LeaderboardTable({
   personalRank: initialPersonalRank,
   currentUserId,
 }: LeaderboardTableProps) {
+  const t = useTranslations('leaderboard');
   const { data: entries } = useLeaderboardQuery({
     puzzleId,
     enabled: true,
@@ -72,25 +74,25 @@ export function LeaderboardTable({
                 scope="col"
                 className="px-4 py-3 text-left font-serif text-base font-bold uppercase sm:px-2 sm:py-2 sm:text-sm"
               >
-                Rank
+                {t('rank')}
               </th>
               <th
                 scope="col"
                 className="px-4 py-3 text-left font-serif text-base font-bold uppercase sm:px-2 sm:py-2 sm:text-sm"
               >
-                Username
+                {t('username')}
               </th>
               <th
                 scope="col"
                 className="px-4 py-3 text-left font-serif text-base font-bold uppercase sm:px-2 sm:py-2 sm:text-sm"
               >
-                Time
+                {t('time')}
               </th>
               <th
                 scope="col"
                 className="px-4 py-3 text-left font-serif text-base font-bold uppercase sm:px-2 sm:py-2 sm:text-sm"
               >
-                <span className="sr-only">Share</span>
+                <span className="sr-only">{t('share')}</span>
               </th>
             </tr>
           </thead>

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export interface NumberPadProps {
   onNumberChange: (value: number) => void;
@@ -14,6 +15,8 @@ export const NumberPad = React.memo<NumberPadProps>(function NumberPad({
   selectedCell,
   isClueCell,
 }) {
+  const t = useTranslations('puzzle');
+
   const handleNumberClick = React.useCallback(
     (value: number) => {
       if (!selectedCell) return;
@@ -87,7 +90,7 @@ export const NumberPad = React.memo<NumberPadProps>(function NumberPad({
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
           )}
         >
-          Clear
+          {t('clear')}
         </button>
       </div>
     </div>

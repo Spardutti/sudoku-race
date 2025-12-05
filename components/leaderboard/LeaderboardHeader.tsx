@@ -1,4 +1,7 @@
+'use client';
+
 import { format } from "date-fns";
+import { useTranslations } from "next-intl";
 
 interface LeaderboardHeaderProps {
   puzzleDate: string;
@@ -11,6 +14,7 @@ export function LeaderboardHeader({
   puzzleNumber,
   totalCompletions,
 }: LeaderboardHeaderProps) {
+  const t = useTranslations('leaderboard');
   const formattedDate = format(new Date(puzzleDate), "MMMM d, yyyy");
 
   return (
@@ -19,8 +23,7 @@ export function LeaderboardHeader({
         Daily Leaderboard - {formattedDate} #{puzzleNumber}
       </h1>
       <p className="text-base text-gray-600 sm:text-sm">
-        {totalCompletions} {totalCompletions === 1 ? "player" : "players"}{" "}
-        completed today&apos;s puzzle
+        {t('totalCompletions', { count: totalCompletions })}
       </p>
     </div>
   );

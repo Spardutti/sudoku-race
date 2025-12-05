@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { generateMetadata } from "@/lib/utils/metadata";
 import { getPuzzleToday } from "@/actions/puzzle";
 import { getLeaderboard, getPersonalRank } from "@/actions/leaderboard";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
@@ -9,21 +8,19 @@ import { EmptyState } from "@/components/leaderboard/EmptyState";
 import { LeaderboardError } from "@/components/leaderboard/LeaderboardError";
 import { LeaderboardHeader } from "@/components/leaderboard/LeaderboardHeader";
 import { LeaderboardPageClient } from "@/components/leaderboard/LeaderboardPageClient";
+import { getTranslations } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Leaderboard Page Metadata
- * SEO optimized for competitive ranking queries
- */
-export const metadata: Metadata = generateMetadata({
-  title: "Global Leaderboard",
-  description:
-    "Top Sudoku solvers worldwide. See the fastest completion times and compete for your rank on the daily leaderboard.",
-  canonicalPath: "/leaderboard",
-  ogImage: "/og-image.png",
-  twitterCard: "/twitter-card.png",
-});
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'metadata.leaderboard' });
+
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
 
 export default async function LeaderboardPage() {
   const puzzleResult = await getPuzzleToday();

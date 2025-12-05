@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/actions/auth";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function LogoutButton() {
+  const t = useTranslations('profile');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -16,11 +18,11 @@ export function LogoutButton() {
     const result = await signOut();
 
     if (result.success) {
-      toast.success("You've been logged out");
+      toast.success(t('loggedOut'));
       router.push("/");
       router.refresh();
     } else {
-      toast.error(result.error || "Logout failed. Please try again.");
+      toast.error(result.error || t('logoutFailed'));
       setIsLoading(false);
     }
   };
@@ -32,7 +34,7 @@ export function LogoutButton() {
       variant="secondary"
       className="w-full sm:w-auto"
     >
-      {isLoading ? "Logging out..." : "Logout"}
+      {isLoading ? t('loggingOut') : t('logout')}
     </Button>
   );
 }

@@ -1,4 +1,7 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 interface StartScreenProps {
   puzzleNumber: number;
@@ -6,6 +9,8 @@ interface StartScreenProps {
 }
 
 export function StartScreen({ puzzleNumber, onStart }: StartScreenProps) {
+  const t = useTranslations('puzzle');
+
   return (
     <div className="absolute inset-0 bg-white z-20 flex items-center justify-center animate-in fade-in duration-200">
       <div className="text-center max-w-md px-4">
@@ -20,7 +25,7 @@ export function StartScreen({ puzzleNumber, onStart }: StartScreenProps) {
           size="lg"
           aria-label="Start puzzle timer"
         >
-          Start Puzzle
+          {t('startButton')}
         </Button>
       </div>
     </div>

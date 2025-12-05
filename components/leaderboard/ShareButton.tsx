@@ -19,6 +19,7 @@ import {
   copyToClipboard,
 } from "@/lib/utils/share-handlers";
 import { logShareEvent } from "@/actions/share";
+import { useTranslations } from "next-intl";
 
 interface ShareButtonProps {
   rank: number;
@@ -37,6 +38,8 @@ export function ShareButton({
   onShare,
   isGuest = false,
 }: ShareButtonProps) {
+  const t = useTranslations('leaderboard');
+  const tAuth = useTranslations('auth');
   const [open, setOpen] = useState(false);
 
   const handleShare = async (channel: "twitter" | "whatsapp" | "clipboard") => {
@@ -62,11 +65,11 @@ export function ShareButton({
     } else if (channel === "clipboard") {
       copyToClipboard(shareText).then((success) => {
         if (success) {
-          toast.success("Copied to clipboard!", {
+          toast.success(t('copiedToClipboard'), {
             duration: 2000,
           });
         } else {
-          toast.error("Could not copy. Try again.", {
+          toast.error(t('couldNotCopy'), {
             duration: 2000,
           });
         }
@@ -103,7 +106,7 @@ export function ShareButton({
           aria-label="Share your rank"
         >
           <Share2 className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">Share Rank</span>
+          <span className="hidden sm:inline">{t('shareRank')}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -114,11 +117,10 @@ export function ShareButton({
           <div className="space-y-4 text-center">
             <div>
               <h3 className="mb-2 font-serif text-sm font-bold uppercase">
-                Sign in to Share
+                {t('signInToShare')}
               </h3>
               <p className="mb-4 text-sm text-gray-700">
-                Create an account to share your rank and compete on the
-                leaderboard.
+                {t('signInToShareDesc')}
               </p>
             </div>
             <Button
@@ -126,14 +128,14 @@ export function ShareButton({
               className="w-full font-sans"
               aria-label="Sign in to share your rank"
             >
-              Sign In
+              {tAuth('signIn')}
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
             <div>
               <h3 className="mb-2 font-serif text-sm font-bold uppercase">
-                Share Preview
+                {t('sharePreview')}
               </h3>
               <p className="whitespace-pre-wrap break-words font-mono text-xs text-gray-700">
                 {displayPreview}
@@ -148,7 +150,7 @@ export function ShareButton({
                 aria-label="Share on Twitter"
               >
                 <Twitter className="h-4 w-4" />
-                Share on Twitter
+                {t('shareOnTwitter')}
               </Button>
               <Button
                 onClick={() => handleShare("whatsapp")}
@@ -157,7 +159,7 @@ export function ShareButton({
                 aria-label="Share on WhatsApp"
               >
                 <MessageCircle className="h-4 w-4" />
-                Share on WhatsApp
+                {t('shareOnWhatsApp')}
               </Button>
               <Button
                 onClick={() => handleShare("clipboard")}
@@ -166,7 +168,7 @@ export function ShareButton({
                 aria-label="Copy to clipboard"
               >
                 <Link2 className="h-4 w-4" />
-                Copy Link
+                {t('copyLink')}
               </Button>
             </div>
           </div>

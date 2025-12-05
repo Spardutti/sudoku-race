@@ -5,6 +5,7 @@ import { signInWithGoogle } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 function GoogleLogo({ className }: { className?: string }) {
   return (
@@ -30,6 +31,8 @@ function GoogleLogo({ className }: { className?: string }) {
 }
 
 export function AuthButtons() {
+  const t = useTranslations('auth');
+  const tErrors = useTranslations('errors');
   const [loading, setLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
@@ -46,7 +49,7 @@ export function AuthButtons() {
 
       window.location.href = result.data.url;
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(tErrors('generic'));
       setLoading(false);
     }
   };
@@ -58,14 +61,14 @@ export function AuthButtons() {
         onClick={handleGoogleSignIn}
         disabled={loading}
         className="w-full max-w-sm bg-white hover:bg-gray-50 text-gray-700 border-gray-300 hover:border-gray-300 hover:text-gray-700 font-medium"
-        aria-label="Sign in with Google"
+        aria-label={t('signIn')}
       >
         {loading ? (
           <Loader2 className="h-5 w-5 animate-spin" />
         ) : (
           <>
             <GoogleLogo className="w-5 h-5 mr-3" />
-            <span>Sign in with Google</span>
+            <span>{t('signIn')}</span>
           </>
         )}
       </Button>

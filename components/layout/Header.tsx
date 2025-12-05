@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Menu, X, User as UserIcon, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { useAuthState } from '@/lib/hooks/useAuthState'
 import type { User } from '@supabase/supabase-js'
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 
 interface HeaderProps {
   initialUser: User | null
@@ -30,6 +32,9 @@ interface HeaderProps {
 }
 
 export function Header({ initialUser, username: initialUsername }: HeaderProps) {
+  const t = useTranslations('nav')
+  const tAuth = useTranslations('auth')
+  const tProfile = useTranslations('profile')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -56,7 +61,7 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
     setIsLoggingOut(true)
     const result = await signOut()
     if (result.success) {
-      toast.success('Signed out successfully')
+      toast.success(tAuth('signOut'))
       router.push('/')
       router.refresh()
     } else {
@@ -66,8 +71,8 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
   }
 
   const navLinks = [
-    { href: '/', label: "Today's Puzzle" },
-    { href: '/leaderboard', label: 'Leaderboard' },
+    { href: '/', label: t('puzzle') },
+    { href: '/leaderboard', label: t('leaderboard') },
   ]
 
   return (
@@ -90,6 +95,8 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
             </Link>
           ))}
 
+          <LanguageSwitcher />
+
           {/* Auth State */}
           {isAuthenticated ? (
             <DropdownMenu>
@@ -103,23 +110,23 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
                 <DropdownMenuItem asChild>
                   <Link href="/profile" className="cursor-pointer">
                     <UserIcon className="h-4 w-4 mr-2" />
-                    Profile
+                    {tProfile('title')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut} disabled={isLoggingOut} className="cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
-                  {isLoggingOut ? 'Logging out...' : 'Logout'}
+                  {isLoggingOut ? `${tAuth('signOut')}...` : tAuth('signOut')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="primary">Sign In</Button>
+                <Button variant="primary">{tAuth('signIn')}</Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Sign In to Sudoku Daily</DialogTitle>
+                  <DialogTitle>{tAuth('signIn')}</DialogTitle>
                 </DialogHeader>
                 <AuthButtons />
               </DialogContent>
@@ -158,6 +165,11 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
               </Link>
             ))}
 
+            {/* Language Switcher - Mobile */}
+            <div className="border-b border-gray-200 px-4 py-3">
+              <LanguageSwitcher />
+            </div>
+
             {/* Mobile Auth State */}
             {isAuthenticated ? (
               <>
@@ -167,7 +179,7 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
                   className="border-b border-gray-200 px-4 py-3 text-black transition-colors hover:bg-gray-50 hover:text-[#1a73e8] flex items-center gap-2"
                 >
                   <UserIcon className="h-4 w-4" />
-                  Profile
+                  {tProfile('title')}
                 </Link>
                 <button
                   onClick={() => {
@@ -177,7 +189,7 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
                   className="border-b border-gray-200 px-4 py-3 text-left text-black transition-colors hover:bg-gray-50 hover:text-[#1a73e8] flex items-center gap-2"
                 >
                   <LogOut className="h-4 w-4" />
-                  Logout
+                  {tAuth('signOut')}
                 </button>
               </>
             ) : (
@@ -189,7 +201,7 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
                 className="border-b border-gray-200 px-4 py-3 text-left text-black transition-colors hover:bg-gray-50 hover:text-[#1a73e8] flex items-center gap-2"
               >
                 <UserIcon className="h-4 w-4" />
-                Sign In
+                {tAuth('signIn')}
               </button>
             )}
           </div>

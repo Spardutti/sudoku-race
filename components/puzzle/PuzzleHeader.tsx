@@ -1,5 +1,8 @@
+'use client';
+
 import { format } from "date-fns";
 import { NoteModeToggle } from "./NoteModeToggle";
+import { useTranslations } from "next-intl";
 
 type PuzzleHeaderProps = {
   puzzleDate: string;
@@ -9,13 +12,14 @@ type PuzzleHeaderProps = {
 };
 
 export function PuzzleHeader({ puzzleDate, puzzleNumber, noteMode = false, onToggleNoteMode }: PuzzleHeaderProps) {
+  const t = useTranslations('puzzle');
   const formattedDate = format(new Date(puzzleDate), "MMMM d, yyyy");
 
   return (
     <header className="text-center space-y-2">
       <div className="flex items-center justify-center gap-4">
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-black">
-          Today&apos;s Puzzle
+          {t('title')}
         </h1>
         {onToggleNoteMode && (
           <NoteModeToggle noteMode={noteMode} onToggle={onToggleNoteMode} />

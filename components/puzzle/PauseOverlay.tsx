@@ -1,4 +1,7 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 interface PauseOverlayProps {
   onResume: () => void;
@@ -6,6 +9,8 @@ interface PauseOverlayProps {
 }
 
 export function PauseOverlay({ onResume, disabled = false }: PauseOverlayProps) {
+  const t = useTranslations('puzzle');
+
   return (
     <div className="absolute inset-0 bg-white z-20 flex items-center justify-center animate-in fade-in duration-200">
       <div className="text-center max-w-md px-4">
@@ -19,7 +24,7 @@ export function PauseOverlay({ onResume, disabled = false }: PauseOverlayProps) 
           size="lg"
           aria-label="Resume puzzle"
         >
-          Resume
+          {t('resumeButton')}
         </Button>
       </div>
     </div>

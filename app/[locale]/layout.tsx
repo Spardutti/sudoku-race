@@ -8,6 +8,10 @@ import { WebVitalsReporter } from "@/lib/monitoring/web-vitals";
 import { SITE_URL, SOCIAL_MEDIA } from "@/lib/config";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import { notFound } from "next/navigation";
+import { locales } from "@/i18n";
 
 const merriweather = Merriweather({
   variable: "--font-serif",
@@ -111,11 +115,23 @@ export const viewport = {
   themeColor: "#000000", // Black - newspaper aesthetic
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+type Props = {
   children: React.ReactNode;
-}>) {
+  params: Promise<{ locale: string }>;
+};
+
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
+
+export default async function RootLayout({ children, params }: Props) {
+  const { locale } = await params;
+
+  if (!locales.includes(locale as (typeof locales)[number])) {
+    notFound();
+  }
+
+  const messages = await getMessages();
   // Organization structured data (JSON-LD) for search engines
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -131,7 +147,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <script
           type="application/ld+json"
@@ -143,16 +159,18 @@ export default function RootLayout({
       <body
         className={`${merriweather.variable} ${inter.variable} font-sans antialiased`}
       >
-        <QueryProvider>
-          <div className="flex min-h-screen flex-col">
-            <HeaderWithAuth />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <Toaster />
-          <Analytics />
-          <WebVitalsReporter />
-        </QueryProvider>
+        <NextIntlClientProvider messages={messages}>
+          <QueryProvider>
+            <div className="flex min-h-screen flex-col">
+              <HeaderWithAuth />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+            <Toaster />
+            <Analytics />
+            <WebVitalsReporter />
+          </QueryProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

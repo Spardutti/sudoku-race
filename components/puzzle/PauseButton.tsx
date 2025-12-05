@@ -1,5 +1,8 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Pause } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface PauseButtonProps {
   onPause: () => void;
@@ -7,6 +10,8 @@ interface PauseButtonProps {
 }
 
 export function PauseButton({ onPause, disabled = false }: PauseButtonProps) {
+  const t = useTranslations('puzzle');
+
   return (
     <Button
       onClick={onPause}
@@ -17,7 +22,7 @@ export function PauseButton({ onPause, disabled = false }: PauseButtonProps) {
       className="gap-2"
     >
       <Pause className="h-4 w-4" />
-      Pause
+      {t('pauseButton')}
     </Button>
   );
 }

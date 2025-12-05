@@ -13,14 +13,28 @@ import { Card } from "@/components/ui/card";
 import { Typography } from "@/components/ui/typography";
 import { LogoutButton } from "@/components/profile/LogoutButton";
 import { DeleteAccountButton } from "@/components/profile/DeleteAccountButton";
+import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 
 export const dynamic = 'force-dynamic';
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'metadata.profile' });
+
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
+
 export default async function ProfilePage() {
+  const t = await getTranslations('profile');
+  const tAuth = await getTranslations('auth');
   const userId = await getCurrentUserId();
 
   if (!userId) {
-    redirect("/?message=Please sign in to view your profile");
+    redirect(`/?message=${encodeURIComponent(tAuth('signInRequired'))}`);
   }
 
   const supabase = await createServerClient();
@@ -32,7 +46,7 @@ export default async function ProfilePage() {
     .single();
 
   if (userError || !userData) {
-    redirect("/?message=Failed to load profile");
+    redirect(`/?message=${encodeURIComponent(t('failedToLoad'))}`);
   }
 
   return (
@@ -61,7 +75,7 @@ export default async function ProfilePage() {
 
         <Card className="p-6 space-y-4">
           <Typography variant="h2" className="text-2xl">
-            Account Actions
+            {t('accountActions')}
           </Typography>
 
           <div className="flex flex-col gap-3 sm:flex-row">

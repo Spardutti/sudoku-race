@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Typography } from "@/components/ui/typography";
+import { useTranslations } from "next-intl";
 
 interface ProfileHeaderProps {
   user: {
@@ -13,6 +14,7 @@ interface ProfileHeaderProps {
 }
 
 export function ProfileHeader({ user }: ProfileHeaderProps) {
+  const t = useTranslations('profile');
   const memberSince = new Date(user.createdAt).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
@@ -32,18 +34,18 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8">
       <Typography variant="h1" className="mb-8">
-        Profile
+        {t('title')}
       </Typography>
 
       <Card className="p-6 space-y-4">
         <Typography variant="h2" className="text-2xl">
-          Account Information
+          {t('accountInfo')}
         </Typography>
 
         <div className="space-y-3">
           <div>
             <p className="text-sm text-gray-600">
-              Username
+              {t('username')}
             </p>
             <p className="font-medium">
               {user.username}
@@ -52,7 +54,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
 
           <div>
             <p className="text-sm text-gray-600">
-              Email
+              {t('email')}
             </p>
             <p className="font-mono text-sm">
               {user.email}
@@ -61,14 +63,14 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
 
           <div>
             <p className="text-sm text-gray-600">
-              Member Since
+              {t('memberSince')}
             </p>
             <p>{memberSince}</p>
           </div>
 
           <div>
             <p className="text-sm text-gray-600">
-              Authentication Provider
+              {t('authProvider')}
             </p>
             <p>
               {provider.icon} {provider.name}
