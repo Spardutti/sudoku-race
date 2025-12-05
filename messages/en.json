@@ -17,7 +17,7 @@
   },
   "nav": {
     "home": "Home",
-    "puzzle": "Puzzle",
+    "puzzle": "Sudoku",
     "leaderboard": "Leaderboard",
     "profile": "Profile"
   },
@@ -28,9 +28,9 @@
     "authError": "Something went wrong. Please try again."
   },
   "puzzle": {
-    "title": "Today's Puzzle",
-    "notAvailable": "Puzzle Not Available",
-    "startButton": "Start Puzzle",
+    "title": "Today's Sudoku",
+    "notAvailable": "Sudoku Not Available",
+    "startButton": "Start Sudoku",
     "resumeButton": "Resume",
     "pauseButton": "Pause",
     "submitButton": "Submit Solution",
@@ -47,8 +47,10 @@
       "eachColumn": "Each column must contain digits 1-9",
       "each3x3": "Each 3×3 box must contain digits 1-9"
     },
-    "loading": "Loading puzzle...",
-    "completed": "Puzzle Completed!",
+    "loading": "Loading sudoku...",
+    "completed": "Sudoku Completed!",
+    "alreadyCompleted": "You've already completed today's sudoku in {time}",
+    "backToHome": "Back to Home",
     "yourTime": "Your time:",
     "yourRank": "Your Rank",
     "yourRankLabel": "Your rank:",
@@ -80,7 +82,7 @@
   },
   "leaderboard": {
     "title": "Global Leaderboard",
-    "puzzleNumber": "Puzzle #{number}",
+    "puzzleNumber": "Sudoku #{number}",
     "totalCompletions": "{count} completions",
     "rank": "Rank",
     "player": "Player",
@@ -88,8 +90,8 @@
     "time": "Time",
     "you": "You",
     "guest": "Guest",
-    "empty": "Be the first to complete today's puzzle!",
-    "startPuzzle": "Start Today's Puzzle",
+    "empty": "Be the first to complete today's sudoku!",
+    "startPuzzle": "Start Today's Sudoku",
     "error": "Unable to load leaderboard",
     "personalRank": "Your Rank: #{rank}",
     "yourRank": "Your rank:",
@@ -110,13 +112,13 @@
     "calendar": "Activity Calendar",
     "streak": "Streak",
     "totalCompleted": "Total Completed",
-    "totalPuzzlesSolved": "Total Puzzles Solved",
+    "totalPuzzlesSolved": "Total Sudokus Solved",
     "averageTime": "Average Time",
     "bestTime": "Best Time",
     "currentStreak": "Current Streak",
     "longestStreak": "Longest Streak",
     "daysCompleted": "{count} days",
-    "completeFirstPuzzle": "Complete your first puzzle to see your stats!",
+    "completeFirstPuzzle": "Complete your first sudoku to see your stats!",
     "accountActions": "Account Actions",
     "logout": "Logout",
     "loggingOut": "Logging out...",
@@ -128,7 +130,7 @@
     "deleteAccountPermanent": "This will permanently delete:",
     "deleteAccountData": [
       "Your profile and statistics",
-      "All puzzle completion records",
+      "All sudoku completion records",
       "Leaderboard entries and rankings",
       "Streak data and calendar history"
     ],
@@ -168,7 +170,7 @@
     "network": "Network error. Please check your connection.",
     "unauthorized": "You must be signed in to do that.",
     "notFound": "Page not found",
-    "puzzleNotFound": "Puzzle not found",
+    "puzzleNotFound": "Sudoku not found",
     "submissionFailed": "Failed to submit solution",
     "loadFailed": "Failed to load data"
   },
@@ -183,12 +185,12 @@
   "metadata": {
     "siteName": "Sudoku Daily",
     "home": {
-      "title": "Today's Puzzle",
-      "description": "Solve today's medium-difficulty Sudoku puzzle. Compete on the global leaderboard with authentic challenge - no hints, pure skill."
+      "title": "Today's Sudoku",
+      "description": "Solve today's medium-difficulty Sudoku. Compete on the global leaderboard with authentic challenge - no hints, pure skill."
     },
     "puzzle": {
-      "title": "Today's Puzzle - Sudoku Race",
-      "description": "Solve today's Sudoku puzzle and compete on the global leaderboard. Fast, clean, competitive daily Sudoku."
+      "title": "Today's Sudoku - Sudoku Race",
+      "description": "Solve today's Sudoku and compete on the global leaderboard. Fast, clean, competitive daily Sudoku."
     },
     "leaderboard": {
       "title": "Global Leaderboard",
@@ -208,6 +210,6 @@
     "completed": "Completed",
     "notCompleted": "Not completed",
     "completionHistory": "Completion History",
-    "startYourHabit": "Start your daily puzzle habit!"
+    "startYourHabit": "Start your daily sudoku habit!"
   }
 }

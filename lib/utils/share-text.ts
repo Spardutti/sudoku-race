@@ -60,7 +60,8 @@ export function generateEmojiShareText(
   emojiGrid: string,
   puzzleUrl: string,
   channel?: 'twitter' | 'whatsapp' | 'clipboard',
-  locale?: string
+  locale?: string,
+  streak?: number
 ): string {
   const timeStr = formatTimeForShare(completionTime);
 
@@ -69,8 +70,11 @@ export function generateEmojiShareText(
     : puzzleUrl;
 
   const playText = locale === 'es' ? 'Juega el puzzle de hoy:' : 'Play today\'s puzzle:';
+  const streakText = streak && streak > 0
+    ? (locale === 'es' ? `\n🔥 Racha de ${streak} días` : `\n🔥 ${streak} day streak`)
+    : '';
 
-  return `Sudoku Race #${puzzleNumber}\n⏱️ ${timeStr}\n\n${emojiGrid}\n\n${playText} ${url}`;
+  return `Sudoku Race #${puzzleNumber}\n⏱️ ${timeStr}${streakText}\n\n${emojiGrid}\n\n${playText} ${url}`;
 }
 
 export function getPuzzleUrlWithUTM(channel: 'twitter' | 'whatsapp' | 'clipboard'): string {

@@ -17,7 +17,7 @@
   },
   "nav": {
     "home": "Inicio",
-    "puzzle": "Puzzle",
+    "puzzle": "Sudoku",
     "leaderboard": "Clasificación",
     "profile": "Perfil"
   },
@@ -28,9 +28,9 @@
     "authError": "Algo salió mal. Por favor, inténtalo de nuevo."
   },
   "puzzle": {
-    "title": "Puzzle de Hoy",
-    "notAvailable": "Puzzle No Disponible",
-    "startButton": "Iniciar Puzzle",
+    "title": "Sudoku de Hoy",
+    "notAvailable": "Sudoku No Disponible",
+    "startButton": "Iniciar Sudoku",
     "resumeButton": "Reanudar",
     "pauseButton": "Pausar",
     "submitButton": "Enviar Solución",
@@ -47,8 +47,10 @@
       "eachColumn": "Cada columna debe contener los dígitos del 1 al 9",
       "each3x3": "Cada cuadro de 3×3 debe contener los dígitos del 1 al 9"
     },
-    "loading": "Cargando puzzle...",
-    "completed": "¡Puzzle Completado!",
+    "loading": "Cargando sudoku...",
+    "completed": "¡Sudoku Completado!",
+    "alreadyCompleted": "Ya completaste el sudoku de hoy en {time}",
+    "backToHome": "Volver al Inicio",
     "yourTime": "Tu tiempo:",
     "yourRank": "Tu Posición",
     "yourRankLabel": "Tu posición:",
@@ -80,7 +82,7 @@
   },
   "leaderboard": {
     "title": "Clasificación Global",
-    "puzzleNumber": "Puzzle #{number}",
+    "puzzleNumber": "Sudoku #{number}",
     "totalCompletions": "{count} completados",
     "rank": "Posición",
     "player": "Jugador",
@@ -88,8 +90,8 @@
     "time": "Tiempo",
     "you": "Tú",
     "guest": "Invitado",
-    "empty": "¡Sé el primero en completar el puzzle de hoy!",
-    "startPuzzle": "Iniciar Puzzle de Hoy",
+    "empty": "¡Sé el primero en completar el sudoku de hoy!",
+    "startPuzzle": "Iniciar Sudoku de Hoy",
     "error": "No se pudo cargar la clasificación",
     "personalRank": "Tu Posición: #{rank}",
     "yourRank": "Tu posición:",
@@ -110,13 +112,13 @@
     "calendar": "Calendario de Actividad",
     "streak": "Racha",
     "totalCompleted": "Total Completados",
-    "totalPuzzlesSolved": "Total de Puzzles Resueltos",
+    "totalPuzzlesSolved": "Total de Sudokus Resueltos",
     "averageTime": "Tiempo Promedio",
     "bestTime": "Mejor Tiempo",
     "currentStreak": "Racha Actual",
     "longestStreak": "Racha Más Larga",
     "daysCompleted": "{count} días",
-    "completeFirstPuzzle": "¡Completa tu primer puzzle para ver tus estadísticas!",
+    "completeFirstPuzzle": "¡Completa tu primer sudoku para ver tus estadísticas!",
     "accountActions": "Acciones de Cuenta",
     "logout": "Cerrar Sesión",
     "loggingOut": "Cerrando sesión...",
@@ -128,7 +130,7 @@
     "deleteAccountPermanent": "Esto eliminará permanentemente:",
     "deleteAccountData": [
       "Tu perfil y estadísticas",
-      "Todos los registros de puzzles completados",
+      "Todos los registros de sudokus completados",
       "Entradas y clasificaciones en la tabla de posiciones",
       "Datos de racha e historial de calendario"
     ],
@@ -168,7 +170,7 @@
     "network": "Error de red. Por favor, verifica tu conexión.",
     "unauthorized": "Debes iniciar sesión para hacer eso.",
     "notFound": "Página no encontrada",
-    "puzzleNotFound": "Puzzle no encontrado",
+    "puzzleNotFound": "Sudoku no encontrado",
     "submissionFailed": "Error al enviar la solución",
     "loadFailed": "Error al cargar los datos"
   },
@@ -183,12 +185,12 @@
   "metadata": {
     "siteName": "Sudoku Diario",
     "home": {
-      "title": "Puzzle de Hoy",
-      "description": "Resuelve el puzzle de Sudoku de dificultad media de hoy. Compite en la clasificación global con un desafío auténtico - sin pistas, pura habilidad."
+      "title": "Sudoku de Hoy",
+      "description": "Resuelve el Sudoku de dificultad media de hoy. Compite en la clasificación global con un desafío auténtico - sin pistas, pura habilidad."
     },
     "puzzle": {
-      "title": "Puzzle de Hoy - Sudoku Race",
-      "description": "Resuelve el puzzle de Sudoku de hoy y compite en la clasificación global. Sudoku diario rápido, limpio y competitivo."
+      "title": "Sudoku de Hoy - Sudoku Race",
+      "description": "Resuelve el Sudoku de hoy y compite en la clasificación global. Sudoku diario rápido, limpio y competitivo."
     },
     "leaderboard": {
       "title": "Clasificación Global",
@@ -208,6 +210,6 @@
     "completed": "Completado",
     "notCompleted": "No completado",
     "completionHistory": "Historial de Completados",
-    "startYourHabit": "¡Comienza tu hábito diario de puzzles!"
+    "startYourHabit": "¡Comienza tu hábito diario de sudokus!"
   }
 }

@@ -84,7 +84,7 @@ export async function getPuzzleToday(): Promise<Result<Puzzle, string>> {
 
 export async function checkPuzzleCompletion(
   puzzleId: string
-): Promise<Result<{ isCompleted: boolean; completionTime?: number }, string>> {
+): Promise<Result<{ isCompleted: boolean; completionTime?: number; rank?: number }, string>> {
   try {
     const { getCurrentUserId } = await import("@/lib/auth/get-current-user");
     const userId = await getCurrentUserId();
@@ -119,11 +119,25 @@ export async function checkPuzzleCompletion(
     }
 
     if (data) {
+      const { data: leaderboardData } = await supabase
+        .from("leaderboards")
+        .select("rank")
+        .eq("puzzle_id", puzzleId)
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      console.log("[checkPuzzleCompletion] Fetched rank:", {
+        puzzleId,
+        userId,
+        rank: leaderboardData?.rank
+      });
+
       return {
         success: true,
         data: {
           isCompleted: true,
           completionTime: data.completion_time_seconds,
+          rank: leaderboardData?.rank,
         },
       };
     }

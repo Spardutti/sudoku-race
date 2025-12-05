@@ -10,13 +10,21 @@ export async function insertLeaderboardEntry(
 ): Promise<number | undefined> {
   const supabase = await createServerActionClient();
 
-  const { count: fasterCount } = await supabase
+  const { count: fasterCount, error: countError } = await supabase
     .from("leaderboards")
     .select("*", { count: "exact", head: true })
     .eq("puzzle_id", puzzleId)
     .lt("completion_time_seconds", completionTimeSeconds);
 
+  console.log("[insertLeaderboardEntry] Query result:", {
+    fasterCount,
+    countError,
+    puzzleId,
+    completionTimeSeconds
+  });
+
   const calculatedRank = (fasterCount ?? 0) + 1;
+  console.log("[insertLeaderboardEntry] Calculated rank:", calculatedRank);
 
   const { error } = await supabase.from("leaderboards").upsert(
     {
@@ -38,5 +46,6 @@ export async function insertLeaderboardEntry(
     return undefined;
   }
 
+  console.log("[insertLeaderboardEntry] Returning rank:", calculatedRank);
   return calculatedRank;
 }

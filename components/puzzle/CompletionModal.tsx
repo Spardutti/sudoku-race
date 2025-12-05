@@ -103,11 +103,12 @@ export function CompletionModal({
         emojiGrid,
         puzzleUrl,
         'clipboard',
-        locale
+        locale,
+        streakData?.currentStreak
       );
       setShareText(text);
     }
-  }, [emojiGrid, shareText, puzzleNumber, completionTime, locale]);
+  }, [emojiGrid, shareText, puzzleNumber, completionTime, locale, streakData]);
 
   const guestRank = hypotheticalRank ?? null;
 
@@ -122,7 +123,8 @@ export function CompletionModal({
       emojiGrid,
       getPuzzleUrl(),
       'clipboard',
-      locale
+      locale,
+      streakData?.currentStreak
     );
 
     try {
@@ -171,7 +173,8 @@ export function CompletionModal({
       emojiGrid,
       getPuzzleUrl(),
       'twitter',
-      locale
+      locale,
+      streakData?.currentStreak
     );
 
     logShareEvent({
@@ -200,7 +203,8 @@ export function CompletionModal({
       emojiGrid,
       getPuzzleUrl(),
       'whatsapp',
-      locale
+      locale,
+      streakData?.currentStreak
     );
 
     logShareEvent({
@@ -314,8 +318,13 @@ export function CompletionModal({
           <div className="mb-6 rounded-md bg-gray-50 p-4 text-center">
             <p className="text-sm text-gray-600">{t('yourRankLabel')}</p>
             <p className="text-2xl font-bold text-gray-900">
-              {rank !== undefined ? `#${rank}` : t('calculating')}
+              {typeof rank === 'number' ? `#${rank}` : t('calculating')}
             </p>
+            {process.env.NODE_ENV !== 'production' && (
+              <p className="text-xs text-gray-500 mt-1">
+                Debug: rank={JSON.stringify(rank)}, type={typeof rank}
+              </p>
+            )}
             {streakData && streakData.currentStreak > 0 && (
               <TooltipProvider>
                 <Tooltip>

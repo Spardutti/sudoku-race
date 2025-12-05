@@ -35,7 +35,7 @@ const CompletionModal = dynamic(
 type PuzzlePageClientProps = {
   puzzle: Puzzle;
   initialUserId?: string | null;
-  initialCompletionStatus?: { isCompleted: boolean; completionTime?: number };
+  initialCompletionStatus?: { isCompleted: boolean; completionTime?: number; rank?: number };
 };
 
 export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatus }: PuzzlePageClientProps) {
@@ -62,6 +62,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const userId = initialUserId || null;
   const alreadyCompleted = initialCompletionStatus?.isCompleted || false;
   const previousCompletionTime = initialCompletionStatus?.completionTime || null;
+  const previousRank = initialCompletionStatus?.rank;
 
   React.useEffect(() => {
     const storedPuzzleId = usePuzzleStore.getState().puzzleId;
@@ -218,12 +219,18 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   }
 
   if (alreadyCompleted && previousCompletionTime) {
+    console.log("[PuzzlePageClient] Rendering completed view with rank:", previousRank);
     return (
       <PuzzleCompletedView
         completionTime={previousCompletionTime}
         puzzleId={puzzle.id}
         solution={puzzle.solution}
         userId={userId}
+        puzzle={puzzle.puzzle_data}
+        solvePath={solvePath}
+        puzzleNumber={calculatePuzzleNumber(puzzle.puzzle_date)}
+        rank={previousRank}
+        streakData={streakData}
       />
     );
   }

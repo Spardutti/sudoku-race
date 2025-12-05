@@ -89,11 +89,17 @@ export function usePuzzleSubmission({
 
     if (userId) {
       const completionResult = await submitCompletion(puzzleId, completeGrid, solvePath);
+      console.log("[usePuzzleSubmission] Completion result:", {
+        success: completionResult.success,
+        rank: completionResult.success ? completionResult.data.rank : null,
+        completionTime: completionResult.success ? completionResult.data.completionTime : null
+      });
       if (!completionResult.success) {
         console.error("Failed to submit completion:", completionResult.error);
       } else {
         setServerCompletionTime(completionResult.data.completionTime);
         setServerRank(completionResult.data.rank);
+        console.log("[usePuzzleSubmission] Set serverRank to:", completionResult.data.rank);
         setStreakData(completionResult.data.streakData);
 
         if (completionResult.data.streakData?.freezeWasUsed) {

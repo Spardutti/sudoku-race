@@ -250,6 +250,7 @@ describe("Button Component", () => {
     it("renders as child component when asChild is true", () => {
       render(
         <Button asChild>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/test">Link Button</a>
         </Button>
       );
@@ -267,6 +268,7 @@ describe("Button Component", () => {
     it("preserves variant classes when used with asChild", () => {
       render(
         <Button asChild variant="secondary">
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/test">Link</a>
         </Button>
       );
