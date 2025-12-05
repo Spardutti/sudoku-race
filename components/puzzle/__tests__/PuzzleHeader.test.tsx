@@ -31,7 +31,7 @@ describe("PuzzleHeader", () => {
 
   it("applies responsive classes for mobile and desktop", () => {
     const { container } = render(<PuzzleHeader puzzleDate="2025-11-28" puzzleNumber={1} />);
-    const headerContainer = container.querySelector("div");
-    expect(headerContainer).toHaveClass("flex-col", "sm:flex-row");
+    const dateContainer = container.querySelectorAll("div")[1];
+    expect(dateContainer).toHaveClass("flex-col", "sm:flex-row");
   });
 });

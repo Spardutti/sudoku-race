@@ -52,7 +52,7 @@ development_status:
   1-9-database-migration-tool-setup: done # docs/stories/1-9-database-migration-tool-setup.md
   epic-1-retrospective: optional
 
-  # Epic 2: Core Puzzle Experience (8 stories - includes 1 enhancement)
+  # Epic 2: Core Puzzle Experience (10 stories - includes 3 enhancements)
   epic-2: contexted # docs/tech-spec-epic-2.md
   2-1-daily-puzzle-system-data-management: done # docs/stories/2-1-daily-puzzle-system-data-management.md + .context.xml
   2-2-sudoku-grid-ui-component-mobile-optimized: done # docs/stories/2-2-sudoku-grid-ui-component-mobile-optimized.md
@@ -61,7 +61,9 @@ development_status:
   2-5-timer-implementation-auto-start-fair-timing: done # docs/stories/2-5-timer-implementation-auto-start-fair-timing.md
   2-6-solution-validation-completion-flow: done # docs/stories/2-6-solution-validation-completion-flow.md
   2-7-puzzle-page-integration-ux-polish: done # docs/sprint-artifacts/2-7-puzzle-page-integration-ux-polish.md
-  2-8-pencil-marks-annotations-paper-sudoku: ready-for-dev # docs/stories/2-8-pencil-marks-annotations-paper-sudoku.md
+  2-8-pencil-marks-annotations-paper-sudoku: review # docs/stories/2-8-pencil-marks-annotations-paper-sudoku.md
+  2-9-pause-controls-manual-start: ready-for-dev # docs/stories/2-9-pause-controls-manual-start.md
+  2-10-critical-ux-bug-fixes: ready-for-dev # docs/stories/2-10-critical-ux-bug-fixes.md
   epic-2-retrospective: optional
 
   # Epic 3: User Identity & Authentication (5 stories)
@@ -100,3 +102,8 @@ development_status:
   6-4-completion-history-calendar-view: done # docs/stories/6-4-completion-history-calendar-view.md
   6-5-engagement-hooks-notifications-post-mvp-prep: backlog
   epic-6-retrospective: optional
+
+  # Epic 7: Internationalization & Localization (1 story - NEW)
+  epic-7: backlog
+  7-1-internationalization-en-es: ready-for-dev # docs/stories/7-1-internationalization-en-es.md
+  epic-7-retrospective: optional

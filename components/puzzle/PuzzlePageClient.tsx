@@ -45,6 +45,11 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const trackCellEntry = usePuzzleStore((state) => state.trackCellEntry);
   const puzzleData = usePuzzleStore((state) => state.puzzle);
   const solvePath = usePuzzleStore((state) => state.solvePath);
+  const noteMode = usePuzzleStore((state) => state.noteMode);
+  const pencilMarks = usePuzzleStore((state) => state.pencilMarks);
+  const toggleNoteMode = usePuzzleStore((state) => state.toggleNoteMode);
+  const addPencilMark = usePuzzleStore((state) => state.addPencilMark);
+  const removePencilMark = usePuzzleStore((state) => state.removePencilMark);
 
   const isOnline = useNetworkStatus();
   const userId = initialUserId || null;
@@ -94,7 +99,20 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
 
   const handleNumberChange = React.useCallback(
     (row: number, col: number, value: number) => {
-      if (puzzle.puzzle_data[row][col] !== 0) return;
+      if (puzzle.puzzle_data[row][col] !== 0 && !noteMode) return;
+
+      if (noteMode) {
+        if (value === 0) return;
+        const key = `${row}-${col}`;
+        const marks = pencilMarks[key] || [];
+        if (marks.includes(value)) {
+          removePencilMark(row, col, value);
+        } else {
+          addPencilMark(row, col, value);
+        }
+        return;
+      }
+
       if (value === 0) {
         updateCell(row, col, value);
         return;
@@ -103,7 +121,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
       updateCell(row, col, value);
       trackCellEntry(row, col, value);
     },
-    [updateCell, trackCellEntry, puzzle.puzzle_data]
+    [updateCell, trackCellEntry, puzzle.puzzle_data, noteMode, pencilMarks, addPencilMark, removePencilMark]
   );
 
   const isClueCell = React.useCallback(
@@ -125,6 +143,8 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     selectedCell,
     onNumberChange: handleNumberChange,
     isClueCell,
+    noteMode,
+    onToggleNoteMode: toggleNoteMode,
   });
 
   const isGridComplete = React.useMemo(() => {
@@ -174,7 +194,11 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     <div className="min-h-screen bg-white">
       <main className="max-w-2xl mx-auto p-4 space-y-6">
         {/* Header */}
-        <PuzzleHeader puzzleDate={puzzle.puzzle_date} />
+        <PuzzleHeader
+          puzzleDate={puzzle.puzzle_date}
+          noteMode={noteMode}
+          onToggleNoteMode={toggleNoteMode}
+        />
 
         {/* Timer */}
         <div className="flex justify-center">
@@ -193,6 +217,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
               selectedCell={selectedCell}
               onCellSelect={handleCellSelect}
               onNumberChange={handleNumberChange}
+              pencilMarks={pencilMarks}
             />
           </div>
         </section>

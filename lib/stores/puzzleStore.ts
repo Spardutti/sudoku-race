@@ -1,205 +1,13 @@
-/**
- * Puzzle Store - Zustand State Management
- *
- * Centralized state management for puzzle gameplay including grid state, user entries,
- * selected cell, elapsed time, and completion status. Provides auto-save persistence
- * via localStorage for guest users and database sync for authenticated users.
- *
- * @see docs/architecture.md (State Management section)
- * @see docs/stories/2-4-puzzle-state-auto-save-session-management.md
- */
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { SolvePath } from '@/lib/types/solve-path';
+import { PuzzleState, PuzzleActions } from './puzzleStore.types';
+import { createEmptyGrid, autoClearPencilMarks } from './puzzleStore.helpers';
 
-/**
- * Puzzle state interface
- *
- * Represents the complete state of a puzzle session including both the initial
- * puzzle configuration and user's progress.
- */
-export interface PuzzleState {
-  /**
-   * Unique identifier for the current puzzle
-   * Null if no puzzle loaded
-   */
-  puzzleId: string | null;
+export type { PuzzleState, PuzzleActions } from './puzzleStore.types';
 
-  /**
-   * Initial puzzle configuration (clues/given numbers)
-   * 9x9 array where 0 = empty, 1-9 = clue
-   */
-  puzzle: number[][] | null;
-
-  /**
-   * User's entries on the grid
-   * 9x9 array where 0 = empty, 1-9 = user input
-   * Separate from puzzle to track modifications
-   */
-  userEntries: number[][];
-
-  /**
-   * Currently selected cell coordinates
-   * Null if no cell selected
-   */
-  selectedCell: { row: number; col: number } | null;
-
-  /**
-   * Elapsed time in seconds
-   * Tracked for both timer display and completion recording
-   */
-  elapsedTime: number;
-
-  /**
-   * Puzzle completion status
-   * True when puzzle successfully validated
-   */
-  isCompleted: boolean;
-
-  /**
-   * Completion time in seconds
-   * Null until puzzle is completed
-   */
-  completionTime: number | null;
-
-  /**
-   * Solve path tracking each cell entry during gameplay
-   * Array of entries with row, col, value, timestamp, and isCorrection flag
-   */
-  solvePath: SolvePath;
-}
-
-/**
- * Puzzle actions interface
- *
- * Methods for modifying puzzle state. All actions are synchronous and
- * trigger persistence automatically via Zustand middleware.
- */
-export interface PuzzleActions {
-  /**
-   * Initialize puzzle with ID and clue configuration
-   *
-   * @param id - Unique puzzle identifier
-   * @param puzzle - 9x9 array of puzzle clues
-   */
-  setPuzzle: (id: string, puzzle: number[][]) => void;
-
-  /**
-   * Update a single cell value
-   *
-   * Triggers auto-save via persistence middleware and debounced server sync.
-   *
-   * @param row - Row index (0-8)
-   * @param col - Column index (0-8)
-   * @param value - Number value (0 = clear, 1-9 = number)
-   */
-  updateCell: (row: number, col: number, value: number) => void;
-
-  /**
-   * Set the currently selected cell
-   *
-   * Used for keyboard input and UI highlighting.
-   *
-   * @param cell - Cell coordinates or null to clear selection
-   */
-  setSelectedCell: (cell: { row: number; col: number } | null) => void;
-
-  /**
-   * Update elapsed time
-   *
-   * Called by timer implementation to track puzzle duration.
-   *
-   * @param seconds - Elapsed time in seconds
-   */
-  setElapsedTime: (seconds: number) => void;
-
-  /**
-   * Update elapsed time (alias for setElapsedTime)
-   *
-   * @deprecated Use setElapsedTime instead for consistency with other setters
-   * @param seconds - Elapsed time in seconds
-   */
-  updateElapsedTime: (seconds: number) => void;
-
-  /**
-   * Mark puzzle as completed
-   *
-   * Called after successful validation.
-   */
-  setCompleted: () => void;
-
-  /**
-   * Mark puzzle as completed with time
-   *
-   * Sets isCompleted to true and records completion time.
-   *
-   * @param time - Completion time in seconds
-   */
-  markCompleted: (time: number) => void;
-
-  /**
-   * Restore state from partial state object
-   *
-   * Used for loading saved progress from database or localStorage.
-   * Merges provided state with existing state.
-   *
-   * @param state - Partial state to restore
-   */
-  restoreState: (state: Partial<PuzzleState>) => void;
-
-  /**
-   * Reset puzzle to initial state
-   *
-   * Clears all user entries and progress. Useful for "new puzzle" or "restart".
-   */
-  resetPuzzle: () => void;
-
-  /**
-   * Track a cell entry in the solve path
-   *
-   * Records each number entry with metadata for emoji grid generation.
-   * Determines if entry is a correction (cell already has entry) or first fill.
-   *
-   * @param row - Row index (0-8)
-   * @param col - Column index (0-8)
-   * @param value - Number value (1-9)
-   */
-  trackCellEntry: (row: number, col: number, value: number) => void;
-}
-
-/**
- * Initial state factory
- *
- * Creates empty 9x9 grid for user entries.
- */
-const createEmptyGrid = (): number[][] => {
-  return Array(9)
-    .fill(null)
-    .map(() => Array(9).fill(0));
-};
-
-/**
- * Puzzle Store
- *
- * Zustand store with localStorage persistence middleware. Automatically saves
- * state changes to localStorage for guest users. Authenticated users will have
- * additional database sync via useAutoSave hook.
- *
- * @example
- * ```typescript
- * // In a component
- * const puzzle = usePuzzleStore((state) => state.puzzle)
- * const updateCell = usePuzzleStore((state) => state.updateCell)
- *
- * // Update cell when user enters number
- * updateCell(row, col, number)
- * ```
- */
 export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
   persist(
     (set) => ({
-      // Initial state
       puzzleId: null,
       puzzle: null,
       userEntries: createEmptyGrid(),
@@ -208,8 +16,9 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
       isCompleted: false,
       completionTime: null,
       solvePath: [],
+      noteMode: false,
+      pencilMarks: {},
 
-      // Actions
       setPuzzle: (id: string, puzzle: number[][]) =>
         set(() => ({
           puzzleId: id,
@@ -220,6 +29,8 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           isCompleted: false,
           completionTime: null,
           solvePath: [],
+          noteMode: false,
+          pencilMarks: {},
         })),
 
       updateCell: (row: number, col: number, value: number) =>
@@ -227,7 +38,18 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           const newEntries = state.userEntries.map((r, i) =>
             i === row ? r.map((c, j) => (j === col ? value : c)) : r
           );
-          return { userEntries: newEntries };
+
+          const key = `${row}-${col}`;
+          let newPencilMarks = { ...state.pencilMarks };
+
+          if (value !== 0) {
+            delete newPencilMarks[key];
+            newPencilMarks = autoClearPencilMarks(newPencilMarks, row, col, value);
+          } else {
+            delete newPencilMarks[key];
+          }
+
+          return { userEntries: newEntries, pencilMarks: newPencilMarks };
         }),
 
       setSelectedCell: (cell: { row: number; col: number } | null) =>
@@ -246,7 +68,6 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
 
       restoreState: (state: Partial<PuzzleState>) =>
         set((current) => {
-          // Filter out undefined values to prevent overwriting initialized state
           const filtered = Object.entries(state).reduce((acc, [key, value]) => {
             if (value !== undefined) {
               acc[key as keyof PuzzleState] = value as never;
@@ -270,6 +91,8 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           isCompleted: false,
           completionTime: null,
           solvePath: [],
+          noteMode: false,
+          pencilMarks: {},
         })),
 
       trackCellEntry: (row: number, col: number, value: number) =>
@@ -291,6 +114,44 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
             ],
           };
         }),
+
+      toggleNoteMode: () => set((state) => ({ noteMode: !state.noteMode })),
+
+      addPencilMark: (row: number, col: number, value: number) =>
+        set((state) => {
+          const key = `${row}-${col}`;
+          const current = state.pencilMarks[key] || [];
+          if (current.includes(value)) return state;
+          return {
+            pencilMarks: {
+              ...state.pencilMarks,
+              [key]: [...current, value],
+            },
+          };
+        }),
+
+      removePencilMark: (row: number, col: number, value: number) =>
+        set((state) => {
+          const key = `${row}-${col}`;
+          const current = state.pencilMarks[key];
+          if (!current) return state;
+          const filtered = current.filter((n) => n !== value);
+          const newMarks = { ...state.pencilMarks };
+          if (filtered.length === 0) {
+            delete newMarks[key];
+          } else {
+            newMarks[key] = filtered;
+          }
+          return { pencilMarks: newMarks };
+        }),
+
+      clearCellPencilMarks: (row: number, col: number) =>
+        set((state) => {
+          const key = `${row}-${col}`;
+          const newMarks = { ...state.pencilMarks };
+          delete newMarks[key];
+          return { pencilMarks: newMarks };
+        }),
     }),
     {
       name: 'sudoku-race-puzzle-state',
@@ -302,6 +163,8 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
         isCompleted: state.isCompleted,
         completionTime: state.completionTime,
         solvePath: state.solvePath,
+        noteMode: state.noteMode,
+        pencilMarks: state.pencilMarks,
       }),
     }
   )

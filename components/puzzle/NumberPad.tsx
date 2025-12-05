@@ -3,7 +3,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
- 
 export interface NumberPadProps {
   onNumberChange: (value: number) => void;
   selectedCell: { row: number; col: number } | null;

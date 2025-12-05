@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { SudokuCell } from "./SudokuCell";
 
 export interface SudokuGridProps {
   puzzle: number[][];
@@ -9,79 +10,24 @@ export interface SudokuGridProps {
   selectedCell: { row: number; col: number } | null;
   onCellSelect: (row: number, col: number) => void;
   onNumberChange: (row: number, col: number, value: number) => void;
+  pencilMarks?: Record<string, number[]>;
 }
-
-interface SudokuCellProps {
-  row: number;
-  col: number;
-  value: number;
-  isClue: boolean;
-  isSelected: boolean;
-  onSelect: () => void;
-}
-
-const SudokuCell = React.memo<SudokuCellProps>(function SudokuCell({
-  row,
-  col,
-  value,
-  isClue,
-  isSelected,
-  onSelect,
-}) {
-  const ariaLabel = React.useMemo(() => {
-    const position = `Row ${row + 1}, Column ${col + 1}`;
-    const valueText =
-      value === 0 ? "Empty" : isClue ? `Clue ${value}` : `Value ${value}`;
-    return `${position}, ${valueText}`;
-  }, [row, col, value, isClue]);
-
-  const hasThickRightBorder = (col + 1) % 3 === 0 && col !== 8;
-  const hasThickBottomBorder = (row + 1) % 3 === 0 && row !== 8;
-
-  return (
-    <button
-      type="button"
-      role="gridcell"
-      aria-label={ariaLabel}
-      className={cn(
-        "w-full aspect-square flex items-center justify-center",
-        "text-lg font-sans border border-gray-300",
-        "transition-colors duration-100 sm:min-w-11 sm:min-h-11",
-        isClue
-          ? "text-neutral bg-white cursor-default"
-          : "text-primary bg-white cursor-pointer hover:bg-gray-50",
-        isSelected &&
-          !isClue &&
-          "ring-2 ring-accent ring-inset bg-blue-50 z-10",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset focus-visible:z-10",
-        hasThickRightBorder && "border-r-2 border-r-black",
-        hasThickBottomBorder && "border-b-2 border-b-black"
-      )}
-      onClick={() => !isClue && onSelect()}
-      disabled={isClue}
-      tabIndex={-1}
-    >
-      {value !== 0 && <span className="select-none">{value}</span>}
-    </button>
-  );
-});
 
 export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
   puzzle,
   userEntries,
   selectedCell,
   onCellSelect,
+  pencilMarks = {},
 }) {
   const gridRef = React.useRef<HTMLDivElement>(null);
 
   const getCellValue = React.useCallback(
     (row: number, col: number): number => {
-      // Guard against out-of-bounds indices
       if (row < 0 || row >= 9 || col < 0 || col >= 9) {
         return 0;
       }
 
-      // Guard against invalid state (should not happen with fixed restoreState)
       if (!Array.isArray(userEntries) || !Array.isArray(puzzle)) {
         return 0;
       }
@@ -159,22 +105,24 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
 
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
+        const key = `${row}-${col}`;
         cells.push(
           <SudokuCell
-            key={`${row}-${col}`}
+            key={key}
             row={row}
             col={col}
             value={getCellValue(row, col)}
             isClue={isClueCell(row, col)}
             isSelected={isSelectedCell(row, col)}
             onSelect={() => handleCellSelect(row, col)}
+            pencilMarks={pencilMarks[key]}
           />
         );
       }
     }
 
     return cells;
-  }, [getCellValue, isClueCell, isSelectedCell, handleCellSelect]);
+  }, [getCellValue, isClueCell, isSelectedCell, handleCellSelect, pencilMarks]);
 
   return (
     <div
