@@ -103,11 +103,11 @@ describe("SudokuGrid", () => {
       expect(clueCell).toHaveClass("text-neutral");
     });
 
-    it("marks clue cells as disabled", () => {
+    it("allows clue cells to be selectable for navigation", () => {
       render(<SudokuGrid {...getDefaultProps()} />);
 
       const clueCell = screen.getByLabelText("Row 1, Column 1, Clue 5");
-      expect(clueCell).toBeDisabled();
+      expect(clueCell).not.toBeDisabled();
     });
 
     it("shows empty cells as blank", () => {
@@ -162,7 +162,7 @@ describe("SudokuGrid", () => {
       expect(onCellSelect).toHaveBeenCalledWith(0, 2); // 0-indexed
     });
 
-    it("does not call onCellSelect when clue cell is clicked", () => {
+    it("calls onCellSelect when clue cell is clicked", () => {
       const onCellSelect = jest.fn();
       render(
         <SudokuGrid {...getDefaultProps({ onCellSelect })} />
@@ -171,7 +171,7 @@ describe("SudokuGrid", () => {
       const clueCell = screen.getByLabelText("Row 1, Column 1, Clue 5");
       fireEvent.click(clueCell);
 
-      expect(onCellSelect).not.toHaveBeenCalled();
+      expect(onCellSelect).toHaveBeenCalledWith(0, 0);
     });
 
     it("highlights selected cell with accent ring", () => {
@@ -185,7 +185,7 @@ describe("SudokuGrid", () => {
       expect(selectedCell).toHaveClass("ring-2", "ring-accent", "bg-blue-50");
     });
 
-    it("does not highlight clue cells even if selected", () => {
+    it("highlights clue cells with red ring when selected", () => {
       render(
         <SudokuGrid
           {...getDefaultProps({ selectedCell: { row: 0, col: 0 } })}
@@ -193,7 +193,7 @@ describe("SudokuGrid", () => {
       );
 
       const clueCell = screen.getByLabelText("Row 1, Column 1, Clue 5");
-      expect(clueCell).not.toHaveClass("ring-2", "ring-accent");
+      expect(clueCell).toHaveClass("ring-2", "ring-red-600");
     });
 
     it("only one cell can be selected at a time", () => {

@@ -32,10 +32,12 @@ describe("AuthButtons", () => {
     window.location.href = "";
   });
 
-  it("should render Google OAuth button", () => {
+  it("should render Google OAuth button with official styling", () => {
     render(<AuthButtons />);
 
-    expect(screen.getByText("Continue with Google")).toBeInTheDocument();
+    const button = screen.getByRole("button", { name: /sign in with google/i });
+    expect(button).toBeInTheDocument();
+    expect(screen.getByText("Sign in with Google")).toBeInTheDocument();
   });
 
   it("should call signInWithGoogle on successful sign-in", async () => {
@@ -47,7 +49,7 @@ describe("AuthButtons", () => {
 
     render(<AuthButtons />);
 
-    const googleButton = screen.getByText("Continue with Google");
+    const googleButton = screen.getByRole("button", { name: /sign in with google/i });
     fireEvent.click(googleButton);
 
     await waitFor(() => {
@@ -64,7 +66,7 @@ describe("AuthButtons", () => {
 
     render(<AuthButtons />);
 
-    const googleButton = screen.getByText("Continue with Google");
+    const googleButton = screen.getByRole("button", { name: /sign in with google/i });
     fireEvent.click(googleButton);
 
     await waitFor(() => {
@@ -79,7 +81,7 @@ describe("AuthButtons", () => {
 
     render(<AuthButtons />);
 
-    const googleButton = screen.getByText("Continue with Google");
+    const googleButton = screen.getByRole("button", { name: /sign in with google/i });
     fireEvent.click(googleButton);
 
     expect(mockSignInWithGoogle).toHaveBeenCalled();
@@ -90,7 +92,7 @@ describe("AuthButtons", () => {
 
     render(<AuthButtons />);
 
-    const googleButton = screen.getByText("Continue with Google");
+    const googleButton = screen.getByRole("button", { name: /sign in with google/i });
     fireEvent.click(googleButton);
 
     await waitFor(() => {

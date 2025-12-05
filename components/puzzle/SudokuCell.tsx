@@ -41,18 +41,19 @@ export const SudokuCell = React.memo<SudokuCellProps>(function SudokuCell({
         "w-full aspect-square flex items-center justify-center",
         "text-lg font-sans border border-gray-300",
         "transition-colors duration-100 sm:min-w-11 sm:min-h-11",
+        "focus-visible:outline-none",
+        "cursor-pointer",
         isClue
-          ? "text-neutral bg-white cursor-default"
-          : "text-primary bg-white cursor-pointer hover:bg-gray-50",
+          ? "text-neutral bg-white"
+          : "text-primary bg-white hover:bg-gray-50",
+        isSelected && isClue && "ring-2 ring-red-600 ring-inset z-10",
         isSelected &&
           !isClue &&
           "ring-2 ring-accent ring-inset bg-blue-50 z-10",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset focus-visible:z-10",
         hasThickRightBorder && "border-r-2 border-r-black",
         hasThickBottomBorder && "border-b-2 border-b-black"
       )}
-      onClick={() => !isClue && onSelect()}
-      disabled={isClue}
+      onClick={onSelect}
       tabIndex={-1}
     >
       {value !== 0 ? (

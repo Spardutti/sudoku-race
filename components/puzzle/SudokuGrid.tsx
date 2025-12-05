@@ -59,11 +59,9 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
 
   const handleCellSelect = React.useCallback(
     (row: number, col: number) => {
-      if (!isClueCell(row, col)) {
-        onCellSelect(row, col);
-      }
+      onCellSelect(row, col);
     },
-    [isClueCell, onCellSelect]
+    [onCellSelect]
   );
 
   const handleKeyDown = React.useCallback(
