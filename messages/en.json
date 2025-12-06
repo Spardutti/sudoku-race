@@ -22,7 +22,7 @@
     "profile": "Profile"
   },
   "auth": {
-    "signIn": "Sign in with Google",
+    "signIn": "Sign in",
     "signOut": "Sign Out",
     "signInRequired": "Please sign in to view your profile",
     "authError": "Something went wrong. Please try again."

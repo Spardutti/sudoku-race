@@ -22,7 +22,7 @@
     "profile": "Perfil"
   },
   "auth": {
-    "signIn": "Iniciar sesión con Google",
+    "signIn": "Iniciar sesión",
     "signOut": "Cerrar Sesión",
     "signInRequired": "Por favor, inicia sesión para ver tu perfil",
     "authError": "Algo salió mal. Por favor, inténtalo de nuevo."
