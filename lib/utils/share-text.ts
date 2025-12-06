@@ -85,26 +85,6 @@ export function getPuzzleUrlWithUTM(channel: 'twitter' | 'whatsapp' | 'clipboard
   return `${baseUrl}?utm_source=share&utm_medium=${channel}`;
 }
 
-/**
- * Calculates puzzle number from puzzle_date field (YYYY-MM-DD format).
- * Pass puzzle.puzzle_date, NOT puzzle.id (which is a UUID).
- * Returns sequential puzzle number starting from Jan 1, 2025 = #1.
- */
-export function calculatePuzzleNumber(puzzleDateStr: string): number {
-  const puzzleDate = new Date(puzzleDateStr);
-
-  if (isNaN(puzzleDate.getTime())) {
-    console.error(`[calculatePuzzleNumber] Invalid date format: ${puzzleDateStr}. Expected YYYY-MM-DD, got: ${typeof puzzleDateStr}`);
-    return 1;
-  }
-
-  const epochDate = new Date("2025-01-01");
-  const daysSinceEpoch = Math.floor(
-    (puzzleDate.getTime() - epochDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
-
-  return Math.max(1, daysSinceEpoch + 1);
-}
 
 export function getPuzzleUrl(): string {
   if (typeof window !== "undefined") {

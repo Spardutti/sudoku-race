@@ -3,7 +3,6 @@ import {
   formatTimeForShare,
   buildShareUrl,
   generateEmojiShareText,
-  calculatePuzzleNumber,
   getPuzzleUrl,
   getPuzzleUrlWithUTM,
 } from "../share-text";
@@ -172,33 +171,6 @@ describe("share-text utilities", () => {
     });
   });
 
-  describe("calculatePuzzleNumber", () => {
-    it("calculates puzzle number from date-based puzzleId", () => {
-      expect(calculatePuzzleNumber("2025-01-01")).toBe(1);
-      expect(calculatePuzzleNumber("2025-01-02")).toBe(2);
-      expect(calculatePuzzleNumber("2025-01-10")).toBe(10);
-    });
-
-    it("handles dates far from epoch", () => {
-      expect(calculatePuzzleNumber("2025-12-31")).toBe(365);
-    });
-
-    it("handles invalid puzzleId gracefully", () => {
-      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-
-      expect(calculatePuzzleNumber("invalid-date")).toBe(1);
-      expect(calculatePuzzleNumber("abc")).toBe(1);
-      expect(calculatePuzzleNumber("")).toBe(1);
-
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(3);
-      consoleErrorSpy.mockRestore();
-    });
-
-    it("returns minimum puzzle number of 1 for dates before epoch", () => {
-      expect(calculatePuzzleNumber("2024-12-31")).toBe(1);
-      expect(calculatePuzzleNumber("2020-01-01")).toBe(1);
-    });
-  });
 
   describe("getPuzzleUrl", () => {
     it("returns puzzle URL", () => {

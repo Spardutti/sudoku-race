@@ -12,8 +12,8 @@ export function StartScreen({ puzzleNumber, onStart }: StartScreenProps) {
   const t = useTranslations('puzzle');
 
   return (
-    <div className="absolute inset-0 bg-white z-20 flex items-center justify-center animate-in fade-in duration-200">
-      <div className="text-center max-w-md px-4">
+    <div className="flex items-center justify-center p-8">
+      <div className="text-center max-w-md">
         <h2 className="text-3xl font-bold mb-2 text-gray-900">
           Daily Sudoku #{puzzleNumber}
         </h2>

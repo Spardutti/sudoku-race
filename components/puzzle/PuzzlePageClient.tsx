@@ -25,7 +25,6 @@ import { useMigrationNotification } from "@/lib/hooks/useMigrationNotification";
 import { useTimerActions } from "@/lib/hooks/useTimerActions";
 import { startTimer } from "@/actions/puzzle";
 import type { Puzzle } from "@/actions/puzzle";
-import { calculatePuzzleNumber } from "@/lib/utils/share-text";
 
 const CompletionModal = dynamic(
   () => import("@/components/puzzle/CompletionModal").then((mod) => mod.CompletionModal),
@@ -228,23 +227,22 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
         userId={userId}
         puzzle={puzzle.puzzle_data}
         solvePath={solvePath}
-        puzzleNumber={calculatePuzzleNumber(puzzle.puzzle_date)}
+        puzzleNumber={puzzle.puzzle_number}
         rank={previousRank}
         streakData={streakData}
       />
     );
   }
 
-  const puzzleNumber = calculatePuzzleNumber(puzzle.puzzle_date);
+  if (!isStarted && !alreadyCompleted) {
+    return <StartScreen puzzleNumber={puzzle.puzzle_number} onStart={handleStart} />;
+  }
 
   return (
-    <div className="min-h-screen bg-white relative">
-      {!isStarted && !alreadyCompleted && (
-        <StartScreen puzzleNumber={puzzleNumber} onStart={handleStart} />
-      )}
+    <div className="bg-white relative">
       {isPaused && !isCompleted && <PauseOverlay onResume={handleResume} disabled={isPauseLoading || isResumeLoading} />}
 
-      <main className="max-w-2xl mx-auto p-4 space-y-6">
+      <main className="max-w-2xl mx-auto p-4 space-y-3 md:space-y-6">
         {/* Header */}
         <PuzzleHeader
           puzzleDate={puzzle.puzzle_date}
@@ -265,7 +263,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
 
         {/* Puzzle Grid */}
         <section className="flex justify-center px-2" aria-label="Sudoku grid">
-          <div className={showAnimation ? "animate-completion" : ""}>
+          <div className={`w-full max-w-[min(100vw-2rem,500px)] ${showAnimation ? "animate-completion" : ""}`}>
             <SudokuGrid
               puzzle={puzzle.puzzle_data}
               userEntries={userEntries}
@@ -279,7 +277,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
         </section>
 
         {/* Submit Button */}
-        <div className="max-w-xs mx-auto pb-48 lg:pb-0">
+        <div className="max-w-xs mx-auto pb-32 md:pb-0">
           <SubmitButton
             onSubmit={handleSubmit}
             isDisabled={!isGridComplete}
@@ -342,7 +340,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
           onClose={() => setShowCompletionModal(false)}
           puzzle={puzzleData ?? puzzle.puzzle_data}
           solvePath={solvePath}
-          puzzleNumber={calculatePuzzleNumber(puzzle.puzzle_date)}
+          puzzleNumber={puzzle.puzzle_number}
           streakData={streakData}
         />
       </main>

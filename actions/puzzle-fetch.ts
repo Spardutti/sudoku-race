@@ -11,6 +11,7 @@ export type Puzzle = {
   puzzle_data: number[][];
   difficulty: "easy" | "medium" | "hard";
   solution?: number[][];
+  puzzle_number: number;
 };
 
 export async function getPuzzleToday(): Promise<Result<Puzzle, string>> {
@@ -22,7 +23,7 @@ export async function getPuzzleToday(): Promise<Result<Puzzle, string>> {
 
     const { data, error } = await supabase
       .from("puzzles")
-      .select("id, puzzle_date, puzzle_data, difficulty, solution")
+      .select("id, puzzle_date, puzzle_data, difficulty, solution, puzzle_number")
       .eq("puzzle_date", today)
       .single();
 
@@ -54,6 +55,7 @@ export async function getPuzzleToday(): Promise<Result<Puzzle, string>> {
       puzzle_date: data.puzzle_date,
       puzzle_data: data.puzzle_data as number[][],
       difficulty: data.difficulty as "easy" | "medium" | "hard",
+      puzzle_number: data.puzzle_number,
     };
 
     if (isDev && data.solution) {
