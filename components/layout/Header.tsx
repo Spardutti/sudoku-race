@@ -79,7 +79,7 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
         {/* Branding */}
         <Link href="/" className="font-serif text-2xl font-bold text-black">
-          Sudoku Daily
+          Sudoku Race
         </Link>
 
         {/* Desktop Navigation */}
