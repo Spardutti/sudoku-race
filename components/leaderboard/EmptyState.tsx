@@ -12,7 +12,7 @@ export function EmptyState() {
         {t('empty')}
       </h2>
       <Link
-        href="/puzzle"
+        href="/"
         className="rounded-md border-2 border-black bg-white px-6 py-3 font-serif text-lg font-bold transition-colors hover:bg-black hover:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
       >
         {t('startPuzzle')}

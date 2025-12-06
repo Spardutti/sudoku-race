@@ -150,20 +150,20 @@ export async function GET(request: NextRequest) {
 
             const { highestRank } = result.data;
             if (highestRank !== null) {
-              window.location.href = '/puzzle?migrated=true&rank=' + highestRank;
+              window.location.href = '/?migrated=true&rank=' + highestRank;
               return;
             }
           } else {
             console.error('Migration failed:', result.error);
-            window.location.href = '/puzzle?migrationFailed=true';
+            window.location.href = '/?migrationFailed=true';
             return;
           }
         }
 
-        window.location.href = '/puzzle';
+        window.location.href = '/';
       } catch (error) {
         console.error('Migration error:', error);
-        window.location.href = '/puzzle?migrationFailed=true';
+        window.location.href = '/?migrationFailed=true';
       }
     })();
   </script>

@@ -1,51 +1,56 @@
-import type { Metadata } from "next";
+import { Metadata } from "next";
+import { getPuzzleToday, checkPuzzleCompletion } from "@/actions/puzzle";
+import { getCurrentUserId } from "@/lib/auth/get-current-user";
+import { PuzzlePageClient } from "@/components/puzzle/PuzzlePageClient";
 import { getTranslations } from "next-intl/server";
-import { SITE_URL } from "@/lib/config";
-import { generateHreflangLinks } from "@/lib/i18n/hreflang";
+import Link from "next/link";
+
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'metadata.home' });
+  const t = await getTranslations({ locale, namespace: 'metadata.puzzle' });
 
   return {
     title: t('title'),
     description: t('description'),
-    alternates: generateHreflangLinks(''),
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      type: "website",
+    },
   };
 }
 
 export default async function Home() {
-  const t = await getTranslations('home');
+  const t = await getTranslations('puzzle');
+  const tCommon = await getTranslations('common');
+  const result = await getPuzzleToday();
 
-  const webPageSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: t('title'),
-    description: t('description'),
-    url: SITE_URL,
-  };
-
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(webPageSchema),
-        }}
-      />
-      <div className="flex items-center justify-center px-4 py-16">
-        <div className="text-center">
-          <h1 className="mb-4 font-serif text-5xl font-bold text-black md:text-6xl">
-            {t('title')}
-          </h1>
-          <h2 className="mb-6 font-serif text-2xl text-black md:text-3xl">
-            {t('subtitle')}
-          </h2>
-          <p className="text-lg text-gray-700">
-            {t('description')}
-          </p>
+  if (!result.success) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+        <div className="max-w-md w-full space-y-6 text-center">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-serif font-bold text-black">
+              {t('notAvailable')}
+            </h1>
+            <p className="text-gray-600">{result.error}</p>
+          </div>
+          <Link
+            href="/"
+            className="inline-block w-full px-6 py-3 bg-black text-white font-semibold hover:bg-gray-800 transition-colors"
+          >
+            {tCommon('tryAgain')}
+          </Link>
         </div>
       </div>
-    </>
-  );
+    );
+  }
+
+  const userId = await getCurrentUserId();
+  const completionCheck = await checkPuzzleCompletion(result.data.id);
+  const completionData = completionCheck.success ? completionCheck.data : { isCompleted: false };
+
+  return <PuzzlePageClient puzzle={result.data} initialUserId={userId} initialCompletionStatus={completionData} />;
 }

@@ -79,8 +79,8 @@ export function generateEmojiShareText(
 
 export function getPuzzleUrlWithUTM(channel: 'twitter' | 'whatsapp' | 'clipboard'): string {
   const baseUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/puzzle`
-    : '/puzzle';
+    ? window.location.origin
+    : '/';
 
   return `${baseUrl}?utm_source=share&utm_medium=${channel}`;
 }
@@ -88,7 +88,7 @@ export function getPuzzleUrlWithUTM(channel: 'twitter' | 'whatsapp' | 'clipboard
 
 export function getPuzzleUrl(): string {
   if (typeof window !== "undefined") {
-    return `${window.location.origin}/puzzle`;
+    return window.location.origin;
   }
-  return "/puzzle";
+  return "/";
 }

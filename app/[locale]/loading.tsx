@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function PuzzleLoading() {
+export default function Loading() {
   return (
     <div className="min-h-screen bg-white p-4">
       <div className="max-w-2xl mx-auto space-y-6">
