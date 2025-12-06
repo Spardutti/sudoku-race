@@ -105,5 +105,5 @@ development_status:
 
   # Epic 7: Internationalization & Localization (1 story - NEW)
   epic-7: backlog
-  7-1-internationalization-en-es: ready-for-dev # docs/stories/7-1-internationalization-en-es.md
+  7-1-internationalization-en-es: done # docs/stories/7-1-internationalization-en-es.md
   epic-7-retrospective: optional

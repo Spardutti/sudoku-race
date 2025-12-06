@@ -113,17 +113,27 @@ export function useTimerActions({
 
     pausePuzzle();
 
+    if (!userId) {
+      return;
+    }
+
     setIsPauseLoading(true);
     const success = await executePauseWithRetry();
     setIsPauseLoading(false);
 
     if (!success) {
       resumePuzzle();
-    }  
-  }, [isPauseLoading, isResumeLoading, pausePuzzle, resumePuzzle, executePauseWithRetry]);
+    }
+  }, [isPauseLoading, isResumeLoading, pausePuzzle, resumePuzzle, executePauseWithRetry, userId]);
 
   const handleResume = useCallback(async () => {
     if (isPauseLoading || isResumeLoading) {
+      return;
+    }
+
+    resumePuzzle();
+
+    if (!userId) {
       return;
     }
 
@@ -131,10 +141,10 @@ export function useTimerActions({
     const success = await executeResumeWithRetry();
     setIsResumeLoading(false);
 
-    if (success) {
-      resumePuzzle();
-    }  
-  }, [isPauseLoading, isResumeLoading, resumePuzzle, executeResumeWithRetry]);
+    if (!success) {
+      pausePuzzle();
+    }
+  }, [isPauseLoading, isResumeLoading, resumePuzzle, pausePuzzle, executeResumeWithRetry, userId]);
 
   return {
     handlePause,
