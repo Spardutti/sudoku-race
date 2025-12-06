@@ -248,22 +248,22 @@ export function CompletionModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-center font-serif text-3xl font-bold text-gray-900">
+          <DialogTitle className="text-center font-serif text-2xl sm:text-3xl font-bold text-gray-900">
             {t('congratulations')}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="text-center mb-6">
-          <p className="mb-2 text-gray-600">{t('yourTime')}</p>
-          <p className="font-mono text-4xl font-bold text-gray-900">
+        <div className="text-center mb-1 sm:mb-6">
+          <p className="mb-0 sm:mb-2 text-sm sm:text-base text-gray-600">{t('yourTime')}</p>
+          <p className="font-mono text-3xl sm:text-4xl font-bold text-gray-900">
             {formatTime(completionTime)}
           </p>
         </div>
 
         {shareText && (
-          <div className="mb-6">
-            <p className="mb-2 text-sm text-gray-600">{t('previewShareText')}</p>
-            <div className="rounded-md border border-gray-200 bg-gray-50 p-3">
+          <div className="mb-1 sm:mb-6">
+            <p className="mb-1 sm:mb-2 text-xs sm:text-sm text-gray-600">{t('previewShareText')}</p>
+            <div className="rounded-md border border-gray-200 bg-gray-50 p-2 sm:p-3">
               <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs text-gray-700">
                 {shareText}
               </pre>
@@ -272,10 +272,10 @@ export function CompletionModal({
         )}
 
         {shareText && (
-          <div className="mb-6 flex flex-col gap-2 sm:flex-row">
+          <div className="mb-1 sm:mb-6 flex flex-col gap-2 sm:flex-row">
             <Button
               onClick={handleTwitterShare}
-              className="flex-1"
+              className="flex-1 h-9 sm:h-10"
               aria-label="Share puzzle results on Twitter"
             >
               <Twitter className="mr-2 h-4 w-4" />
@@ -283,7 +283,7 @@ export function CompletionModal({
             </Button>
             <Button
               onClick={handleWhatsAppShare}
-              className="flex-1"
+              className="flex-1 h-9 sm:h-10"
               aria-label="Share puzzle results via WhatsApp"
             >
               <MessageCircle className="mr-2 h-4 w-4" />
@@ -291,7 +291,7 @@ export function CompletionModal({
             </Button>
             <Button
               onClick={handleCopyToClipboard}
-              className="flex-1"
+              className="flex-1 h-9 sm:h-10"
               aria-label="Copy puzzle results to clipboard"
             >
               {copyError ? (
@@ -315,9 +315,9 @@ export function CompletionModal({
         )}
 
         {isAuthenticated ? (
-          <div className="mb-6 rounded-md bg-gray-50 p-4 text-center">
-            <p className="text-sm text-gray-600">{t('yourRankLabel')}</p>
-            <p className="text-2xl font-bold text-gray-900">
+          <div className="rounded-md bg-gray-50 p-3 sm:p-4 text-center">
+            <p className="text-xs sm:text-sm text-gray-600">{t('yourRankLabel')}</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">
               {typeof rank === 'number' ? `#${rank}` : t('calculating')}
             </p>
             {process.env.NODE_ENV !== 'production' && (
@@ -329,7 +329,7 @@ export function CompletionModal({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm text-gray-600 mt-2 cursor-help">
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2 cursor-help">
                       {t('dayStreak', { count: streakData.currentStreak })} 🔥
                     </p>
                   </TooltipTrigger>
@@ -347,15 +347,15 @@ export function CompletionModal({
             )}
           </div>
         ) : (
-          <div className="mb-6 rounded-md border-2 border-gray-200 bg-gray-50 p-4">
-            <p className="mb-3 text-lg font-semibold text-gray-900">
+          <div className="rounded-md border-2 border-gray-200 bg-gray-50 p-3 sm:p-4">
+            <p className="mb-2 sm:mb-3 text-base sm:text-lg font-semibold text-gray-900">
               {isLoadingRank
                 ? t('calculatingRank')
                 : guestRank !== null
                   ? t('niceTime', { rank: guestRank })
                   : t('signInToClaim')}
             </p>
-            <p className="mb-4 text-xs text-gray-500">
+            <p className="mb-3 sm:mb-4 text-xs text-gray-500">
               {t('withoutSignIn')}
             </p>
             {showAuthButtons ? (

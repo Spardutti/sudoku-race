@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function TermsPage() {
   return (
     <main className="container mx-auto px-4 py-8 max-w-4xl">
@@ -203,9 +205,9 @@ export default function TermsPage() {
           <h2 className="text-2xl font-bold mb-3 font-serif">Privacy</h2>
           <p>
             Your use of the Service is also governed by our{" "}
-            <a href="/privacy" className="text-blue-600 hover:underline">
+            <Link href="/privacy" className="text-blue-600 hover:underline">
               Privacy Policy
-            </a>
+            </Link>
             . Please review it to understand how we collect, use, and protect your data.
           </p>
         </section>

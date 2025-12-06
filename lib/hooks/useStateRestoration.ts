@@ -63,12 +63,7 @@ export function useStateRestoration(
           const result = await loadProgress(puzzleId);
 
           if (result.success && result.data) {
-            logger.info("State restored from database", {
-              puzzleId,
-              hasEntries: !!result.data.userEntries,
-              elapsedTime: result.data.elapsedTime,
-              isCompleted: result.data.isCompleted,
-            });
+          
 
             const hasEntries =
               result.data.userEntries &&
@@ -79,9 +74,10 @@ export function useStateRestoration(
               elapsedTime: result.data.elapsedTime,
               isCompleted: result.data.isCompleted,
               isStarted: result.data.elapsedTime > 0 || hasEntries,
-              isPaused: false,
-              pausedAt: null,
+              isPaused: result.data.isPaused ?? false,
+              pausedAt: result.data.pausedAt ?? null,
             };
+
 
             if (hasEntries) {
               stateToRestore.userEntries = result.data.userEntries;

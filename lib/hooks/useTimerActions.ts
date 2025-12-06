@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { usePuzzleStore } from "@/lib/stores/puzzleStore";
 import { pauseTimer, resumeTimer } from "@/actions/puzzle-timer";
 
-const DEBOUNCE_MS = 300;
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY_MS = 1000;
 
@@ -32,11 +31,10 @@ export function useTimerActions({
   const [isResumeLoading, setIsResumeLoading] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
 
-  const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   const executePauseWithRetry = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      return false;
+    }
 
     let attempts = 0;
     while (attempts < MAX_RETRY_ATTEMPTS) {
@@ -45,7 +43,7 @@ export function useTimerActions({
 
         if (result.success) {
           setLastError(null);
-          return;
+          return true;
         }
 
         throw new Error(result.error);
@@ -56,11 +54,10 @@ export function useTimerActions({
 
         if (attempts >= MAX_RETRY_ATTEMPTS) {
           console.error(
-            `Failed to pause after ${attempts} attempts:`,
             errorMsg
           );
           setLastError(`Failed to pause timer. Please check your connection.`);
-          return;
+          return false;
         }
 
         await new Promise((resolve) =>
@@ -68,10 +65,13 @@ export function useTimerActions({
         );
       }
     }
+    return false;
   }, [userId, puzzleId]);
 
   const executeResumeWithRetry = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      return false;
+    }
 
     let attempts = 0;
     while (attempts < MAX_RETRY_ATTEMPTS) {
@@ -80,7 +80,7 @@ export function useTimerActions({
 
         if (result.success) {
           setLastError(null);
-          return;
+          return true;
         }
 
         throw new Error(result.error);
@@ -95,7 +95,7 @@ export function useTimerActions({
             errorMsg
           );
           setLastError(`Failed to resume timer. Please check your connection.`);
-          return;
+          return false;
         }
 
         await new Promise((resolve) =>
@@ -103,38 +103,37 @@ export function useTimerActions({
         );
       }
     }
+    return false;
   }, [userId, puzzleId]);
 
-  const handlePause = useCallback(() => {
-    if (isPauseLoading || isResumeLoading) return;
-
-    if (pauseTimeoutRef.current) {
-      clearTimeout(pauseTimeoutRef.current);
+  const handlePause = useCallback(async () => {
+    if (isPauseLoading || isResumeLoading) {
+      return;
     }
 
     pausePuzzle();
 
-    pauseTimeoutRef.current = setTimeout(async () => {
-      setIsPauseLoading(true);
-      await executePauseWithRetry();
-      setIsPauseLoading(false);
-    }, DEBOUNCE_MS);
-  }, [isPauseLoading, isResumeLoading, pausePuzzle, executePauseWithRetry]);
+    setIsPauseLoading(true);
+    const success = await executePauseWithRetry();
+    setIsPauseLoading(false);
 
-  const handleResume = useCallback(() => {
-    if (isPauseLoading || isResumeLoading) return;
+    if (!success) {
+      resumePuzzle();
+    }  
+  }, [isPauseLoading, isResumeLoading, pausePuzzle, resumePuzzle, executePauseWithRetry]);
 
-    if (resumeTimeoutRef.current) {
-      clearTimeout(resumeTimeoutRef.current);
+  const handleResume = useCallback(async () => {
+    if (isPauseLoading || isResumeLoading) {
+      return;
     }
 
-    resumePuzzle();
+    setIsResumeLoading(true);
+    const success = await executeResumeWithRetry();
+    setIsResumeLoading(false);
 
-    resumeTimeoutRef.current = setTimeout(async () => {
-      setIsResumeLoading(true);
-      await executeResumeWithRetry();
-      setIsResumeLoading(false);
-    }, DEBOUNCE_MS);
+    if (success) {
+      resumePuzzle();
+    }  
   }, [isPauseLoading, isResumeLoading, resumePuzzle, executeResumeWithRetry]);
 
   return {

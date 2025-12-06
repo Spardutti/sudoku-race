@@ -6,6 +6,68 @@ import type { Result } from "@/lib/types/result";
 import * as Sentry from "@sentry/nextjs";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
 
+type TimerEvent = {
+  type: "start" | "pause" | "resume" | "complete";
+  timestamp: string;
+};
+
+function getCurrentPauseState(events: TimerEvent[]): {
+  isPaused: boolean;
+  pausedAt: string | null;
+} {
+  if (!events || events.length === 0) {
+    return { isPaused: false, pausedAt: null };
+  }
+
+  const lastPauseResumeEvent = [...events].reverse().find(
+    (e) => e.type === "pause" || e.type === "resume"
+  );
+
+  if (!lastPauseResumeEvent) {
+    return { isPaused: false, pausedAt: null };
+  }
+
+  return {
+    isPaused: lastPauseResumeEvent.type === "pause",
+    pausedAt:
+      lastPauseResumeEvent.type === "pause"
+        ? lastPauseResumeEvent.timestamp
+        : null,
+  };
+}
+
+function calculateActiveTimeFromEvents(
+  events: TimerEvent[],
+  startedAt: string
+): number {
+  if (!events || events.length === 0) {
+    const start = new Date(startedAt);
+    const now = new Date();
+    return Math.floor((now.getTime() - start.getTime()) / 1000);
+  }
+
+  let totalActive = 0;
+  let lastStart: Date | null = new Date(startedAt);
+
+  for (const event of events) {
+    if (event.type === "start" || event.type === "resume") {
+      lastStart = new Date(event.timestamp);
+    } else if (event.type === "pause") {
+      if (lastStart) {
+        totalActive += new Date(event.timestamp).getTime() - lastStart.getTime();
+        lastStart = null;
+      }
+    }
+  }
+
+  if (lastStart) {
+    const now = new Date();
+    totalActive += now.getTime() - lastStart.getTime();
+  }
+
+  return Math.floor(totalActive / 1000);
+}
+
 export type PuzzleProgress = {
   userEntries?: number[][];
   elapsedTime: number;
@@ -110,7 +172,7 @@ export async function loadProgress(
 
     const { data, error } = await supabase
       .from("completions")
-      .select("completion_data, completion_time_seconds, is_complete, started_at")
+      .select("completion_data, completion_time_seconds, is_complete, started_at, timer_events")
       .eq("user_id", userId)
       .eq("puzzle_id", puzzleId)
       .maybeSingle();
@@ -144,14 +206,25 @@ export async function loadProgress(
     const completionData = data.completion_data as { userEntries?: number[][] } | null;
     const userEntries = completionData?.userEntries;
 
+    const timerEvents = (data.timer_events || []) as TimerEvent[];
+
     let elapsedTime = 0;
     if (data.is_complete) {
       elapsedTime = data.completion_time_seconds || 0;
     } else if (data.started_at) {
-      const startedAt = new Date(data.started_at);
-      const now = new Date();
-      elapsedTime = Math.floor((now.getTime() - startedAt.getTime()) / 1000);
+      elapsedTime = calculateActiveTimeFromEvents(timerEvents, data.started_at);
     }
+
+    const pauseState = getCurrentPauseState(timerEvents);
+    const pausedAtTimestamp = pauseState.pausedAt ? new Date(pauseState.pausedAt).getTime() : null;
+
+    const resultData = {
+      userEntries: userEntries && userEntries.length > 0 ? userEntries : undefined,
+      elapsedTime,
+      isCompleted: data.is_complete || false,
+      isPaused: pauseState.isPaused,
+      pausedAt: pausedAtTimestamp,
+    };
 
     logger.info("Puzzle progress loaded", {
       userId,
@@ -159,16 +232,14 @@ export async function loadProgress(
       hasUserEntries: !!userEntries && userEntries.length > 0,
       elapsedTime,
       isComplete: data.is_complete,
+      isPaused: pauseState.isPaused,
+      pausedAt: pausedAtTimestamp,
       action: "loadProgress",
     });
 
     return {
       success: true,
-      data: {
-        userEntries: userEntries && userEntries.length > 0 ? userEntries : undefined,
-        elapsedTime,
-        isCompleted: data.is_complete || false,
-      },
+      data: resultData,
     };
   } catch (error) {
     const loadError = error as Error;

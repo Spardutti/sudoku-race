@@ -23,21 +23,31 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
       pausedAt: null,
 
       setPuzzle: (id: string, puzzle: number[][]) =>
-        set(() => ({
-          puzzleId: id,
-          puzzle,
-          userEntries: createEmptyGrid(),
-          selectedCell: null,
-          elapsedTime: 0,
-          isCompleted: false,
-          completionTime: null,
-          solvePath: [],
-          noteMode: false,
-          pencilMarks: {},
-          isStarted: false,
-          isPaused: false,
-          pausedAt: null,
-        })),
+        set((state) => {
+
+          // If same puzzle, just update puzzle data without resetting timer state
+          if (state.puzzleId === id) {
+            return { puzzle };
+          }
+
+          // Different puzzle - full reset
+         
+          return {
+            puzzleId: id,
+            puzzle,
+            userEntries: createEmptyGrid(),
+            selectedCell: null,
+            elapsedTime: 0,
+            isCompleted: false,
+            completionTime: null,
+            solvePath: [],
+            noteMode: false,
+            pencilMarks: {},
+            isStarted: false,
+            isPaused: false,
+            pausedAt: null,
+          };
+        }),
 
       updateCell: (row: number, col: number, value: number) =>
         set((state) => {
@@ -74,6 +84,8 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
 
       restoreState: (state: Partial<PuzzleState>) =>
         set((current) => {
+    
+
           const filtered = Object.entries(state).reduce((acc, [key, value]) => {
             if (value !== undefined) {
               acc[key as keyof PuzzleState] = value as never;
@@ -81,10 +93,13 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
             return acc;
           }, {} as Partial<PuzzleState>);
 
-          return {
+          const newState = {
             ...current,
             ...filtered,
           };
+ 
+
+          return newState;
         }),
 
       resetPuzzle: () =>
@@ -168,16 +183,21 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
         })),
 
       pausePuzzle: () =>
-        set(() => ({
-          isPaused: true,
-          pausedAt: Date.now(),
-        })),
+        set(() => {
+          const pausedAt = Date.now();
+          return {
+            isPaused: true,
+            pausedAt,
+          };
+        }),
 
       resumePuzzle: () =>
-        set(() => ({
-          isPaused: false,
-          pausedAt: null,
-        })),
+        set(() => {
+          return {
+            isPaused: false,
+            pausedAt: null,
+          };
+        }),
     }),
     {
       name: 'sudoku-race-puzzle-state',
