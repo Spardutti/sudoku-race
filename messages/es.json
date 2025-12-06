@@ -40,6 +40,9 @@
     "noteMode": "Modo Notas",
     "noteModeActive": "Modo notas activo",
     "solveMode": "Modo Resolver",
+    "numbers": "Números",
+    "pencilMarks": "Marcas de Lápiz",
+    "pencilMarksActive": "Marcas de Lápiz Activas",
     "instructions": {
       "title": "Cómo Jugar",
       "fillGrid": "Llena la cuadrícula de 9×9",

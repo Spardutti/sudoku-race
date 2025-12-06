@@ -40,6 +40,9 @@
     "noteMode": "Note Mode",
     "noteModeActive": "Note mode active",
     "solveMode": "Solve Mode",
+    "numbers": "Numbers",
+    "pencilMarks": "Pencil Marks",
+    "pencilMarksActive": "Pencil Marks Active",
     "instructions": {
       "title": "How to Play",
       "fillGrid": "Fill the 9×9 grid",

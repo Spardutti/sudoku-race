@@ -17,16 +17,23 @@ export function NoteModeToggle({ noteMode, onToggle }: NoteModeToggleProps) {
       className={`
         flex items-center justify-center
         min-w-[44px] min-h-[44px]
-        border-2 border-black
-        rounded
-        transition-colors
-        focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black
-        ${noteMode ? "bg-gray-200" : "bg-white hover:bg-gray-50"}
+        border-2 rounded
+        transition-all duration-200
+        focus-visible:ring-2 focus-visible:ring-offset-2
+        ${
+          noteMode
+            ? "bg-blue-50 border-blue-500 text-blue-700 hover:bg-blue-100 focus-visible:ring-blue-500"
+            : "bg-white border-gray-300 text-gray-600 hover:bg-gray-50 focus-visible:ring-gray-400"
+        }
       `}
       aria-label={noteMode ? t('noteModeActive') : t('noteMode')}
+      aria-pressed={noteMode}
       type="button"
     >
-      <Pencil className="w-5 h-5" aria-hidden="true" />
+      <Pencil
+        className={`w-5 h-5 ${noteMode ? 'fill-current' : ''}`}
+        aria-hidden="true"
+      />
     </button>
   );
 }
