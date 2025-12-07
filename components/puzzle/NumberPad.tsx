@@ -37,7 +37,7 @@ export const NumberPad = React.memo<NumberPadProps>(function NumberPad({
       className={cn(
         "fixed bottom-0 left-0 right-0 z-50",
         "bg-white border-t-2 border-black",
-        "px-4 py-4 pb-safe",
+        "px-4 py-3.5 pb-safe",
         "lg:hidden"
       )}
       role="group"
@@ -45,7 +45,7 @@ export const NumberPad = React.memo<NumberPadProps>(function NumberPad({
     >
       <div className="max-w-md mx-auto space-y-2">
         {/* Number buttons 1-9 in 3x3 grid */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-1.5">
           {numbers.map((num) => (
             <button
               key={num}
@@ -54,9 +54,9 @@ export const NumberPad = React.memo<NumberPadProps>(function NumberPad({
               disabled={!selectedCell}
               aria-label={`Number ${num}`}
               className={cn(
-                "min-w-[44px] min-h-[44px] h-14",
+                "min-w-[44px] min-h-[44px] h-10",
                 "flex items-center justify-center",
-                "text-xl font-sans font-medium",
+                "text-base font-sans font-medium",
                 "bg-white border-2 border-black",
                 "transition-colors duration-100",
                 "touch-manipulation",
@@ -78,9 +78,9 @@ export const NumberPad = React.memo<NumberPadProps>(function NumberPad({
           disabled={!selectedCell || isClueCell}
           aria-label="Clear selected cell"
           className={cn(
-            "w-full min-h-[44px] h-12",
+            "w-full min-h-[44px] h-9",
             "flex items-center justify-center",
-            "text-lg font-sans font-medium",
+            "text-base font-sans font-medium",
             "bg-white border-2 border-black",
             "transition-colors duration-100",
             "touch-manipulation",

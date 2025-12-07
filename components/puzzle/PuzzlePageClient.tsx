@@ -218,7 +218,6 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   }
 
   if (alreadyCompleted && previousCompletionTime) {
-    console.log("[PuzzlePageClient] Rendering completed view with rank:", previousRank);
     return (
       <PuzzleCompletedView
         completionTime={previousCompletionTime}
@@ -242,7 +241,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     <div className="bg-white relative">
       {isPaused && !isCompleted && <PauseOverlay onResume={handleResume} disabled={isPauseLoading || isResumeLoading} />}
 
-      <main className="max-w-2xl mx-auto p-4 space-y-3 md:space-y-6">
+      <main className="max-w-2xl mx-auto py-1 md:p-4 space-y-1 md:space-y-6">
         {/* Header */}
         <PuzzleHeader
           puzzleDate={puzzle.puzzle_date}
@@ -251,7 +250,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
         />
 
         {/* Timer and Pause Button */}
-        <div className="flex justify-center items-center gap-4">
+        <div className="flex justify-center items-center gap-4 mb-0">
           <Timer elapsedTime={elapsedTime} isCompleted={isCompleted} />
           {isStarted && !isPaused && !isCompleted && (
             <PauseButton onPause={handlePause} disabled={isPauseLoading || isResumeLoading} />
@@ -262,8 +261,8 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
         <InstructionsCard />
 
         {/* Puzzle Grid */}
-        <section className="flex justify-center px-2" aria-label="Sudoku grid">
-          <div className={`w-full max-w-[min(100vw-2rem,500px)] ${showAnimation ? "animate-completion" : ""}`}>
+        <section className="flex justify-center px-0 grow" aria-label="Sudoku grid">
+          <div className={`w-full px-1 ${showAnimation ? "animate-completion" : ""}`}>
             <SudokuGrid
               puzzle={puzzle.puzzle_data}
               userEntries={userEntries}

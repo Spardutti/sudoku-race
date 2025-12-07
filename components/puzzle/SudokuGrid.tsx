@@ -131,7 +131,7 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
       aria-label="Sudoku puzzle grid"
       className={cn(
         "grid grid-cols-9 grid-rows-9",
-        "w-full max-w-[360px] sm:max-w-[540px] mx-auto box-border",
+        "w-full sm:max-w-[540px] mx-auto box-border",
         "border-2 border-black",
         "focus:outline-none",
         "transition-all duration-200",

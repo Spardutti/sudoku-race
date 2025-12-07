@@ -19,7 +19,7 @@ export function PuzzleHeader({ puzzleDate, puzzleNumber, noteMode = false, onTog
   const formattedDate = format(new Date(puzzleDate), "MMMM d, yyyy", { locale: dateLocale });
 
   return (
-    <header className="text-center space-y-2">
+    <header className="text-center md:space-y-2 mb-0">
       <div className="flex items-center justify-center gap-4">
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-black">
           {t('title')}
@@ -28,7 +28,7 @@ export function PuzzleHeader({ puzzleDate, puzzleNumber, noteMode = false, onTog
           <NoteModeToggle noteMode={noteMode} onToggle={onToggleNoteMode} />
         )}
       </div>
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-gray-600">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-4 text-gray-600">
         <time dateTime={puzzleDate} className="text-sm md:text-base capitalize">
           {formattedDate}
         </time>
