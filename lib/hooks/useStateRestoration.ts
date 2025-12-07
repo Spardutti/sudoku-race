@@ -63,12 +63,21 @@ export function useStateRestoration(
           const result = await loadProgress(puzzleId);
 
           if (result.success && result.data) {
-          
-
             const hasEntries =
               result.data.userEntries &&
               Array.isArray(result.data.userEntries) &&
-              result.data.userEntries.length > 0;
+              result.data.userEntries.length === 9 &&
+              result.data.userEntries.some(
+                (row) => Array.isArray(row) && row.length === 9 && row.some((cell) => cell > 0)
+              );
+
+            logger.info("Restoring state from database", {
+              hasEntries,
+              hasUserEntriesData: !!result.data.userEntries,
+              userEntriesLength: result.data.userEntries?.length,
+              firstRowPreview: result.data.userEntries?.[0]?.slice(0, 3),
+              elapsedTime: result.data.elapsedTime,
+            });
 
             const stateToRestore: Partial<typeof result.data> = {
               elapsedTime: result.data.elapsedTime,
@@ -78,8 +87,7 @@ export function useStateRestoration(
               pausedAt: result.data.pausedAt ?? null,
             };
 
-
-            if (hasEntries) {
+            if (result.data.userEntries) {
               stateToRestore.userEntries = result.data.userEntries;
             }
 

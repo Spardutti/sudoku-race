@@ -110,5 +110,9 @@ development_status:
 
   # Epic 8: Marketing & Growth (1 story - NEW)
   epic-8: backlog
-  8-1-minimal-landing-page: drafted # docs/stories/8-1-minimal-landing-page.md
+  8-1-minimal-landing-page: done # docs/stories/8-1-minimal-landing-page.md
   epic-8-retrospective: optional
+
+  # Bug Fixes (Standalone)
+  BF-1-puzzle-state-sync-cross-device: review # docs/stories/BF-1-puzzle-state-sync-cross-device.md
+  BF-2-guest-auth-state-loss: ready-for-dev # docs/stories/BF-2-guest-auth-state-loss.md
