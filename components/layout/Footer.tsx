@@ -25,7 +25,7 @@ export function Footer() {
 
           {/* Copyright */}
           <div className="text-center">
-            <span>© {currentYear} Sudoku Daily</span>
+            <span>© {currentYear} Sudoku Race</span>
           </div>
         </div>
       </div>

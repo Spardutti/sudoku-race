@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export const alt = "Sudoku Daily - Daily Sudoku puzzle with emoji grid showing solving progress";
+export const alt = "Sudoku Race - Daily Sudoku puzzle with emoji grid showing solving progress";
 export const size = {
   width: 1200,
   height: 630,
@@ -43,7 +43,7 @@ export default async function Image() {
               display: "flex",
             }}
           >
-            Sudoku Daily
+            Sudoku Race
           </div>
           <div
             style={{

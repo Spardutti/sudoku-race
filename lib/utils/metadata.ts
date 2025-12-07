@@ -102,8 +102,8 @@ export function generateMetadata(options: SEOMetadata): Metadata {
  *
  * @example
  * ```typescript
- * getAbsoluteURL("/about") // => "https://sudoku-daily.vercel.app/about"
- * getAbsoluteURL("/images/og.png") // => "https://sudoku-daily.vercel.app/images/og.png"
+ * getAbsoluteURL("/about") // => "https://sudokurace.com/about"
+ * getAbsoluteURL("/images/og.png") // => "https://sudokurace.com/images/og.png"
  * ```
  */
 export function getAbsoluteURL(path: string): string {
@@ -171,7 +171,7 @@ export function generateJSONLD(type: string, data: Record<string, unknown>): str
  * const ogImage = generateOGImage("/og-image.png", {
  *   width: 1200,
  *   height: 630,
- *   alt: "Sudoku Daily - Daily Puzzle"
+ *   alt: "Sudoku Race - Daily Puzzle"
  * });
  * ```
  */
@@ -183,6 +183,6 @@ export function generateOGImage(
     url: getAbsoluteURL(url),
     width: options?.width || 1200,
     height: options?.height || 630,
-    alt: options?.alt || "Sudoku Daily",
+    alt: options?.alt || "Sudoku Race",
   };
 }

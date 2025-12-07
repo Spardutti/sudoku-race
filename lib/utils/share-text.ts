@@ -34,11 +34,11 @@ export function generateShareText({
 
   phraseIndex = (phraseIndex + 1) % ENCOURAGEMENT_PHRASES.length;
 
-  const shareText = `I ranked #${rank} on Sudoku Daily #${puzzleNumber}! ⏱️ ${formattedTime}. ${encouragement} ${url}`;
+  const shareText = `I ranked #${rank} on Sudoku Race #${puzzleNumber}! ⏱️ ${formattedTime}. ${encouragement} ${url}`;
 
   if (shareText.length > 280) {
     const truncatedUrl = url.split("?")[0];
-    return `I ranked #${rank} on Sudoku Daily #${puzzleNumber}! ⏱️ ${formattedTime}. ${encouragement} ${truncatedUrl}`;
+    return `I ranked #${rank} on Sudoku Race #${puzzleNumber}! ⏱️ ${formattedTime}. ${encouragement} ${truncatedUrl}`;
   }
 
   return shareText;

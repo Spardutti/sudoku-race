@@ -39,8 +39,8 @@ export const metadata: Metadata = {
 
   // Basic metadata
   title: {
-    default: "Sudoku Daily - Pure Daily Sudoku Challenge",
-    template: "%s | Sudoku Daily",
+    default: "Sudoku Race - Pure Daily Sudoku Challenge",
+    template: "%s | Sudoku Race",
   },
   description:
     "One authentic Sudoku puzzle daily. No hints, pure challenge, real competition. Compete on global leaderboards and track your solving streak.",
@@ -56,9 +56,9 @@ export const metadata: Metadata = {
     "competitive sudoku",
     "puzzle game",
   ],
-  authors: [{ name: "Sudoku Daily Team" }],
-  creator: "Sudoku Daily",
-  publisher: "Sudoku Daily",
+  authors: [{ name: "Sudoku Race Team" }],
+  creator: "Sudoku Race",
+  publisher: "Sudoku Race",
 
   // SEO directives
   robots: {
@@ -71,8 +71,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: SITE_URL,
-    siteName: "Sudoku Daily",
-    title: "Sudoku Daily - Pure Daily Sudoku Challenge",
+    siteName: "Sudoku Race",
+    title: "Sudoku Race - Pure Daily Sudoku Challenge",
     description:
       "One authentic Sudoku puzzle daily. No hints, pure challenge, real competition.",
     images: [
@@ -80,7 +80,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Sudoku Daily - Daily Sudoku puzzle with emoji grid showing solving progress",
+        alt: "Sudoku Race - Daily Sudoku puzzle with emoji grid showing solving progress",
       },
     ],
   },
@@ -90,12 +90,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: SOCIAL_MEDIA.twitter.site,
     creator: SOCIAL_MEDIA.twitter.handle,
-    title: "Sudoku Daily",
+    title: "Sudoku Race",
     description: "One authentic Sudoku puzzle daily. Pure challenge, real competition.",
     images: [
       {
         url: "/og-image.png",
-        alt: "Sudoku Daily - Daily Sudoku puzzle with emoji grid showing solving progress",
+        alt: "Sudoku Race - Daily Sudoku puzzle with emoji grid showing solving progress",
       },
     ],
   },
@@ -136,7 +136,7 @@ export default async function RootLayout({ children, params }: Props) {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Sudoku Daily",
+    name: "Sudoku Race",
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
     description: "Daily Sudoku puzzle platform with global leaderboards",
