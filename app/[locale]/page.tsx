@@ -38,9 +38,10 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
               {t('headlinePart3')}
             </span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
-            {t('subheadline')}
-          </p>
+          <div className="text-lg md:text-xl text-gray-700 leading-relaxed space-y-1">
+            <p>{t('subheadlineLine1')}</p>
+            <p>{t('subheadlineLine2')}</p>
+          </div>
         </div>
 
         {/* Value Props */}
@@ -70,12 +71,15 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         </div>
 
         {/* CTA */}
-        <div className="pt-4">
+        <div className="pt-4 space-y-2">
           <Button variant="primary" size="lg" asChild className="w-full md:w-auto md:min-w-[300px]">
             <Link href={`/${locale}/puzzle`}>
               {t('cta')}
             </Link>
           </Button>
+          <p className="text-sm text-gray-600">
+            {t('ctaMicroLine')}
+          </p>
         </div>
       </div>
     </div>

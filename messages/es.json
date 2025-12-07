@@ -189,13 +189,15 @@
     "headlinePart1": "Un sudoku diario.",
     "headlinePart2": "Todos juegan el mismo.",
     "headlinePart3": "Cada día.",
-    "subheadline": "Sin pistas, sin ayudas, sin ruedas de entrenamiento - Solo tú y la cuadrícula",
+    "subheadlineLine1": "Sin pistas. Sin ayudas. Sin ruedas de entrenamiento.",
+    "subheadlineLine2": "Solo tú y la cuadrícula.",
     "valueProp1": "Experiencia de sudoku pura, como en papel",
     "valueProp2": "Sin asistencia — los errores son tu problema",
     "valueProp3": "Compara tiempos con amigos",
     "valueProp4": "Sudoku competitivo diario",
     "valueProp5": "Rápido, móvil, sin distracciones",
-    "cta": "Jugar el sudoku de hoy →"
+    "cta": "Jugar el sudoku de hoy →",
+    "ctaMicroLine": "Sin registro. Solo empieza."
   },
   "metadata": {
     "siteName": "Sudoku Diario",

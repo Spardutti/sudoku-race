@@ -189,13 +189,15 @@
     "headlinePart1": "One sudoku.",
     "headlinePart2": "Everyone plays the same sudoku.",
     "headlinePart3": "Every day.",
-    "subheadline": "No hints. No highlights. No training wheels. Just you and the grid.",
+    "subheadlineLine1": "No hints. No highlights. No training wheels.",
+    "subheadlineLine2": "Just you and the grid.",
     "valueProp1": "Pure, paper-like sudoku experience",
     "valueProp2": "No assists — mistakes are your problem",
     "valueProp3": "Compare times with friends",
     "valueProp4": "Daily competitive sudoku",
     "valueProp5": "Fast, mobile-friendly, distraction-free",
-    "cta": "Play today's sudoku →"
+    "cta": "Play today's sudoku →",
+    "ctaMicroLine": "No login required. Just start."
   },
   "metadata": {
     "siteName": "Sudoku Race",
