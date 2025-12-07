@@ -10,13 +10,13 @@ export function Footer() {
           {/* Links */}
           <div className="flex gap-4">
             <Link
-              href="#privacy"
+              href="/privacy"
               className="transition-colors hover:text-black hover:underline"
             >
               Privacy Policy
             </Link>
             <Link
-              href="#terms"
+              href="/terms"
               className="transition-colors hover:text-black hover:underline"
             >
               Terms of Service

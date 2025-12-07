@@ -149,6 +149,7 @@ export default async function RootLayout({ children, params }: Props) {
   return (
     <html lang={locale}>
       <head>
+        <meta name="google-site-verification" content="AFAhu4aIjlPkdOiIvc2KMBGeByoqiO8kDagm1X1GO90" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
