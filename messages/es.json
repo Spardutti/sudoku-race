@@ -185,8 +185,24 @@
     "shareFailed": "Error al compartir",
     "popupBlocked": "Ventana emergente bloqueada. Por favor, permite ventanas emergentes para este sitio."
   },
+  "landing": {
+    "headlinePart1": "Un sudoku diario.",
+    "headlinePart2": "Todos juegan el mismo.",
+    "headlinePart3": "Cada día.",
+    "subheadline": "Sin pistas, sin ayudas, sin ruedas de entrenamiento - Solo tú y la cuadrícula",
+    "valueProp1": "Experiencia de sudoku pura, como en papel",
+    "valueProp2": "Sin asistencia — los errores son tu problema",
+    "valueProp3": "Compara tiempos con amigos",
+    "valueProp4": "Sudoku competitivo diario",
+    "valueProp5": "Rápido, móvil, sin distracciones",
+    "cta": "Jugar el sudoku de hoy →"
+  },
   "metadata": {
     "siteName": "Sudoku Diario",
+    "landing": {
+      "title": "Sudoku Diario - Desafío Diario de Sudoku Puro",
+      "description": "Un sudoku diario - Todos juegan el mismo. Sin pistas, sin ayudas, sin ruedas de entrenamiento - Solo tú y la cuadrícula."
+    },
     "home": {
       "title": "Sudoku de Hoy",
       "description": "Resuelve el Sudoku de dificultad media de hoy. Compite en la clasificación global con un desafío auténtico - sin pistas, pura habilidad."
