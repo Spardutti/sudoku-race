@@ -12,28 +12,7 @@ import { useEffect, useState } from "react";
 import { usePuzzleStore } from "@/lib/stores/puzzleStore";
 import { loadProgress } from "@/actions/puzzle";
 import { logger } from "@/lib/utils/logger";
-
-/**
- * State restoration hook
- *
- * Loads saved progress for authenticated users from database.
- * For guest users, Zustand persist middleware handles localStorage restoration automatically.
- * Validates puzzle ID matches current puzzle to prevent loading stale data.
- *
- * @param isAuthenticated - Whether user is authenticated
- * @param puzzleId - Current puzzle identifier
- * @returns Loading state (true while restoring, false when complete)
- *
- * @example
- * ```typescript
- * // In puzzle page component
- * const isLoading = useStateRestoration(isAuthenticated, puzzle.id)
- *
- * if (isLoading) {
- *   return <LoadingSkeleton />
- * }
- * ```
- */
+ 
 export function useStateRestoration(
   isAuthenticated: boolean,
   puzzleId: string | null
@@ -51,10 +30,8 @@ export function useStateRestoration(
       }
 
       if (storedPuzzleId && storedPuzzleId !== puzzleId) {
-        logger.info("Puzzle ID mismatch, clearing old state", {
-          storedPuzzleId,
-          currentPuzzleId: puzzleId,
-        });
+
+     
         resetPuzzle();
       }
 

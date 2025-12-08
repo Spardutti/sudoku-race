@@ -18,7 +18,9 @@ export function LeaderboardHeader({
   const t = useTranslations('leaderboard');
   const locale = useLocale();
   const dateLocale = locale === "es" ? es : enUS;
-  const formattedDate = format(new Date(puzzleDate), "MMMM d, yyyy", { locale: dateLocale });
+  const [year, month, day] = puzzleDate.split('-').map(Number);
+  const localDate = new Date(year, month - 1, day);
+  const formattedDate = format(localDate, "MMMM d, yyyy", { locale: dateLocale });
 
   const dailyLeaderboard = locale === "es" ? "Clasificación Diaria" : "Daily Leaderboard";
 

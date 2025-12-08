@@ -30,8 +30,7 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
             return { puzzle };
           }
 
-          // Different puzzle - full reset
-         
+    
           return {
             puzzleId: id,
             puzzle,
@@ -102,8 +101,13 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           return newState;
         }),
 
-      resetPuzzle: () =>
-        set(() => ({
+      resetPuzzle: () => {
+        
+
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('sudoku-race-puzzle-state');
+        }
+        return set(() => ({
           puzzleId: null,
           puzzle: null,
           userEntries: createEmptyGrid(),
@@ -117,7 +121,8 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           isStarted: false,
           isPaused: false,
           pausedAt: null,
-        })),
+        }));
+      },
 
       trackCellEntry: (row: number, col: number, value: number) =>
         set((state) => {

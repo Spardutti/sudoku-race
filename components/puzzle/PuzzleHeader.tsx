@@ -16,7 +16,9 @@ export function PuzzleHeader({ puzzleDate, puzzleNumber, noteMode = false, onTog
   const t = useTranslations('puzzle');
   const locale = useLocale();
   const dateLocale = locale === "es" ? es : enUS;
-  const formattedDate = format(new Date(puzzleDate), "MMMM d, yyyy", { locale: dateLocale });
+  const [year, month, day] = puzzleDate.split('-').map(Number);
+  const localDate = new Date(year, month - 1, day);
+  const formattedDate = format(localDate, "MMMM d, yyyy", { locale: dateLocale });
 
   return (
     <header className="text-center md:space-y-2 mb-0">

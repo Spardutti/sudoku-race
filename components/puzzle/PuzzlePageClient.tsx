@@ -63,7 +63,11 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const previousCompletionTime = initialCompletionStatus?.completionTime || null;
   const previousRank = initialCompletionStatus?.rank;
 
+  const isLoading = useStateRestoration(!!userId, puzzle.id);
+
   React.useEffect(() => {
+    if (isLoading) return;
+
     const storedPuzzleId = usePuzzleStore.getState().puzzleId;
 
     if (!storedPuzzleId || storedPuzzleId !== puzzle.id) {
@@ -71,9 +75,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
     } else if (!usePuzzleStore.getState().puzzle) {
       usePuzzleStore.setState({ puzzle: puzzle.puzzle_data });
     }
-  }, [puzzle.id, puzzle.puzzle_data, setPuzzle]);
-
-  const isLoading = useStateRestoration(!!userId, puzzle.id);
+  }, [puzzle.id, puzzle.puzzle_data, setPuzzle, isLoading]);
   useAutoSave(false);
   useTimer();
   useMigrationNotification();
