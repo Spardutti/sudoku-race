@@ -23,7 +23,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   const t = await getTranslations({ locale, namespace: 'landing' });
 
   return (
-    <div className="h-[calc(100vh-200px)] bg-white flex items-center justify-center px-6 py-12 overflow-hidden">
+    <div className="flex flex-col justify-center items-center bg-white px-6 py-12 min-h-full">
       <div className="max-w-2xl w-full space-y-6 text-center">
         {/* Hero Section */}
         <div className="space-y-6">

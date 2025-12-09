@@ -39,7 +39,7 @@ export function PuzzleCompletedView({
   const timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
 
   return (
-    <div className="min-h-screen bg-white p-4 flex items-center justify-center">
+    <div className="flex flex-col min-h-full bg-white p-4">
       {process.env.NODE_ENV !== "production" && solution && (
         <DevToolbar
           puzzleId={puzzleId}
@@ -48,7 +48,8 @@ export function PuzzleCompletedView({
         />
       )}
 
-      <div className="max-w-md w-full space-y-6 text-center">
+      <div className="flex-1 flex items-center justify-center">
+        <div className="max-w-md w-full space-y-6 text-center">
         <div className="space-y-2">
           <h1 className="text-3xl font-serif font-bold text-black">
             {t("completed")}
@@ -64,6 +65,7 @@ export function PuzzleCompletedView({
           <Share2 className="mr-2 h-4 w-4" />
           {t("shareYourResult")}
         </Button>
+        </div>
       </div>
 
       <CompletionModal

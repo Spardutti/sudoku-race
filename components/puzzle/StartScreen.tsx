@@ -12,8 +12,9 @@ export function StartScreen({ puzzleNumber, onStart }: StartScreenProps) {
   const t = useTranslations('puzzle');
 
   return (
-    <div className="flex items-center justify-center p-8">
-      <div className="text-center max-w-md">
+    <div className="flex flex-col min-h-full p-8">
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center max-w-md">
         <h2 className="text-3xl font-bold mb-2 text-gray-900">
           Daily Sudoku #{puzzleNumber}
         </h2>
@@ -27,6 +28,7 @@ export function StartScreen({ puzzleNumber, onStart }: StartScreenProps) {
         >
           {t('startButton')}
         </Button>
+        </div>
       </div>
     </div>
   );

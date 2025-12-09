@@ -240,10 +240,12 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   }
 
   return (
-    <div className="bg-white relative">
+    <div className="flex flex-col min-h-full bg-white relative">
       {isPaused && !isCompleted && <PauseOverlay onResume={handleResume} disabled={isPauseLoading || isResumeLoading} />}
 
-      <main className="max-w-2xl mx-auto py-1 md:p-4 space-y-1 md:space-y-6">
+      <main className="flex-1 flex flex-col max-w-2xl mx-auto w-full py-1 md:p-4">
+        <div className="flex-1 overflow-y-auto">
+          <div className="space-y-1 md:space-y-6">
         {/* Header */}
         <PuzzleHeader
           puzzleDate={puzzle.puzzle_date}
@@ -278,7 +280,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
         </section>
 
         {/* Submit Button */}
-        <div className="max-w-xs mx-auto pb-32 md:pb-0">
+        <div className="max-w-xs mx-auto">
           <SubmitButton
             onSubmit={handleSubmit}
             isDisabled={!isGridComplete}
@@ -323,6 +325,8 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
             userId={userId}
           />
         )}
+          </div>
+        </div>
 
         <NumberPad
           onNumberChange={handleNumberPadChange}
@@ -331,20 +335,20 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
             selectedCell ? isClueCell(selectedCell.row, selectedCell.col) : false
           }
         />
-
-        <CompletionModal
-          isOpen={showCompletionModal}
-          completionTime={serverCompletionTime ?? elapsedTime}
-          puzzleId={puzzle.id}
-          isAuthenticated={!!userId}
-          rank={serverRank}
-          onClose={() => setShowCompletionModal(false)}
-          puzzle={puzzleData ?? puzzle.puzzle_data}
-          solvePath={solvePath}
-          puzzleNumber={puzzle.puzzle_number}
-          streakData={streakData}
-        />
       </main>
+
+      <CompletionModal
+        isOpen={showCompletionModal}
+        completionTime={serverCompletionTime ?? elapsedTime}
+        puzzleId={puzzle.id}
+        isAuthenticated={!!userId}
+        rank={serverRank}
+        onClose={() => setShowCompletionModal(false)}
+        puzzle={puzzleData ?? puzzle.puzzle_data}
+        solvePath={solvePath}
+        puzzleNumber={puzzle.puzzle_number}
+        streakData={streakData}
+      />
     </div>
   );
 }
