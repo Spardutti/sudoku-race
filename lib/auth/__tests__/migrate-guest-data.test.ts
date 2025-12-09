@@ -11,31 +11,24 @@ describe("parseLocalStorageData", () => {
     expect(result).toBeNull();
   });
 
-  it("should parse valid localStorage JSON", () => {
+  it("should parse valid localStorage JSON with completed puzzle", () => {
     const validJson = JSON.stringify({
       state: {
-        puzzleId: "test-123",
-        completedPuzzles: [
-          {
-            puzzleId: "puzzle-1",
-            completionTime: 300,
-            completedAt: "2025-11-28T10:00:00Z",
-          },
-        ],
-        currentPuzzle: {
-          puzzleId: "puzzle-2",
-          userEntries: [[1, 2, 3]],
-          elapsedTime: 120,
-        },
+        puzzleId: "puzzle-1",
+        userEntries: [[1, 2, 3, 4, 5, 6, 7, 8, 9]],
+        elapsedTime: 300,
+        isCompleted: true,
+        completionTime: 300,
+        solvePath: [{ row: 0, col: 0, value: 5 }],
       },
     });
 
     const result = parseLocalStorageData(validJson);
 
     expect(result).not.toBeNull();
-    expect(result?.state?.completedPuzzles).toHaveLength(1);
-    expect(result?.state?.completedPuzzles?.[0].puzzleId).toBe("puzzle-1");
-    expect(result?.state?.currentPuzzle?.puzzleId).toBe("puzzle-2");
+    expect(result?.state?.puzzleId).toBe("puzzle-1");
+    expect(result?.state?.isCompleted).toBe(true);
+    expect(result?.state?.completionTime).toBe(300);
   });
 
   it("should handle malformed JSON gracefully", () => {
@@ -55,62 +48,54 @@ describe("parseLocalStorageData", () => {
     expect(result?.state).toBeUndefined();
   });
 
-  it("should handle empty completedPuzzles array", () => {
-    const emptyCompletions = JSON.stringify({
+  it("should handle in-progress puzzle", () => {
+    const inProgressJson = JSON.stringify({
       state: {
-        completedPuzzles: [],
-        currentPuzzle: null,
+        puzzleId: "puzzle-2",
+        userEntries: [[1, 2, 3, 0, 0, 0, 0, 0, 0]],
+        elapsedTime: 120,
+        isCompleted: false,
       },
     });
 
-    const result = parseLocalStorageData(emptyCompletions);
+    const result = parseLocalStorageData(inProgressJson);
 
     expect(result).not.toBeNull();
-    expect(result?.state?.completedPuzzles).toEqual([]);
+    expect(result?.state?.puzzleId).toBe("puzzle-2");
+    expect(result?.state?.isCompleted).toBe(false);
   });
 
-  it("should handle multiple completed puzzles", () => {
-    const multipleCompletions = JSON.stringify({
+  it("should handle puzzle with pencil marks and selected cell", () => {
+    const withExtraFields = JSON.stringify({
       state: {
-        completedPuzzles: [
-          {
-            puzzleId: "puzzle-1",
-            completionTime: 300,
-            completedAt: "2025-11-28T10:00:00Z",
-          },
-          {
-            puzzleId: "puzzle-2",
-            completionTime: 450,
-            completedAt: "2025-11-28T11:00:00Z",
-          },
-          {
-            puzzleId: "puzzle-3",
-            completionTime: 600,
-            completedAt: "2025-11-28T12:00:00Z",
-          },
-        ],
+        puzzleId: "puzzle-3",
+        userEntries: [[1, 2, 3, 0, 0, 0, 0, 0, 0]],
+        elapsedTime: 120,
+        isCompleted: false,
+        pencilMarks: { "0-3": [4, 5, 6] },
+        selectedCell: { row: 0, col: 3 },
+        isPaused: false,
       },
     });
 
-    const result = parseLocalStorageData(multipleCompletions);
+    const result = parseLocalStorageData(withExtraFields);
 
     expect(result).not.toBeNull();
-    expect(result?.state?.completedPuzzles).toHaveLength(3);
+    expect(result?.state?.pencilMarks).toEqual({ "0-3": [4, 5, 6] });
+    expect(result?.state?.selectedCell).toEqual({ row: 0, col: 3 });
   });
 
   it("should preserve solve path data", () => {
     const withSolvePath = JSON.stringify({
       state: {
-        completedPuzzles: [
-          {
-            puzzleId: "puzzle-1",
-            completionTime: 300,
-            completedAt: "2025-11-28T10:00:00Z",
-            solvePath: [
-              { row: 0, col: 0, value: 5, timestamp: 1000 },
-              { row: 0, col: 1, value: 3, timestamp: 2000 },
-            ],
-          },
+        puzzleId: "puzzle-1",
+        userEntries: [[1, 2, 3, 4, 5, 6, 7, 8, 9]],
+        elapsedTime: 300,
+        isCompleted: true,
+        completionTime: 300,
+        solvePath: [
+          { row: 0, col: 0, value: 5, timestamp: 1000 },
+          { row: 0, col: 1, value: 3, timestamp: 2000 },
         ],
       },
     });
@@ -118,44 +103,47 @@ describe("parseLocalStorageData", () => {
     const result = parseLocalStorageData(withSolvePath);
 
     expect(result).not.toBeNull();
-    expect(result?.state?.completedPuzzles?.[0].solvePath).toBeDefined();
-    expect(Array.isArray(result?.state?.completedPuzzles?.[0].solvePath)).toBe(true);
+    expect(result?.state?.solvePath).toBeDefined();
+    expect(Array.isArray(result?.state?.solvePath)).toBe(true);
+    expect(result?.state?.solvePath).toHaveLength(2);
   });
 });
 
 describe("localStorage data structure validation", () => {
-  it("should match expected completedPuzzles structure", () => {
+  it("should match expected completed puzzle structure", () => {
     const data: LocalStorageState = {
       state: {
-        completedPuzzles: [
-          {
-            puzzleId: "abc123",
-            completionTime: 456,
-            solvePath: [],
-            completedAt: "2025-11-28T10:00:00Z",
-          },
-        ],
+        puzzleId: "abc123",
+        userEntries: Array(9).fill(Array(9).fill(0)),
+        elapsedTime: 456,
+        isCompleted: true,
+        completionTime: 456,
+        solvePath: [],
       },
     };
 
-    expect(data.state?.completedPuzzles?.[0]).toHaveProperty("puzzleId");
-    expect(data.state?.completedPuzzles?.[0]).toHaveProperty("completionTime");
-    expect(data.state?.completedPuzzles?.[0]).toHaveProperty("completedAt");
+    expect(data.state).toHaveProperty("puzzleId");
+    expect(data.state).toHaveProperty("completionTime");
+    expect(data.state).toHaveProperty("isCompleted");
+    expect(data.state?.isCompleted).toBe(true);
   });
 
-  it("should match expected currentPuzzle structure", () => {
+  it("should match expected in-progress puzzle structure", () => {
     const data: LocalStorageState = {
       state: {
-        currentPuzzle: {
-          puzzleId: "abc123",
-          userEntries: Array(9).fill(Array(9).fill(0)),
-          elapsedTime: 120,
-        },
+        puzzleId: "abc123",
+        userEntries: Array(9).fill(Array(9).fill(0)),
+        elapsedTime: 120,
+        isCompleted: false,
+        pencilMarks: { "0-0": [1, 2, 3] },
+        selectedCell: { row: 0, col: 0 },
       },
     };
 
-    expect(data.state?.currentPuzzle).toHaveProperty("puzzleId");
-    expect(data.state?.currentPuzzle).toHaveProperty("userEntries");
-    expect(data.state?.currentPuzzle).toHaveProperty("elapsedTime");
+    expect(data.state).toHaveProperty("puzzleId");
+    expect(data.state).toHaveProperty("userEntries");
+    expect(data.state).toHaveProperty("elapsedTime");
+    expect(data.state).toHaveProperty("pencilMarks");
+    expect(data.state).toHaveProperty("selectedCell");
   });
 });

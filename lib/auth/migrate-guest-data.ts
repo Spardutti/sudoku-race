@@ -40,31 +40,47 @@ export interface MigrationResult {
   highestRank: number | null;
 }
 
-const CompletedPuzzleSchema = z.object({
-  puzzleId: z.string(),
-  completionTime: z.number().positive(),
-  solvePath: z.unknown().optional(),
-  completedAt: z.string(),
-});
+type CompletedPuzzle = {
+  puzzleId: string;
+  completionTime: number;
+  solvePath?: unknown;
+  completedAt: string;
+};
 
-const CurrentPuzzleSchema = z.object({
-  puzzleId: z.string(),
-  userEntries: z.array(z.array(z.number())),
-  elapsedTime: z.number().nonnegative(),
-});
+type CurrentPuzzle = {
+  puzzleId: string;
+  userEntries: number[][];
+  elapsedTime: number;
+  pencilMarks?: Record<string, number[]>;
+  solvePath?: unknown[];
+  isPaused?: boolean;
+  pausedAt?: number | null;
+  selectedCell?: {
+    row: number;
+    col: number;
+  } | null;
+};
 
 const LocalStorageStateSchema = z.object({
   state: z.object({
-    completedPuzzles: z.array(CompletedPuzzleSchema).optional(),
-    currentPuzzle: CurrentPuzzleSchema.nullable().optional(),
     puzzleId: z.string().optional(),
-    isCompleted: z.boolean().optional(),
+    userEntries: z.array(z.array(z.number())).optional(),
     elapsedTime: z.number().optional(),
+    isCompleted: z.boolean().optional(),
+    completionTime: z.number().nullable().optional(),
+    solvePath: z.array(z.unknown()).optional(),
+    pencilMarks: z.record(z.string(), z.array(z.number())).optional(),
+    isPaused: z.boolean().optional(),
+    pausedAt: z.number().nullable().optional(),
+    selectedCell: z.object({
+      row: z.number(),
+      col: z.number(),
+    }).nullable().optional(),
+    noteMode: z.boolean().optional(),
+    isStarted: z.boolean().optional(),
   }).optional(),
 });
 
-type CompletedPuzzle = z.infer<typeof CompletedPuzzleSchema>;
-type CurrentPuzzle = z.infer<typeof CurrentPuzzleSchema>;
 export type LocalStorageState = z.infer<typeof LocalStorageStateSchema>;
 
 export async function migrateGuestCompletions(
@@ -86,10 +102,19 @@ export async function migrateGuestCompletions(
     let inProgressCount = 0;
     let highestRank: number | null = null;
 
-    const completedPuzzles = localStorageData.state?.completedPuzzles || [];
+    if (
+      localStorageData.state?.isCompleted &&
+      localStorageData.state?.puzzleId &&
+      localStorageData.state?.completionTime
+    ) {
+      const completedPuzzle: CompletedPuzzle = {
+        puzzleId: localStorageData.state.puzzleId,
+        completionTime: localStorageData.state.completionTime,
+        solvePath: localStorageData.state.solvePath,
+        completedAt: new Date().toISOString(),
+      };
 
-    for (const puzzle of completedPuzzles) {
-      const result = await migrateCompletedPuzzle(supabase, userId, puzzle);
+      const result = await migrateCompletedPuzzle(supabase, userId, completedPuzzle);
       if (result.success && result.data) {
         completedCount++;
         if (result.data.rank !== null) {
@@ -100,12 +125,22 @@ export async function migrateGuestCompletions(
       }
     }
 
-    const currentPuzzle = localStorageData.state?.currentPuzzle;
     if (
-      currentPuzzle &&
-      currentPuzzle.puzzleId &&
-      !localStorageData.state?.isCompleted
+      localStorageData.state?.puzzleId &&
+      !localStorageData.state?.isCompleted &&
+      localStorageData.state?.userEntries
     ) {
+      const currentPuzzle: CurrentPuzzle = {
+        puzzleId: localStorageData.state.puzzleId,
+        userEntries: localStorageData.state.userEntries,
+        elapsedTime: localStorageData.state.elapsedTime || 0,
+        pencilMarks: localStorageData.state.pencilMarks,
+        solvePath: localStorageData.state.solvePath,
+        isPaused: localStorageData.state.isPaused,
+        pausedAt: localStorageData.state.pausedAt,
+        selectedCell: localStorageData.state.selectedCell,
+      };
+
       const result = await migrateInProgressPuzzle(supabase, userId, currentPuzzle);
       if (result.success) {
         inProgressCount++;
@@ -369,6 +404,11 @@ async function migrateInProgressPuzzle(
           completion_data: {
             userEntries: currentPuzzle.userEntries,
             elapsedTime: currentPuzzle.elapsedTime,
+            pencilMarks: currentPuzzle.pencilMarks,
+            solvePath: currentPuzzle.solvePath,
+            isPaused: currentPuzzle.isPaused,
+            pausedAt: currentPuzzle.pausedAt,
+            selectedCell: currentPuzzle.selectedCell,
           },
         });
 

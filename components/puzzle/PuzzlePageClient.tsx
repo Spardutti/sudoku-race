@@ -23,6 +23,7 @@ import { useNetworkStatus } from "@/lib/hooks/useNetworkStatus";
 import { usePuzzleSubmission } from "@/lib/hooks/usePuzzleSubmission";
 import { useMigrationNotification } from "@/lib/hooks/useMigrationNotification";
 import { useTimerActions } from "@/lib/hooks/useTimerActions";
+import { useAuthState } from "@/lib/hooks/useAuthState";
 import { startTimer } from "@/actions/puzzle";
 import type { Puzzle } from "@/actions/puzzle";
 
@@ -33,11 +34,10 @@ const CompletionModal = dynamic(
 
 type PuzzlePageClientProps = {
   puzzle: Puzzle;
-  initialUserId?: string | null;
   initialCompletionStatus?: { isCompleted: boolean; completionTime?: number; rank?: number };
 };
 
-export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatus }: PuzzlePageClientProps) {
+export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePageClientProps) {
   const userEntries = usePuzzleStore((state) => state.userEntries);
   const selectedCell = usePuzzleStore((state) => state.selectedCell);
   const elapsedTime = usePuzzleStore((state) => state.elapsedTime);
@@ -58,7 +58,8 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
   const startPuzzle = usePuzzleStore((state) => state.startPuzzle);
 
   const isOnline = useNetworkStatus();
-  const userId = initialUserId || null;
+  const { user } = useAuthState();
+  const userId = user?.id || null;
   const alreadyCompleted = initialCompletionStatus?.isCompleted || false;
   const previousCompletionTime = initialCompletionStatus?.completionTime || null;
   const previousRank = initialCompletionStatus?.rank;
@@ -76,7 +77,7 @@ export function PuzzlePageClient({ puzzle, initialUserId, initialCompletionStatu
       usePuzzleStore.setState({ puzzle: puzzle.puzzle_data });
     }
   }, [puzzle.id, puzzle.puzzle_data, setPuzzle, isLoading]);
-  useAutoSave(false);
+  useAutoSave(!!userId);
   useTimer();
   useMigrationNotification();
 

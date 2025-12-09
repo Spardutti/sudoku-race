@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { getPuzzleToday, checkPuzzleCompletion } from "@/actions/puzzle";
-import { getCurrentUserId } from "@/lib/auth/get-current-user";
 import { PuzzlePageClient } from "@/components/puzzle/PuzzlePageClient";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
@@ -48,9 +47,8 @@ export default async function Home() {
     );
   }
 
-  const userId = await getCurrentUserId();
   const completionCheck = await checkPuzzleCompletion(result.data.id);
   const completionData = completionCheck.success ? completionCheck.data : { isCompleted: false };
 
-  return <PuzzlePageClient puzzle={result.data} initialUserId={userId} initialCompletionStatus={completionData} />;
+  return <PuzzlePageClient puzzle={result.data} initialCompletionStatus={completionData} />;
 }
