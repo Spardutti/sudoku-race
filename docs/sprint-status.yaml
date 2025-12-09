@@ -108,9 +108,10 @@ development_status:
   7-1-internationalization-en-es: done # docs/stories/7-1-internationalization-en-es.md
   epic-7-retrospective: optional
 
-  # Epic 8: Marketing & Growth (1 story - NEW)
+  # Epic 8: Marketing & Growth (2 stories - NEW)
   epic-8: backlog
   8-1-minimal-landing-page: done # docs/stories/8-1-minimal-landing-page.md
+  8-2-progressive-web-app-pwa: ready-for-dev # docs/stories/8-2-progressive-web-app-pwa.md
   epic-8-retrospective: optional
 
   # Bug Fixes (Standalone)

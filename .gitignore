@@ -40,6 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# PWA service worker files
+public/sw*
+public/swe-worker*
+
 # supabase
 /supabase/.branches
 /supabase/.temp

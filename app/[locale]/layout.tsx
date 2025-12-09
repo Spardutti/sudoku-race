@@ -12,12 +12,17 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales } from "@/i18n";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { IOSInstallInstructions } from "@/components/pwa/IOSInstallInstructions";
+import { VisitTracker } from "@/components/pwa/VisitTracker";
+import { OfflineBadge } from "@/components/pwa/OfflineBadge";
 
 const merriweather = Merriweather({
   variable: "--font-serif",
   subsets: ["latin"],
   weight: ["400", "700"],
   display: "swap",
+  preload: true,
 });
 
 const inter = Inter({
@@ -25,6 +30,7 @@ const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "600"],
   display: "swap",
+  preload: true,
 });
 
 /**
@@ -36,6 +42,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   // Metadata base URL for resolving relative URLs in OG images
   metadataBase: new URL(SITE_URL),
+
+  // PWA application name
+  applicationName: "Sudoku Race",
 
   // Basic metadata
   title: {
@@ -101,7 +110,9 @@ export const metadata: Metadata = {
   },
 
   // Favicon auto-detected from app/favicon.ico (Next.js 13+ convention)
-  // Apple touch icon (optional - add app/apple-icon.png when ready)
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
 };
 
 /**
@@ -170,6 +181,10 @@ export default async function RootLayout({ children, params }: Props) {
             <Toaster />
             <Analytics />
             <WebVitalsReporter />
+            <VisitTracker />
+            <OfflineBadge />
+            <InstallPrompt />
+            <IOSInstallInstructions />
           </QueryProvider>
         </NextIntlClientProvider>
       </body>
