@@ -560,6 +560,26 @@ As a **product manager**, I want **notification infrastructure prepared for post
 
 ---
 
+### Story 6.6: Multi-Difficulty Puzzle System
+
+As a **player frustrated with 20+ minute solve times on medium puzzles**, I want **to choose between Easy and Medium difficulty puzzles each day**, so that **I can maintain momentum, complete puzzles faster, and return daily without feeling discouraged**.
+
+**Acceptance Criteria:**
+
+- Two puzzles generated daily (Easy + Medium) at midnight UTC
+- Difficulty picker replaces "Start Sudoku" button (shows both options with estimated times)
+- Visual indicator shows completed difficulties (checkmark ✓)
+- Separate leaderboards per difficulty (no aggregate leaderboard)
+- Simple Streak: Complete ANY difficulty = +1 day
+- Perfect Day Streak: Complete BOTH difficulties same day = bonus streak counter
+- Sharing includes difficulty in text and link (`/puzzle/YYYY-MM-DD/easy`)
+- Profile shows side-by-side stats (Easy | Medium | Combined)
+- Completion calendar indicates difficulty with color-coded dots (🟢 easy, 🔵 medium, 🟣 both)
+- Database migration preserves existing puzzles as "medium" difficulty
+- Scalable architecture for future Hard difficulty (enum-based, config-driven)
+
+---
+
 ## Coverage Validation
 
 **All 16 Functional Requirements Covered:**

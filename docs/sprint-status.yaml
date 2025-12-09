@@ -94,13 +94,14 @@ development_status:
   5-5-shareable-link-social-meta-tags-open-graph: done # docs/stories/5-5-shareable-link-social-meta-tags-open-graph.md
   epic-5-retrospective: optional
 
-  # Epic 6: Engagement & Retention (5 stories)
+  # Epic 6: Engagement & Retention (6 stories - includes multi-difficulty system)
   epic-6: backlog
   6-1-streak-tracking-system-consecutive-days: done # docs/stories/6-1-streak-tracking-system-consecutive-days.md
   6-2-streak-freeze-mechanic-healthy-engagement: done # docs/stories/6-2-streak-freeze-mechanic-healthy-engagement.md
   6-3-personal-statistics-dashboard: done
   6-4-completion-history-calendar-view: done # docs/stories/6-4-completion-history-calendar-view.md
   6-5-engagement-hooks-notifications-post-mvp-prep: backlog
+  6-6-multi-difficulty-puzzle-system: ready-for-dev # docs/stories/6-6-multi-difficulty-puzzle-system.md
   epic-6-retrospective: optional
 
   # Epic 7: Internationalization & Localization (1 story - NEW)
@@ -111,10 +112,10 @@ development_status:
   # Epic 8: Marketing & Growth (2 stories - NEW)
   epic-8: backlog
   8-1-minimal-landing-page: done # docs/stories/8-1-minimal-landing-page.md
-  8-2-progressive-web-app-pwa: ready-for-dev # docs/stories/8-2-progressive-web-app-pwa.md
+  8-2-progressive-web-app-pwa: review # docs/stories/8-2-progressive-web-app-pwa.md
   epic-8-retrospective: optional
 
   # Bug Fixes (Standalone)
   BF-1-puzzle-state-sync-cross-device: review # docs/stories/BF-1-puzzle-state-sync-cross-device.md
-  BF-2-guest-auth-state-loss: ready-for-dev # docs/stories/BF-2-guest-auth-state-loss.md
+  BF-2-guest-auth-state-loss: review # docs/stories/BF-2-guest-auth-state-loss.md
   BF-3-stale-puzzle-persist-across-days: review # docs/stories/BF-3-stale-puzzle-persist-across-days.md
