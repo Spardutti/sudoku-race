@@ -441,11 +441,19 @@ async function migrateInProgressPuzzle(
       });
     }
 
+    const nonZeroCount = currentPuzzle.userEntries.flat().filter((n) => n > 0).length;
+
     logger.info("Migrating in-progress puzzle with timer events", {
       userId,
       puzzleId: currentPuzzle.puzzleId,
       eventCount: timerEvents.length,
       elapsedTime: currentPuzzle.elapsedTime,
+      hasUserEntries: !!currentPuzzle.userEntries,
+      userEntriesLength: currentPuzzle.userEntries?.length,
+      firstRow: currentPuzzle.userEntries?.[0],
+      nonZeroCount,
+      isPaused: currentPuzzle.isPaused,
+      pausedAt: currentPuzzle.pausedAt,
     });
 
     await retryOperation(

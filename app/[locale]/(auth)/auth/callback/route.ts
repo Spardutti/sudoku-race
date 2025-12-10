@@ -140,6 +140,24 @@ export async function GET(request: NextRequest) {
         const localStorageData = localStorage.getItem('sudoku-race-puzzle-state');
 
         if (localStorageData) {
+          try {
+            const parsed = JSON.parse(localStorageData);
+            const userEntries = parsed.state?.userEntries;
+            const nonZeroCount = userEntries?.flat().filter(n => n > 0).length || 0;
+
+            console.log('[MIGRATION DEBUG]', {
+              puzzleId: parsed.state?.puzzleId,
+              hasUserEntries: !!userEntries,
+              userEntriesLength: userEntries?.length,
+              firstRow: userEntries?.[0],
+              nonZeroCount,
+              elapsedTime: parsed.state?.elapsedTime,
+              isPaused: parsed.state?.isPaused,
+            });
+          } catch (e) {
+            console.error('[MIGRATION DEBUG] Parse error:', e);
+          }
+
           const response = await fetch('/api/auth/migrate-guest-data', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
