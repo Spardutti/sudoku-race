@@ -45,6 +45,8 @@ type CompletedPuzzle = {
   completionTime: number;
   solvePath?: unknown;
   completedAt: string;
+  userEntries?: number[][];
+  pencilMarks?: Record<string, number[]>;
 };
 
 type CurrentPuzzle = {
@@ -107,11 +109,21 @@ export async function migrateGuestCompletions(
       localStorageData.state?.puzzleId &&
       localStorageData.state?.completionTime
     ) {
+      logger.info("Migrating completed puzzle", {
+        userId,
+        puzzleId: localStorageData.state.puzzleId,
+        completionTime: localStorageData.state.completionTime,
+        elapsedTime: localStorageData.state.elapsedTime,
+        isCompleted: localStorageData.state.isCompleted,
+      });
+
       const completedPuzzle: CompletedPuzzle = {
         puzzleId: localStorageData.state.puzzleId,
         completionTime: localStorageData.state.completionTime,
         solvePath: localStorageData.state.solvePath,
         completedAt: new Date().toISOString(),
+        userEntries: localStorageData.state.userEntries,
+        pencilMarks: localStorageData.state.pencilMarks,
       };
 
       const result = await migrateCompletedPuzzle(supabase, userId, completedPuzzle);
@@ -250,6 +262,15 @@ async function migrateCompletedPuzzle(
       completedAt.getTime() - puzzle.completionTime * 1000
     );
 
+    logger.info("Inserting completed puzzle to database", {
+      userId,
+      puzzleId: puzzle.puzzleId,
+      completion_time_seconds: puzzle.completionTime,
+      started_at: startedAt.toISOString(),
+      completed_at: completedAt.toISOString(),
+      time_delta_seconds: Math.floor((completedAt.getTime() - startedAt.getTime()) / 1000),
+    });
+
     await retryOperation(
       async () => {
         const { error: completionError } = await supabase.from("completions").insert({
@@ -259,6 +280,15 @@ async function migrateCompletedPuzzle(
           solve_path: puzzle.solvePath || null,
           completed_at: completedAt.toISOString(),
           started_at: startedAt.toISOString(),
+          is_complete: true,
+          completion_data: {
+            userEntries: puzzle.userEntries,
+            elapsedTime: puzzle.completionTime,
+            solvePath: puzzle.solvePath,
+            pencilMarks: puzzle.pencilMarks,
+            isPaused: false,
+            pausedAt: null,
+          },
         });
 
         if (completionError) {
@@ -398,6 +428,7 @@ async function migrateInProgressPuzzle(
           puzzle_id: currentPuzzle.puzzleId,
           completion_time_seconds: null,
           completed_at: null,
+          is_complete: false,
           started_at: new Date(
             Date.now() - currentPuzzle.elapsedTime * 1000
           ).toISOString(),

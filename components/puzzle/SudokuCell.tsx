@@ -44,7 +44,7 @@ export const SudokuCell = React.memo<SudokuCellProps>(function SudokuCell({
         "focus-visible:outline-none",
         "cursor-pointer",
         isClue
-          ? "text-neutral bg-white"
+          ? "text-neutral bg-gray-100"
           : "text-primary bg-white hover:bg-gray-50",
         isSelected && isClue && "ring-2 ring-red-600 ring-inset z-10",
         isSelected &&

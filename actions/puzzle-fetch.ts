@@ -102,7 +102,7 @@ export async function checkPuzzleCompletion(
 
     const { data, error } = await supabase
       .from("completions")
-      .select("completion_time_seconds")
+      .select("completion_time_seconds, is_complete")
       .eq("puzzle_id", puzzleId)
       .eq("user_id", userId)
       .maybeSingle();
@@ -120,7 +120,7 @@ export async function checkPuzzleCompletion(
       };
     }
 
-    if (data) {
+    if (data && data.is_complete === true) {
       const { data: leaderboardData } = await supabase
         .from("leaderboards")
         .select("rank")

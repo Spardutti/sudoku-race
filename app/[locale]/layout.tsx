@@ -86,7 +86,7 @@ export const metadata: Metadata = {
       "One authentic Sudoku puzzle daily. No hints, pure challenge, real competition.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og1200.png",
         width: 1200,
         height: 630,
         alt: "Sudoku Race - Daily Sudoku puzzle with emoji grid showing solving progress",
@@ -103,7 +103,7 @@ export const metadata: Metadata = {
     description: "One authentic Sudoku puzzle daily. Pure challenge, real competition.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og1200.png",
         alt: "Sudoku Race - Daily Sudoku puzzle with emoji grid showing solving progress",
       },
     ],
@@ -111,7 +111,7 @@ export const metadata: Metadata = {
 
   // Favicon auto-detected from app/favicon.ico (Next.js 13+ convention)
   icons: {
-    apple: "/icons/apple-touch-icon.png",
+    apple: "/appleTouch.png",
   },
 };
 
@@ -149,7 +149,7 @@ export default async function RootLayout({ children, params }: Props) {
     "@type": "Organization",
     name: "Sudoku Race",
     url: SITE_URL,
-    logo: `${SITE_URL}/logo.png`,
+    logo: `${SITE_URL}/favicon.png`,
     description: "Daily Sudoku puzzle platform with global leaderboards",
     sameAs: [
       `https://twitter.com/${SOCIAL_MEDIA.twitter.handle.replace("@", "")}`,

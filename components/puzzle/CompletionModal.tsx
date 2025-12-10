@@ -318,7 +318,7 @@ export function CompletionModal({
           <div className="rounded-md bg-gray-50 p-3 sm:p-4 text-center">
             <p className="text-xs sm:text-sm text-gray-600">{t('yourRankLabel')}</p>
             <p className="text-xl sm:text-2xl font-bold text-gray-900">
-              {typeof rank === 'number' ? `#${rank}` : t('calculating')}
+              {typeof rank === 'number' && rank > 0 ? `#${rank}` : t('calculating')}
             </p>
             {process.env.NODE_ENV !== 'production' && (
               <p className="text-xs text-gray-500 mt-1">

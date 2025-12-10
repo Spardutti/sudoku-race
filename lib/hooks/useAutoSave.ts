@@ -68,17 +68,8 @@ export function useAutoSave(isAuthenticated: boolean) {
 
         if (result.success) {
           lastSaveRef.current = currentState;
-          logger.info("Auto-save successful", {
-            puzzleId,
-            elapsedTime,
-            isCompleted,
-          });
-        } else {
-          logger.warn("Auto-save failed, localStorage fallback active", {
-            puzzleId,
-            errorMessage: result.error,
-          });
-        }
+          
+        } 
       } catch (error) {
         logger.error("Auto-save exception, localStorage fallback active", error as Error, {
           puzzleId,

@@ -61,7 +61,7 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
   const { user } = useAuthState();
   const userId = user?.id || null;
   const alreadyCompleted = initialCompletionStatus?.isCompleted || false;
-  const previousCompletionTime = initialCompletionStatus?.completionTime || null;
+  const previousCompletionTime = initialCompletionStatus?.completionTime ?? null;
   const previousRank = initialCompletionStatus?.rank;
 
   const isLoading = useStateRestoration(!!userId, puzzle.id);
@@ -220,7 +220,7 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
     return <PuzzleLoadingView />;
   }
 
-  if (alreadyCompleted && previousCompletionTime) {
+  if (alreadyCompleted && typeof previousCompletionTime === 'number') {
     return (
       <PuzzleCompletedView
         completionTime={previousCompletionTime}
@@ -340,7 +340,10 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
 
       <CompletionModal
         isOpen={showCompletionModal}
-        completionTime={serverCompletionTime ?? elapsedTime}
+        completionTime={(() => {
+          const storedCompletionTime = usePuzzleStore.getState().completionTime;
+          return serverCompletionTime ?? storedCompletionTime ?? elapsedTime;
+        })()}
         puzzleId={puzzle.id}
         isAuthenticated={!!userId}
         rank={serverRank}
