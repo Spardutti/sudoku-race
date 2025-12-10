@@ -111,7 +111,7 @@ export const metadata: Metadata = {
 
   // Favicon auto-detected from app/favicon.ico (Next.js 13+ convention)
   icons: {
-    apple: "/appleTouch.png",
+    apple: "/appleTouch-v3.png",
   },
 };
 
