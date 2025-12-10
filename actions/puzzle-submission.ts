@@ -7,17 +7,13 @@ import { ABUSE_ERRORS } from "@/lib/constants/errors";
 import { logger } from "@/lib/utils/logger";
 import type { Result } from "@/lib/types/result";
 import type { SolvePath } from "@/lib/types/solve-path";
+import type { TimerEvent } from "@/lib/types/timer";
 import * as Sentry from "@sentry/nextjs";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
 import { submissionLimiter } from "@/lib/abuse-prevention/rate-limiters";
 import { updateStreak } from "./streak";
 import type { StreakData } from "@/lib/types/streak";
 import { insertLeaderboardEntry } from "./puzzle-leaderboard";
-
-type TimerEvent = {
-  type: "start" | "pause" | "resume" | "complete";
-  timestamp: string;
-};
 
 function calculateActiveTime(events: TimerEvent[], completedAt: Date): number {
   let totalActive = 0;

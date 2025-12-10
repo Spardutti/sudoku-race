@@ -3,13 +3,9 @@
 import { createServerActionClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import type { Result } from "@/lib/types/result";
+import type { TimerEvent } from "@/lib/types/timer";
 import * as Sentry from "@sentry/nextjs";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
-
-type TimerEvent = {
-  type: "start" | "pause" | "resume" | "complete";
-  timestamp: string;
-};
 
 function getCurrentPauseState(events: TimerEvent[]): {
   isPaused: boolean;

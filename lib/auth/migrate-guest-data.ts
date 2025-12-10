@@ -1,6 +1,7 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import type { Result } from "@/lib/types/result";
+import type { TimerEvent } from "@/lib/types/timer";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
@@ -262,6 +263,11 @@ async function migrateCompletedPuzzle(
       completedAt.getTime() - puzzle.completionTime * 1000
     );
 
+    const timerEvents: TimerEvent[] = [
+      { type: "start", timestamp: startedAt.toISOString() },
+      { type: "complete", timestamp: completedAt.toISOString() }
+    ];
+
     logger.info("Inserting completed puzzle to database", {
       userId,
       puzzleId: puzzle.puzzleId,
@@ -281,6 +287,7 @@ async function migrateCompletedPuzzle(
           completed_at: completedAt.toISOString(),
           started_at: startedAt.toISOString(),
           is_complete: true,
+          timer_events: timerEvents,
           completion_data: {
             userEntries: puzzle.userEntries,
             elapsedTime: puzzle.completionTime,
@@ -421,6 +428,26 @@ async function migrateInProgressPuzzle(
       return { success: true, data: undefined };
     }
 
+    const startedAt = new Date(Date.now() - currentPuzzle.elapsedTime * 1000);
+
+    const timerEvents: TimerEvent[] = [
+      { type: "start", timestamp: startedAt.toISOString() }
+    ];
+
+    if (currentPuzzle.isPaused && currentPuzzle.pausedAt) {
+      timerEvents.push({
+        type: "pause",
+        timestamp: new Date(currentPuzzle.pausedAt).toISOString()
+      });
+    }
+
+    logger.info("Migrating in-progress puzzle with timer events", {
+      userId,
+      puzzleId: currentPuzzle.puzzleId,
+      eventCount: timerEvents.length,
+      elapsedTime: currentPuzzle.elapsedTime,
+    });
+
     await retryOperation(
       async () => {
         const { error: insertError } = await supabase.from("completions").insert({
@@ -429,9 +456,8 @@ async function migrateInProgressPuzzle(
           completion_time_seconds: null,
           completed_at: null,
           is_complete: false,
-          started_at: new Date(
-            Date.now() - currentPuzzle.elapsedTime * 1000
-          ).toISOString(),
+          started_at: startedAt.toISOString(),
+          timer_events: timerEvents,
           completion_data: {
             userEntries: currentPuzzle.userEntries,
             elapsedTime: currentPuzzle.elapsedTime,
