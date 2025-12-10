@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import { SudokuGrid } from "@/components/puzzle/SudokuGrid";
 import { NumberPad } from "@/components/puzzle/NumberPad";
 import { Timer } from "@/components/puzzle/Timer";
@@ -38,6 +39,7 @@ type PuzzlePageClientProps = {
 };
 
 export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePageClientProps) {
+  const searchParams = useSearchParams();
   const userEntries = usePuzzleStore((state) => state.userEntries);
   const selectedCell = usePuzzleStore((state) => state.selectedCell);
   const elapsedTime = usePuzzleStore((state) => state.elapsedTime);
@@ -215,6 +217,17 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
     elapsedTime,
     userId,
   });
+
+  React.useEffect(() => {
+    if (!searchParams) return;
+    const showCompletion = searchParams.get("showCompletion");
+    if (showCompletion === "true" && isCompleted) {
+      setShowCompletionModal(true);
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, "", "/puzzle");
+      }
+    }
+  }, [searchParams, isCompleted, setShowCompletionModal]);
 
   if (isLoading) {
     return <PuzzleLoadingView />;

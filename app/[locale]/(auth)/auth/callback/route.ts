@@ -1,11 +1,13 @@
 import { createServerActionClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
+import { validateReturnUrl } from "@/lib/auth/return-url-validator";
 import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
+  const returnUrl = validateReturnUrl(requestUrl.searchParams.get("returnUrl"));
 
   if (!code) {
     logger.warn("OAuth callback missing code parameter");
@@ -134,13 +136,14 @@ export async function GET(request: NextRequest) {
   <script>
     (async function() {
       try {
+        const returnUrl = ${JSON.stringify(returnUrl)};
         const localStorageData = localStorage.getItem('sudoku-race-puzzle-state');
 
         if (localStorageData) {
           const response = await fetch('/api/auth/migrate-guest-data', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ localStorageData }),
+            body: JSON.stringify({ localStorageData, returnUrl }),
           });
 
           const result = await response.json();
@@ -148,22 +151,21 @@ export async function GET(request: NextRequest) {
           if (result.success && result.data) {
             localStorage.removeItem('sudoku-race-puzzle-state');
 
-            const { highestRank } = result.data;
-            if (highestRank !== null) {
-              window.location.href = '/?migrated=true&rank=' + highestRank;
-              return;
-            }
+            const { redirectUrl } = result.data;
+            window.location.href = redirectUrl;
+            return;
           } else {
             console.error('Migration failed:', result.error);
-            window.location.href = '/?migrationFailed=true';
+            window.location.href = returnUrl + (returnUrl.includes('?') ? '&' : '?') + 'migrationFailed=true';
             return;
           }
         }
 
-        window.location.href = '/';
+        window.location.href = returnUrl;
       } catch (error) {
         console.error('Migration error:', error);
-        window.location.href = '/?migrationFailed=true';
+        const returnUrl = ${JSON.stringify(returnUrl)};
+        window.location.href = returnUrl + (returnUrl.includes('?') ? '&' : '?') + 'migrationFailed=true';
       }
     })();
   </script>

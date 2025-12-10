@@ -360,7 +360,7 @@ export function CompletionModal({
             </p>
             {showAuthButtons ? (
               <div className="flex flex-col gap-2">
-                <AuthButtons />
+                <AuthButtons returnUrl="/puzzle?showCompletion=true" />
                 <Button onClick={() => setShowAuthButtons(false)} variant="secondary" className="w-full">
                   {t('back')}
                 </Button>

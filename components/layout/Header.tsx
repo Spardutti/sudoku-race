@@ -21,7 +21,7 @@ import {
 import { AuthButtons } from '@/components/auth/AuthButtons'
 import { signOut } from '@/actions/auth'
 import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useAuthState } from '@/lib/hooks/useAuthState'
 import type { User } from '@supabase/supabase-js'
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
@@ -39,7 +39,11 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const { user, isAuthenticated } = useAuthState({ initialUser })
+
+  const returnUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`
 
   // Close menu on Escape key
   useEffect(() => {
@@ -127,7 +131,7 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
                 <DialogHeader>
                   <DialogTitle>{tAuth('signIn')}</DialogTitle>
                 </DialogHeader>
-                <AuthButtons />
+                <AuthButtons returnUrl={returnUrl} />
               </DialogContent>
             </Dialog>
           )}

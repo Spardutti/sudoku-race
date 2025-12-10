@@ -30,7 +30,11 @@ function GoogleLogo({ className }: { className?: string }) {
   );
 }
 
-export function AuthButtons() {
+interface AuthButtonsProps {
+  returnUrl?: string;
+}
+
+export function AuthButtons({ returnUrl }: AuthButtonsProps = {}) {
   const t = useTranslations('auth');
   const tErrors = useTranslations('errors');
   const [loading, setLoading] = useState(false);
@@ -39,7 +43,7 @@ export function AuthButtons() {
     setLoading(true);
 
     try {
-      const result = await signInWithGoogle();
+      const result = await signInWithGoogle(returnUrl);
 
       if (!result.success) {
         toast.error(result.error);

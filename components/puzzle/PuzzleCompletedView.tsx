@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 import { DevToolbar } from "@/components/dev/DevToolbar";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -33,10 +34,22 @@ export function PuzzleCompletedView({
   streakData,
 }: PuzzleCompletedViewProps) {
   const t = useTranslations("puzzle");
+  const searchParams = useSearchParams();
   const [showShareModal, setShowShareModal] = React.useState(false);
   const minutes = Math.floor(completionTime / 60);
   const seconds = completionTime % 60;
   const timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+
+  React.useEffect(() => {
+    if (!searchParams) return;
+    const showCompletion = searchParams.get("showCompletion");
+    if (showCompletion === "true") {
+      setShowShareModal(true);
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, "", window.location.pathname);
+      }
+    }
+  }, [searchParams]);
 
   return (
     <div className="flex flex-col min-h-full bg-white p-4">

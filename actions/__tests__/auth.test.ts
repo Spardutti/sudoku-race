@@ -48,6 +48,44 @@ describe("Auth Server Actions", () => {
       });
     });
 
+    it("should include returnUrl in redirectTo query parameter when provided", async () => {
+      const mockUrl = "https://accounts.google.com/oauth?redirect=...";
+      const returnUrl = "/puzzle";
+      (mockSupabase.auth!.signInWithOAuth as jest.Mock).mockResolvedValue({
+        data: { url: mockUrl },
+        error: null,
+      });
+
+      const result = await signInWithGoogle(returnUrl);
+
+      expect(result.success).toBe(true);
+      expect(mockSupabase.auth!.signInWithOAuth).toHaveBeenCalledWith({
+        provider: "google",
+        options: {
+          redirectTo: expect.stringContaining(`/auth/callback?returnUrl=${encodeURIComponent(returnUrl)}`),
+        },
+      });
+    });
+
+    it("should preserve query parameters in returnUrl", async () => {
+      const mockUrl = "https://accounts.google.com/oauth?redirect=...";
+      const returnUrl = "/puzzle?debug=true";
+      (mockSupabase.auth!.signInWithOAuth as jest.Mock).mockResolvedValue({
+        data: { url: mockUrl },
+        error: null,
+      });
+
+      const result = await signInWithGoogle(returnUrl);
+
+      expect(result.success).toBe(true);
+      expect(mockSupabase.auth!.signInWithOAuth).toHaveBeenCalledWith({
+        provider: "google",
+        options: {
+          redirectTo: expect.stringContaining(`returnUrl=${encodeURIComponent(returnUrl)}`),
+        },
+      });
+    });
+
     it("should return error when OAuth provider returns error", async () => {
       (mockSupabase.auth!.signInWithOAuth as jest.Mock).mockResolvedValue({
         data: {},

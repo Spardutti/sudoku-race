@@ -7,28 +7,34 @@ import * as Sentry from "@sentry/nextjs";
 
 type OAuthProvider = "google" | "github" | "apple";
 
-export async function signInWithGoogle(): Promise<Result<{ url: string }, string>> {
-  return signInWithOAuth("google");
+export async function signInWithGoogle(returnUrl?: string): Promise<Result<{ url: string }, string>> {
+  return signInWithOAuth("google", returnUrl);
 }
 
-export async function signInWithGithub(): Promise<Result<{ url: string }, string>> {
-  return signInWithOAuth("github");
+export async function signInWithGithub(returnUrl?: string): Promise<Result<{ url: string }, string>> {
+  return signInWithOAuth("github", returnUrl);
 }
 
-export async function signInWithApple(): Promise<Result<{ url: string }, string>> {
-  return signInWithOAuth("apple");
+export async function signInWithApple(returnUrl?: string): Promise<Result<{ url: string }, string>> {
+  return signInWithOAuth("apple", returnUrl);
 }
 
 async function signInWithOAuth(
-  provider: OAuthProvider
+  provider: OAuthProvider,
+  returnUrl?: string
 ): Promise<Result<{ url: string }, string>> {
   try {
     const supabase = await createServerActionClient();
 
+    const baseUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback`;
+    const redirectTo = returnUrl
+      ? `${baseUrl}?returnUrl=${encodeURIComponent(returnUrl)}`
+      : baseUrl;
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback`,
+        redirectTo,
       },
     });
 

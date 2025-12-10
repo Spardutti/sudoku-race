@@ -4,6 +4,7 @@ import {
   parseLocalStorageData,
 } from "@/lib/auth/migrate-guest-data";
 import { createServerActionClient } from "@/lib/supabase/server";
+import { validateReturnUrl } from "@/lib/auth/return-url-validator";
 import { logger } from "@/lib/utils/logger";
 import * as Sentry from "@sentry/nextjs";
 
@@ -23,12 +24,18 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { localStorageData } = body;
+    const { localStorageData, returnUrl: rawReturnUrl } = body;
+    const returnUrl = validateReturnUrl(rawReturnUrl || null);
 
     if (!localStorageData) {
       return NextResponse.json({
         success: true,
-        data: { completedCount: 0, inProgressCount: 0, highestRank: null },
+        data: {
+          completedCount: 0,
+          inProgressCount: 0,
+          highestRank: null,
+          redirectUrl: returnUrl,
+        },
       });
     }
 
@@ -48,14 +55,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const { highestRank } = result.data;
+    const separator = returnUrl.includes("?") ? "&" : "?";
+    const redirectUrl = highestRank !== null
+      ? `${returnUrl}${separator}migrated=true&rank=${highestRank}`
+      : `${returnUrl}${separator}migrated=true`;
+
     logger.info("Guest data migration completed via API", {
       userId: user.id,
       result: result.data,
+      redirectUrl,
     });
 
     return NextResponse.json({
       success: true,
-      data: result.data,
+      data: { ...result.data, redirectUrl },
     });
   } catch (error) {
     logger.error("Error in migrate-guest-data API", error as Error);
