@@ -25,6 +25,7 @@ interface ProfilePageClientProps {
   streak: {
     currentStreak: number;
     longestStreak: number;
+    perfectDayStreak: number;
     lastCompletionDate: string;
     freezeAvailable: boolean;
     lastFreezeResetDate: string | null;

@@ -15,6 +15,7 @@ interface StatsDisplayProps {
   streak: {
     currentStreak: number;
     longestStreak: number;
+    perfectDayStreak: number;
   } | null;
 }
 
@@ -48,6 +49,10 @@ export function StatsDisplay({ stats, streak }: StatsDisplayProps) {
         <StatItem
           label={t("currentStreak")}
           value={streak?.currentStreak ?? 0}
+        />
+        <StatItem
+          label={t("perfectDayStreak")}
+          value={streak?.perfectDayStreak ?? 0}
         />
         <StatItem
           label={t("longestStreak")}

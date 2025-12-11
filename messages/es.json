@@ -149,6 +149,7 @@
     "averageTime": "Tiempo Promedio",
     "bestTime": "Mejor Tiempo",
     "currentStreak": "Racha Actual",
+    "perfectDayStreak": "Racha de Días Perfectos",
     "longestStreak": "Racha Más Larga",
     "daysCompleted": "{count} días",
     "completeFirstPuzzle": "¡Completa tu primer sudoku para ver tus estadísticas!",

@@ -18,7 +18,7 @@ export async function ProfileStats({ userId }: ProfileStatsProps) {
     supabase.rpc("get_user_profile_stats", { p_user_id: userId }).single<UserProfileStats>(),
     supabase
       .from("streaks")
-      .select("current_streak, longest_streak")
+      .select("current_streak, longest_streak, perfect_day_streak")
       .eq("user_id", userId)
       .single()
   ]);
@@ -33,6 +33,7 @@ export async function ProfileStats({ userId }: ProfileStatsProps) {
     ? {
         currentStreak: streakData.data.current_streak,
         longestStreak: streakData.data.longest_streak,
+        perfectDayStreak: streakData.data.perfect_day_streak,
       }
     : null;
 

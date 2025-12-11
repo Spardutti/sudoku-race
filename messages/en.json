@@ -149,6 +149,7 @@
     "averageTime": "Average Time",
     "bestTime": "Best Time",
     "currentStreak": "Current Streak",
+    "perfectDayStreak": "Perfect Day Streak",
     "longestStreak": "Longest Streak",
     "daysCompleted": "{count} days",
     "completeFirstPuzzle": "Complete your first sudoku to see your stats!",
