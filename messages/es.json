@@ -57,6 +57,7 @@
         }
       },
       "completed": "Completado ✓",
+      "inProgress": "En Progreso",
       "canPlayBoth": "Puedes jugar ambas dificultades cada día",
       "perfectDay": "🎉 ¡Día Perfecto! ¡Completaste ambas dificultades!"
     },
@@ -192,7 +193,13 @@
     "notFound": "Página no encontrada",
     "puzzleNotFound": "Sudoku no encontrado",
     "submissionFailed": "Error al enviar la solución",
-    "loadFailed": "Error al cargar los datos"
+    "loadFailed": "Error al cargar los datos",
+    "difficultyNotFound": {
+      "title": "Dificultad No Encontrada",
+      "description": "Este nivel de dificultad no existe o no está disponible aún.",
+      "availableDifficulties": "Actualmente disponibles: Fácil y Medio",
+      "backButton": "Elegir una Dificultad"
+    }
   },
   "toast": {
     "success": "¡Éxito!",

@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { ACTIVE_DIFFICULTY_LEVELS, type DifficultyLevel } from "@/lib/types/difficulty";
 import { useTranslations } from "next-intl";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import type { PuzzleStatus } from "@/actions/puzzle-completion-check";
 
 type DifficultyPickerProps = {
-  onSelectDifficulty: (difficulty: DifficultyLevel) => void;
-  completedDifficulties: DifficultyLevel[];
+  puzzleStatuses: PuzzleStatus[];
 };
 
 const DIFFICULTY_CONFIG: Record<DifficultyLevel, { estimatedTime: string }> = {
@@ -23,13 +24,12 @@ const DIFFICULTY_CONFIG: Record<DifficultyLevel, { estimatedTime: string }> = {
   },
 };
 
-export function DifficultyPicker({ onSelectDifficulty, completedDifficulties }: DifficultyPickerProps) {
+export function DifficultyPicker({ puzzleStatuses }: DifficultyPickerProps) {
   const t = useTranslations("puzzle.difficultyPicker");
-  const [loading, setLoading] = useState(false);
+  const params = useParams();
 
-  const handleSelect = (difficulty: DifficultyLevel) => {
-    setLoading(true);
-    onSelectDifficulty(difficulty);
+  const getStatus = (difficulty: DifficultyLevel) => {
+    return puzzleStatuses.find((s) => s.difficulty === difficulty)?.status || "not-started";
   };
 
   return (
@@ -46,19 +46,26 @@ export function DifficultyPicker({ onSelectDifficulty, completedDifficulties }: 
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {ACTIVE_DIFFICULTY_LEVELS.map((difficulty) => {
-            const isCompleted = completedDifficulties.includes(difficulty);
+            const status = getStatus(difficulty);
             const config = DIFFICULTY_CONFIG[difficulty];
 
             return (
-              <Card
+              <Link
                 key={difficulty}
-                padding="lg"
-                className="relative hover:bg-gray-50 active:bg-gray-100 transition-colors cursor-pointer"
-                onClick={() => !loading && handleSelect(difficulty)}
+                href={`/${params.locale}/puzzle/${difficulty}`}
               >
-                {isCompleted && (
+                <Card
+                  padding="lg"
+                  className="relative hover:bg-gray-50 active:bg-gray-100 transition-colors cursor-pointer"
+                >
+                {status === "completed" && (
                   <div className="absolute top-6 right-6">
                     <CheckCircle2 className="w-6 h-6 text-green-600" strokeWidth={2.5} />
+                  </div>
+                )}
+                {status === "in-progress" && (
+                  <div className="absolute top-6 right-6">
+                    <Clock className="w-6 h-6 text-orange-500" strokeWidth={2.5} />
                   </div>
                 )}
 
@@ -76,22 +83,30 @@ export function DifficultyPicker({ onSelectDifficulty, completedDifficulties }: 
                     {t(`difficulties.${difficulty}.description`)}
                   </p>
 
-                  {isCompleted && (
+                  {status === "completed" && (
                     <div className="pt-2">
                       <span className="inline-block px-3 py-1 bg-green-50 text-green-700 text-xs font-medium border border-green-200">
                         {t("completed")}
                       </span>
                     </div>
                   )}
+                  {status === "in-progress" && (
+                    <div className="pt-2">
+                      <span className="inline-block px-3 py-1 bg-orange-50 text-orange-700 text-xs font-medium border border-orange-200">
+                        {t("inProgress")}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </Card>
+              </Link>
             );
           })}
         </div>
 
         <div className="text-center text-sm text-gray-600 space-y-1">
           <p>{t("canPlayBoth")}</p>
-          {completedDifficulties.length === ACTIVE_DIFFICULTY_LEVELS.length && (
+          {puzzleStatuses.filter((s) => s.status === "completed").length === ACTIVE_DIFFICULTY_LEVELS.length && (
             <p className="font-semibold text-green-600">
               {t("perfectDay")}
             </p>

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import { PuzzlePageWrapper } from "@/components/puzzle/PuzzlePageWrapper";
-import { getTodayCompletedDifficulties } from "@/actions/puzzle-completion-check";
+import { DifficultyPicker } from "@/components/puzzle/DifficultyPicker";
+import { getTodayPuzzleStatuses } from "@/actions/puzzle-completion-check";
 import { getTranslations } from "next-intl/server";
 
 export const dynamic = 'force-dynamic';
@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function PuzzlePage() {
-  const completedResult = await getTodayCompletedDifficulties();
-  const completedDifficulties = completedResult.success ? completedResult.data : [];
+  const statusResult = await getTodayPuzzleStatuses();
+  const puzzleStatuses = statusResult.success ? statusResult.data : [];
 
-  return <PuzzlePageWrapper initialCompletedDifficulties={completedDifficulties} />;
+  return <DifficultyPicker puzzleStatuses={puzzleStatuses} />;
 }

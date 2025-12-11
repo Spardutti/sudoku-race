@@ -12,7 +12,6 @@ import { InstructionsCard } from "@/components/puzzle/InstructionsCard";
 import { PuzzleLoadingView } from "@/components/puzzle/PuzzleLoadingView";
 import { PuzzleCompletedView } from "@/components/puzzle/PuzzleCompletedView";
 import { DevToolbar } from "@/components/dev/DevToolbar";
-import { StartScreen } from "@/components/puzzle/StartScreen";
 import { PauseOverlay } from "@/components/puzzle/PauseOverlay";
 import { PauseButton } from "@/components/puzzle/PauseButton";
 import { useKeyboardInput } from "@/lib/hooks/useKeyboardInput";
@@ -121,6 +120,12 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isStarted, isPaused, isCompleted, isPauseLoading, isResumeLoading, handlePause, handleResume]);
+
+  React.useEffect(() => {
+    if (!isStarted && !alreadyCompleted && !isLoading) {
+      handleStart();
+    }
+  }, [isStarted, alreadyCompleted, isLoading, handleStart]);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -250,7 +255,7 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
   }
 
   if (!isStarted && !alreadyCompleted) {
-    return <StartScreen puzzleNumber={puzzle.puzzle_number} onStart={handleStart} />;
+    return <PuzzleLoadingView />;
   }
 
   return (
