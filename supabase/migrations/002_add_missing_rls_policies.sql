@@ -7,10 +7,12 @@
 -- LEADERBOARDS TABLE - ADD INSERT/UPDATE POLICIES
 -- ============================================================================
 
+DROP POLICY IF EXISTS "Users can insert own leaderboard entries" ON leaderboards;
 CREATE POLICY "Users can insert own leaderboard entries"
   ON leaderboards FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own leaderboard entries" ON leaderboards;
 CREATE POLICY "Users can update own leaderboard entries"
   ON leaderboards FOR UPDATE
   USING (auth.uid() = user_id);
@@ -19,10 +21,12 @@ CREATE POLICY "Users can update own leaderboard entries"
 -- STREAKS TABLE - ADD INSERT/UPDATE POLICIES
 -- ============================================================================
 
+DROP POLICY IF EXISTS "Users can insert own streaks" ON streaks;
 CREATE POLICY "Users can insert own streaks"
   ON streaks FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own streaks" ON streaks;
 CREATE POLICY "Users can update own streaks"
   ON streaks FOR UPDATE
   USING (auth.uid() = user_id);
