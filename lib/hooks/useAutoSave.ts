@@ -34,6 +34,8 @@ export function useAutoSave(isAuthenticated: boolean) {
   const userEntries = usePuzzleStore((state) => state.userEntries);
   const elapsedTime = usePuzzleStore((state) => state.elapsedTime);
   const isCompleted = usePuzzleStore((state) => state.isCompleted);
+  const pencilMarks = usePuzzleStore((state) => state.pencilMarks);
+  const solvePath = usePuzzleStore((state) => state.solvePath);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSaveRef = useRef<string>("");
@@ -47,6 +49,8 @@ export function useAutoSave(isAuthenticated: boolean) {
       userEntries,
       elapsedTime,
       isCompleted,
+      pencilMarks,
+      solvePath,
     });
 
     if (currentState === lastSaveRef.current) {
@@ -63,7 +67,9 @@ export function useAutoSave(isAuthenticated: boolean) {
           puzzleId,
           userEntries,
           elapsedTime,
-          isCompleted
+          isCompleted,
+          pencilMarks,
+          solvePath
         );
 
         if (result.success) {
@@ -82,5 +88,5 @@ export function useAutoSave(isAuthenticated: boolean) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [isAuthenticated, puzzleId, userEntries, elapsedTime, isCompleted]);
+  }, [isAuthenticated, puzzleId, userEntries, elapsedTime, isCompleted, pencilMarks, solvePath]);
 }

@@ -4,6 +4,7 @@ import { createServerActionClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import type { Result } from "@/lib/types/result";
 import type { TimerEvent } from "@/lib/types/timer";
+import type { SolvePath } from "@/lib/types/solve-path";
 import * as Sentry from "@sentry/nextjs";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
 
@@ -71,13 +72,17 @@ export type PuzzleProgress = {
   isStarted?: boolean;
   isPaused?: boolean;
   pausedAt?: number | null;
+  pencilMarks?: Record<string, number[]>;
+  solvePath?: SolvePath;
 };
 
 export async function saveProgress(
   puzzleId: string,
   userEntries: number[][],
   elapsedTime: number,
-  isCompleted: boolean
+  isCompleted: boolean,
+  pencilMarks?: Record<string, number[]>,
+  solvePath?: SolvePath
 ): Promise<Result<void, string>> {
   try {
     const userId = await getCurrentUserId();
@@ -91,16 +96,44 @@ export async function saveProgress(
 
     const supabase = await createServerActionClient();
 
-    const { error } = await supabase.from("completions").upsert(
-      {
-        user_id: userId,
-        puzzle_id: puzzleId,
-        completion_data: { userEntries },
-        completion_time_seconds: elapsedTime,
-        is_complete: isCompleted,
-        is_guest: false,
-        started_at: new Date().toISOString(),
+    const { data: existing } = await supabase
+      .from("completions")
+      .select("started_at")
+      .eq("user_id", userId)
+      .eq("puzzle_id", puzzleId)
+      .maybeSingle();
+
+    const upsertData: {
+      user_id: string;
+      puzzle_id: string;
+      completion_data: {
+        userEntries: number[][];
+        pencilMarks: Record<string, number[]>;
+        solvePath?: SolvePath;
+      };
+      completion_time_seconds: number;
+      is_complete: boolean;
+      is_guest: boolean;
+      started_at?: string;
+    } = {
+      user_id: userId,
+      puzzle_id: puzzleId,
+      completion_data: {
+        userEntries,
+        pencilMarks: pencilMarks || {},
+        solvePath: solvePath || []
       },
+      completion_time_seconds: elapsedTime,
+      is_complete: isCompleted,
+      is_guest: false,
+    };
+
+    if (existing?.started_at) {
+      upsertData.started_at = existing.started_at;
+    }
+
+    const { error } = await supabase.from("completions").upsert(
+      upsertData,
       {
         onConflict: "user_id,puzzle_id",
         ignoreDuplicates: false,
@@ -199,8 +232,14 @@ export async function loadProgress(
       };
     }
 
-    const completionData = data.completion_data as { userEntries?: number[][] } | null;
+    const completionData = data.completion_data as {
+      userEntries?: number[][];
+      pencilMarks?: Record<string, number[]>;
+      solvePath?: SolvePath;
+    } | null;
     const userEntries = completionData?.userEntries;
+    const pencilMarks = completionData?.pencilMarks;
+    const solvePath = completionData?.solvePath;
 
     const timerEvents = (data.timer_events || []) as TimerEvent[];
 
@@ -220,6 +259,8 @@ export async function loadProgress(
       isCompleted: data.is_complete || false,
       isPaused: pauseState.isPaused,
       pausedAt: pausedAtTimestamp,
+      pencilMarks: pencilMarks || {},
+      solvePath: solvePath || [],
     };
 
     logger.info("Puzzle progress loaded", {

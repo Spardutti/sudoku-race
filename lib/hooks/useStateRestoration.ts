@@ -62,6 +62,8 @@ export function useStateRestoration(
               isStarted: result.data.elapsedTime > 0 || hasEntries,
               isPaused: result.data.isPaused ?? false,
               pausedAt: result.data.pausedAt ?? null,
+              pencilMarks: result.data.pencilMarks || {},
+              solvePath: result.data.solvePath || [],
             };
 
             if (result.data.userEntries) {
