@@ -111,7 +111,18 @@
     "time": "Tiempo",
     "you": "Tú",
     "guest": "Invitado",
+    "difficulties": {
+      "easy": "Fácil",
+      "medium": "Medio",
+      "hard": "Difícil"
+    },
+    "difficultiesLowercase": {
+      "easy": "fácil",
+      "medium": "media",
+      "hard": "difícil"
+    },
     "empty": "¡Sé el primero en completar el sudoku de hoy!",
+    "emptyDifficulty": "Sé el primero en completar el Sudoku de dificultad {difficulty} hoy.",
     "startPuzzle": "Iniciar Sudoku de Hoy",
     "error": "No se pudo cargar la clasificación",
     "personalRank": "Tu Posición: #{rank}",

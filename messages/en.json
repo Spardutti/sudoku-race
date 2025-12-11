@@ -111,7 +111,18 @@
     "time": "Time",
     "you": "You",
     "guest": "Guest",
+    "difficulties": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "difficultiesLowercase": {
+      "easy": "easy",
+      "medium": "medium",
+      "hard": "hard"
+    },
     "empty": "Be the first to complete today's sudoku!",
+    "emptyDifficulty": "Be the first to complete today's {difficulty} sudoku!",
     "startPuzzle": "Start Today's Sudoku",
     "error": "Unable to load leaderboard",
     "personalRank": "Your Rank: #{rank}",

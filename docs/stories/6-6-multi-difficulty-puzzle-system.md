@@ -141,12 +141,12 @@ so that **I can maintain momentum, complete puzzles faster, and return daily wit
 
 ### Task 5: Leaderboard UI Update (AC: 3.1-3.5)
 
-- [ ] Update `/app/leaderboard/page.tsx` to accept `?difficulty=` query param
-- [ ] Add difficulty selector tabs/buttons on leaderboard page
-- [ ] Update header to display difficulty ("Easy Leaderboard - Puzzle #42")
-- [ ] Update queries to filter by difficulty
-- [ ] Ensure real-time updates scoped to selected difficulty
-- [ ] Update personal rank display per difficulty
+- [x] Update `/app/leaderboard/page.tsx` to accept `?difficulty=` query param
+- [x] Add difficulty selector tabs/buttons on leaderboard page
+- [x] Update header to display difficulty ("Easy Leaderboard - Puzzle #42")
+- [x] Update queries to filter by difficulty
+- [x] Ensure real-time updates scoped to selected difficulty
+- [x] Update personal rank display per difficulty
 - [ ] Write integration tests for both leaderboards
 
 ### Task 6: Streak Logic Implementation (AC: 4.1-4.6)
@@ -389,6 +389,18 @@ Claude Sonnet 4.5 (20250929)
 - Newspaper aesthetic maintained (border, clean design)
 - Both difficulties always playable (no restrictions)
 - Perfect Day message when both completed
+- Fixed guest user status tracking: Added difficulty/puzzleDate to puzzleStore
+- Guest status reads from localStorage, auth status from DB, merge prioritizes auth
+
+**Task 5 - Leaderboard UI Update**:
+- Updated app/[locale]/leaderboard/page.tsx to accept ?difficulty= query param
+- Added difficulty selector tabs in LeaderboardHeader component
+- Tabs use Link for navigation, active state styling with border-bottom
+- Header displays selected difficulty in title
+- Queries automatically filter by difficulty (via unique puzzle_id per difficulty)
+- Real-time updates scoped to selected difficulty (useLeaderboardQuery uses puzzleId)
+- Personal rank display works per difficulty (separate ranks for each)
+- Defaults to "medium" for backward compatibility
 
 ### File List
 
@@ -411,3 +423,9 @@ Claude Sonnet 4.5 (20250929)
 - app/[locale]/puzzle/page.tsx (lines 1-28)
 - messages/en.json (lines 46-62)
 - messages/es.json (lines 46-62)
+- lib/stores/puzzleStore.types.ts (added difficulty, puzzleDate fields)
+- lib/stores/puzzleStore.ts (updated setPuzzle, resetPuzzle, persist config)
+- components/puzzle/DifficultyPicker.tsx (added guest status merge logic)
+- components/puzzle/PuzzlePageClient.tsx (pass difficulty/puzzleDate to setPuzzle)
+- app/[locale]/leaderboard/page.tsx (added difficulty query param handling)
+- components/leaderboard/LeaderboardHeader.tsx (added difficulty tabs)

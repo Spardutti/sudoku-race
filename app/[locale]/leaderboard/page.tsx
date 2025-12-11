@@ -9,6 +9,7 @@ import { LeaderboardError } from "@/components/leaderboard/LeaderboardError";
 import { LeaderboardHeader } from "@/components/leaderboard/LeaderboardHeader";
 import { LeaderboardPageClient } from "@/components/leaderboard/LeaderboardPageClient";
 import { getTranslations } from "next-intl/server";
+import { ACTIVE_DIFFICULTY_LEVELS, type DifficultyLevel } from "@/lib/types/difficulty";
 
 export const dynamic = "force-dynamic";
 
@@ -22,8 +23,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default async function LeaderboardPage() {
-  const puzzleResult = await getPuzzleToday();
+type LeaderboardPageProps = {
+  searchParams: Promise<{ difficulty?: string }>;
+};
+
+export default async function LeaderboardPage({ searchParams }: LeaderboardPageProps) {
+  const { difficulty: difficultyParam } = await searchParams;
+  const difficulty: DifficultyLevel =
+    difficultyParam && ACTIVE_DIFFICULTY_LEVELS.includes(difficultyParam as DifficultyLevel)
+      ? (difficultyParam as DifficultyLevel)
+      : "medium";
+
+  const puzzleResult = await getPuzzleToday(difficulty);
 
   if (!puzzleResult.success) {
     return (
@@ -49,7 +60,13 @@ export default async function LeaderboardPage() {
   if (entries.length === 0) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-8">
-        <EmptyState />
+        <LeaderboardHeader
+          puzzleDate={puzzle.puzzle_date}
+          puzzleNumber={puzzleNumber}
+          totalCompletions={0}
+          difficulty={difficulty}
+        />
+        <EmptyState difficulty={difficulty} />
       </div>
     );
   }
@@ -77,6 +94,7 @@ export default async function LeaderboardPage() {
           puzzleDate={puzzle.puzzle_date}
           puzzleNumber={puzzleNumber}
           totalCompletions={entries.length}
+          difficulty={difficulty}
         />
 
         <LeaderboardTable
