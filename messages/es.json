@@ -17,6 +17,7 @@
   },
   "nav": {
     "home": "Inicio",
+    "play": "Jugar",
     "puzzle": "Sudoku",
     "leaderboard": "Clasificación",
     "profile": "Perfil"

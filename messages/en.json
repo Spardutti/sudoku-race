@@ -17,6 +17,7 @@
   },
   "nav": {
     "home": "Home",
+    "play": "Play",
     "puzzle": "Sudoku",
     "leaderboard": "Leaderboard",
     "profile": "Profile"

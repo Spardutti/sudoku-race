@@ -75,6 +75,7 @@ export function Header({ initialUser, username: initialUsername }: HeaderProps) 
   }
 
   const navLinks = [
+    { href: '/puzzle', label: t('play') },
     { href: '/leaderboard', label: t('leaderboard') },
   ]
 
