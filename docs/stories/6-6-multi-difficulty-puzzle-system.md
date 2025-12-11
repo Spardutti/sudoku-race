@@ -151,11 +151,11 @@ so that **I can maintain momentum, complete puzzles faster, and return daily wit
 
 ### Task 6: Streak Logic Implementation (AC: 4.1-4.6)
 
-- [ ] Update `actions/streak.ts` to handle two streak types
-- [ ] Simple Streak: Increment if ANY difficulty completed today
-- [ ] Perfect Day Streak: Increment if BOTH difficulties completed same day
-- [ ] Update streak freeze logic (applies to simple streak only)
-- [ ] Update profile display to show both streaks
+- [x] Update `actions/streak.ts` to handle two streak types
+- [x] Simple Streak: Increment if ANY difficulty completed today
+- [x] Perfect Day Streak: Increment if BOTH difficulties completed same day
+- [x] Update streak freeze logic (applies to simple streak only)
+- [x] Update profile display to show both streaks
 - [ ] Write unit tests for all streak scenarios
 
 ### Task 7: Sharing Update (AC: 5.1-5.4)
@@ -401,6 +401,19 @@ Claude Sonnet 4.5 (20250929)
 - Real-time updates scoped to selected difficulty (useLeaderboardQuery uses puzzleId)
 - Personal rank display works per difficulty (separate ranks for each)
 - Defaults to "medium" for backward compatibility
+- Empty state shows difficulty tabs + "Sudoku" message (not "puzzle")
+- i18n: Tabs show "Fácil/Medio" in Spanish, "Easy/Medium" in English
+- Added "Play" nav link to header (links to /puzzle difficulty picker)
+
+**Task 6 - Streak Logic Implementation**:
+- Streak logic already implemented in Migration 020 (update_user_streak RPC)
+- Simple Streak (current_streak): Increments when ANY difficulty completed
+- Perfect Day Streak (perfect_day_streak): Increments when BOTH easy+medium completed same day
+- Streak freeze applies only to simple streak (not perfect day)
+- Updated profile to display Perfect Day Streak between Current and Longest
+- Added perfectDayStreak to ProfileStats.tsx, StatsDisplay.tsx, ProfilePageClient.tsx
+- Translations: "Perfect Day Streak" (EN) / "Racha de Días Perfectos" (ES)
+- Migration 019 added perfect_day_streak column (defaults to 0)
 
 ### File List
 
@@ -421,11 +434,16 @@ Claude Sonnet 4.5 (20250929)
 - scripts/seed-puzzle.ts (lines 8, 19, 60-70, 98, 108)
 - package.json (line 22)
 - app/[locale]/puzzle/page.tsx (lines 1-28)
-- messages/en.json (lines 46-62)
-- messages/es.json (lines 46-62)
+- messages/en.json (added difficulty picker, leaderboard, perfect day streak translations)
+- messages/es.json (added difficulty picker, leaderboard, perfect day streak translations)
 - lib/stores/puzzleStore.types.ts (added difficulty, puzzleDate fields)
 - lib/stores/puzzleStore.ts (updated setPuzzle, resetPuzzle, persist config)
 - components/puzzle/DifficultyPicker.tsx (added guest status merge logic)
 - components/puzzle/PuzzlePageClient.tsx (pass difficulty/puzzleDate to setPuzzle)
 - app/[locale]/leaderboard/page.tsx (added difficulty query param handling)
-- components/leaderboard/LeaderboardHeader.tsx (added difficulty tabs)
+- components/leaderboard/LeaderboardHeader.tsx (added difficulty tabs, i18n)
+- components/leaderboard/EmptyState.tsx (added difficulty-specific message)
+- components/layout/Header.tsx (added "Play" nav link)
+- components/profile/StatsDisplay.tsx (added perfectDayStreak display)
+- components/profile/ProfileStats.tsx (fetch perfect_day_streak from DB)
+- components/profile/ProfilePageClient.tsx (added perfectDayStreak type)
