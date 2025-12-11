@@ -3,18 +3,19 @@
 import { createServerActionClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import type { Result } from "@/lib/types/result";
+import type { DifficultyLevel } from "@/lib/types/difficulty";
 import * as Sentry from "@sentry/nextjs";
 
 export type Puzzle = {
   id: string;
   puzzle_date: string;
   puzzle_data: number[][];
-  difficulty: "easy" | "medium" | "hard";
+  difficulty: DifficultyLevel;
   solution?: number[][];
   puzzle_number: number;
 };
 
-export async function getPuzzleToday(): Promise<Result<Puzzle, string>> {
+export async function getPuzzleToday(difficulty: DifficultyLevel = "medium"): Promise<Result<Puzzle, string>> {
   try {
     const today = new Date().toISOString().split("T")[0];
     const supabase = await createServerActionClient();
@@ -25,17 +26,19 @@ export async function getPuzzleToday(): Promise<Result<Puzzle, string>> {
       .from("puzzles")
       .select("id, puzzle_date, puzzle_data, difficulty, solution, puzzle_number")
       .eq("puzzle_date", today)
+      .eq("difficulty", difficulty)
       .single();
 
     if (error || !data) {
       logger.warn("Daily puzzle not found", {
         puzzle_date: today,
+        difficulty,
         errorMessage: error?.message,
       });
 
       Sentry.captureMessage("Daily puzzle missing", {
         level: "warning",
-        extra: { puzzle_date: today, error: error?.message },
+        extra: { puzzle_date: today, difficulty, error: error?.message },
       });
 
       return {
@@ -54,7 +57,7 @@ export async function getPuzzleToday(): Promise<Result<Puzzle, string>> {
       id: data.id,
       puzzle_date: data.puzzle_date,
       puzzle_data: data.puzzle_data as number[][],
-      difficulty: data.difficulty as "easy" | "medium" | "hard",
+      difficulty: data.difficulty,
       puzzle_number: data.puzzle_number,
     };
 

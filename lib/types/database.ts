@@ -113,7 +113,7 @@ export type Database = {
       puzzles: {
         Row: {
           created_at: string
-          difficulty: string
+          difficulty: Database["public"]["Enums"]["difficulty_level"]
           id: string
           puzzle_data: Json
           puzzle_date: string
@@ -121,7 +121,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          difficulty: string
+          difficulty: Database["public"]["Enums"]["difficulty_level"]
           id?: string
           puzzle_data: Json
           puzzle_date: string
@@ -129,7 +129,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          difficulty?: string
+          difficulty?: Database["public"]["Enums"]["difficulty_level"]
           id?: string
           puzzle_data?: Json
           puzzle_date?: string
@@ -145,6 +145,7 @@ export type Database = {
           last_completion_date: string
           last_freeze_reset_date: string | null
           longest_streak: number
+          perfect_day_streak: number
           user_id: string | null
         }
         Insert: {
@@ -154,6 +155,7 @@ export type Database = {
           last_completion_date: string
           last_freeze_reset_date?: string | null
           longest_streak?: number
+          perfect_day_streak?: number
           user_id?: string | null
         }
         Update: {
@@ -163,6 +165,7 @@ export type Database = {
           last_completion_date?: string
           last_freeze_reset_date?: string | null
           longest_streak?: number
+          perfect_day_streak?: number
           user_id?: string | null
         }
         Relationships: [
@@ -210,7 +213,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      difficulty_level: "easy" | "medium" | "hard"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -337,6 +340,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      difficulty_level: ["easy", "medium", "hard"] as const,
+    },
   },
 } as const

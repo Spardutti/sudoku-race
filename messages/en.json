@@ -43,6 +43,23 @@
     "numbers": "Numbers",
     "pencilMarks": "Pencil Marks",
     "pencilMarksActive": "Pencil Marks Active",
+    "difficultyPicker": {
+      "title": "Choose Your Challenge",
+      "subtitle": "Select a difficulty to start today's sudoku",
+      "difficulties": {
+        "easy": {
+          "name": "Easy",
+          "description": "Perfect for beginners and quick sessions"
+        },
+        "medium": {
+          "name": "Medium",
+          "description": "Balanced challenge for regular players"
+        }
+      },
+      "completed": "Completed ✓",
+      "canPlayBoth": "You can play both difficulties each day",
+      "perfectDay": "🎉 Perfect Day! You completed both difficulties!"
+    },
     "instructions": {
       "title": "How to Play",
       "fillGrid": "Fill the 9×9 grid",

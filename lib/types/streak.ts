@@ -6,4 +6,5 @@ export type StreakData = {
   lastFreezeResetDate: string | null;
   freezeWasUsed: boolean;
   streakWasReset: boolean;
+  perfectDayStreak: number;
 };

@@ -4,9 +4,10 @@
  * Generates and stores a daily Sudoku puzzle in the database.
  * Uses sudoku-core library for puzzle generation and validation.
  *
- * Usage: npm run puzzle:seed
+ * Usage: npm run puzzle:seed [difficulty]
+ * Example: npm run puzzle:seed easy
  *
- * @see docs/tech-spec-epic-2.md (Section 2.1: Daily Puzzle Service Module)
+ * Story: 6.6 Multi-Difficulty Puzzle System
  */
 
 // Load environment variables from .env.local
@@ -16,6 +17,7 @@ dotenv.config({ path: ".env.local" });
 import { generate, solve, analyze } from "sudoku-core";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/types/database";
+import type { DifficultyLevel } from "@/lib/types/difficulty";
 
 // Create Supabase client for seed script
 // Use service role key to bypass RLS (puzzles table has no public INSERT policy)
@@ -55,11 +57,18 @@ function boardTo9x9Array(board: (number | null)[]): number[][] {
  * Generate and seed today's puzzle
  */
 async function seedPuzzle() {
+  const args = process.argv.slice(2);
+  const difficulty: DifficultyLevel = (args[0] as DifficultyLevel) || "medium";
+
+  if (!["easy", "medium", "hard"].includes(difficulty)) {
+    console.error("❌ Invalid difficulty. Use: easy, medium, or hard");
+    process.exit(1);
+  }
+
   console.log("🎲 Generating daily Sudoku puzzle...\n");
 
   try {
-    // Generate puzzle (medium difficulty for MVP)
-    const board = generate("medium");
+    const board = generate(difficulty);
 
     // Validate puzzle has unique solution
     const analysis = analyze(board);
@@ -87,7 +96,7 @@ async function seedPuzzle() {
     const puzzle_date = new Date().toISOString().split("T")[0];
 
     console.log(`📅 Puzzle date: ${puzzle_date}`);
-    console.log(`🧩 Difficulty: medium`);
+    console.log(`🧩 Difficulty: ${difficulty}`);
     console.log(`📊 Empty cells: ${board.filter((cell) => cell === null).length}\n`);
 
     // Insert puzzle into database
@@ -97,7 +106,7 @@ async function seedPuzzle() {
         puzzle_date,
         puzzle_data,
         solution,
-        difficulty: "medium",
+        difficulty,
       })
       .select("id, puzzle_date, difficulty")
       .single();

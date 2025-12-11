@@ -43,6 +43,23 @@
     "numbers": "Números",
     "pencilMarks": "Marcas de Lápiz",
     "pencilMarksActive": "Marcas de Lápiz Activas",
+    "difficultyPicker": {
+      "title": "Elige Tu Desafío",
+      "subtitle": "Selecciona una dificultad para comenzar el sudoku de hoy",
+      "difficulties": {
+        "easy": {
+          "name": "Fácil",
+          "description": "Perfecto para principiantes y sesiones rápidas"
+        },
+        "medium": {
+          "name": "Medio",
+          "description": "Desafío equilibrado para jugadores regulares"
+        }
+      },
+      "completed": "Completado ✓",
+      "canPlayBoth": "Puedes jugar ambas dificultades cada día",
+      "perfectDay": "🎉 ¡Día Perfecto! ¡Completaste ambas dificultades!"
+    },
     "instructions": {
       "title": "Cómo Jugar",
       "fillGrid": "Llena la cuadrícula de 9×9",
