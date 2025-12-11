@@ -13,6 +13,7 @@ interface LeaderboardTableProps {
   initialEntries: LeaderboardEntry[];
   personalRank?: PersonalRank;
   currentUserId?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 const getRankIcon = (rank: number): string => {
@@ -34,6 +35,7 @@ export function LeaderboardTable({
   initialEntries,
   personalRank: initialPersonalRank,
   currentUserId,
+  difficulty,
 }: LeaderboardTableProps) {
   const t = useTranslations('leaderboard');
   const { data: entries } = useLeaderboardQuery({
@@ -138,6 +140,7 @@ export function LeaderboardTable({
                         puzzleNumber={puzzleNumber}
                         puzzleId={puzzleId}
                         isGuest={!currentUserId}
+                        difficulty={difficulty}
                       />
                     )}
                   </td>

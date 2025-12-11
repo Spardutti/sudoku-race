@@ -11,6 +11,7 @@ export interface ShareTextParams {
   time: number;
   puzzleNumber: number;
   url: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export function formatTimeForShare(seconds: number): string {
@@ -28,17 +29,19 @@ export function generateShareText({
   time,
   puzzleNumber,
   url,
+  difficulty = 'medium',
 }: ShareTextParams): string {
   const formattedTime = formatTimeForShare(time);
   const encouragement = ENCOURAGEMENT_PHRASES[phraseIndex];
 
   phraseIndex = (phraseIndex + 1) % ENCOURAGEMENT_PHRASES.length;
 
-  const shareText = `I ranked #${rank} on Sudoku Race #${puzzleNumber}! ⏱️ ${formattedTime}. ${encouragement} ${url}`;
+  const difficultyLabel = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+  const shareText = `I ranked #${rank} on Sudoku Race ${difficultyLabel} #${puzzleNumber}! ⏱️ ${formattedTime}. ${encouragement} ${url}`;
 
   if (shareText.length > 280) {
     const truncatedUrl = url.split("?")[0];
-    return `I ranked #${rank} on Sudoku Race #${puzzleNumber}! ⏱️ ${formattedTime}. ${encouragement} ${truncatedUrl}`;
+    return `I ranked #${rank} on Sudoku Race ${difficultyLabel} #${puzzleNumber}! ⏱️ ${formattedTime}. ${encouragement} ${truncatedUrl}`;
   }
 
   return shareText;
@@ -61,7 +64,8 @@ export function generateEmojiShareText(
   puzzleUrl: string,
   channel?: 'twitter' | 'whatsapp' | 'clipboard',
   locale?: string,
-  streak?: number
+  streak?: number,
+  difficulty?: 'easy' | 'medium' | 'hard'
 ): string {
   const timeStr = formatTimeForShare(completionTime);
 
@@ -74,7 +78,14 @@ export function generateEmojiShareText(
     ? (locale === 'es' ? `\n🔥 Racha de ${streak} días` : `\n🔥 ${streak} day streak`)
     : '';
 
-  return `Sudoku Race #${puzzleNumber}\n⏱️ ${timeStr}${streakText}\n\n${emojiGrid}\n\n${playText} ${url}`;
+  const difficultyLabel = difficulty
+    ? (locale === 'es'
+        ? (difficulty === 'easy' ? 'Fácil' : difficulty === 'medium' ? 'Medio' : 'Difícil')
+        : difficulty.charAt(0).toUpperCase() + difficulty.slice(1))
+    : '';
+  const difficultyText = difficultyLabel ? ` ${difficultyLabel}` : '';
+
+  return `Sudoku Race${difficultyText} #${puzzleNumber}\n⏱️ ${timeStr}${streakText}\n\n${emojiGrid}\n\n${playText} ${url}`;
 }
 
 export function getPuzzleUrlWithUTM(channel: 'twitter' | 'whatsapp' | 'clipboard'): string {

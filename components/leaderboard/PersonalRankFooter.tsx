@@ -10,6 +10,7 @@ interface PersonalRankFooterProps {
   puzzleId: string;
   puzzleNumber: number;
   isGuest?: boolean;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export function PersonalRankFooter({
@@ -17,6 +18,7 @@ export function PersonalRankFooter({
   puzzleId,
   puzzleNumber,
   isGuest = false,
+  difficulty,
 }: PersonalRankFooterProps) {
   const t = useTranslations('leaderboard');
 
@@ -40,6 +42,7 @@ export function PersonalRankFooter({
           puzzleNumber={puzzleNumber}
           puzzleId={puzzleId}
           isGuest={isGuest}
+          difficulty={difficulty}
         />
       </div>
     </div>

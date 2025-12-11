@@ -28,6 +28,7 @@ interface ShareButtonProps {
   puzzleId: string;
   onShare?: (channel: "twitter" | "whatsapp" | "clipboard") => void;
   isGuest?: boolean;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export function ShareButton({
@@ -37,6 +38,7 @@ export function ShareButton({
   puzzleId,
   onShare,
   isGuest = false,
+  difficulty,
 }: ShareButtonProps) {
   const t = useTranslations('leaderboard');
   const tAuth = useTranslations('auth');
@@ -48,7 +50,7 @@ export function ShareButton({
     }
 
     const url = buildShareUrl(channel);
-    const shareText = generateShareText({ rank, time, puzzleNumber, url });
+    const shareText = generateShareText({ rank, time, puzzleNumber, url, difficulty });
 
     logShareEvent({
       puzzleId,
@@ -88,7 +90,7 @@ export function ShareButton({
   };
 
   const url = buildShareUrl("clipboard");
-  const shareText = generateShareText({ rank, time, puzzleNumber, url });
+  const shareText = generateShareText({ rank, time, puzzleNumber, url, difficulty });
 
   const previewLines = shareText.split("\n");
   const displayPreview =

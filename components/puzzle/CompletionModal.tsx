@@ -37,6 +37,7 @@ interface CompletionModalProps {
   solvePath: SolvePath;
   puzzleNumber: number;
   streakData?: StreakData;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 function formatTime(seconds: number): string {
@@ -56,6 +57,7 @@ export function CompletionModal({
   solvePath,
   puzzleNumber,
   streakData,
+  difficulty,
 }: CompletionModalProps) {
   const t = useTranslations('puzzle');
   const tCommon = useTranslations('common');
@@ -104,11 +106,12 @@ export function CompletionModal({
         puzzleUrl,
         'clipboard',
         locale,
-        streakData?.currentStreak
+        streakData?.currentStreak,
+        difficulty
       );
       setShareText(text);
     }
-  }, [emojiGrid, shareText, puzzleNumber, completionTime, locale, streakData]);
+  }, [emojiGrid, shareText, puzzleNumber, completionTime, locale, streakData, difficulty]);
 
   const guestRank = hypotheticalRank ?? null;
 
@@ -124,7 +127,8 @@ export function CompletionModal({
       getPuzzleUrl(),
       'clipboard',
       locale,
-      streakData?.currentStreak
+      streakData?.currentStreak,
+      difficulty
     );
 
     try {
@@ -174,7 +178,8 @@ export function CompletionModal({
       getPuzzleUrl(),
       'twitter',
       locale,
-      streakData?.currentStreak
+      streakData?.currentStreak,
+      difficulty
     );
 
     logShareEvent({
@@ -204,7 +209,8 @@ export function CompletionModal({
       getPuzzleUrl(),
       'whatsapp',
       locale,
-      streakData?.currentStreak
+      streakData?.currentStreak,
+      difficulty
     );
 
     logShareEvent({

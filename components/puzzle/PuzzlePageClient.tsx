@@ -57,6 +57,7 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
   const addPencilMark = usePuzzleStore((state) => state.addPencilMark);
   const removePencilMark = usePuzzleStore((state) => state.removePencilMark);
   const startPuzzle = usePuzzleStore((state) => state.startPuzzle);
+  const difficulty = usePuzzleStore((state) => state.difficulty);
 
   const isOnline = useNetworkStatus();
   const { user } = useAuthState();
@@ -370,6 +371,7 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
         solvePath={solvePath}
         puzzleNumber={puzzle.puzzle_number}
         streakData={streakData}
+        difficulty={difficulty ?? undefined}
       />
     </div>
   );

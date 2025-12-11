@@ -103,6 +103,7 @@ export default async function LeaderboardPage({ searchParams }: LeaderboardPageP
           initialEntries={entries}
           personalRank={personalRank ?? undefined}
           currentUserId={userId ?? undefined}
+          difficulty={difficulty}
         />
 
         {personalRank && (
@@ -111,6 +112,7 @@ export default async function LeaderboardPage({ searchParams }: LeaderboardPageP
             puzzleId={puzzle.id}
             puzzleNumber={puzzleNumber}
             isGuest={!userId}
+            difficulty={difficulty}
           />
         )}
       </div>
