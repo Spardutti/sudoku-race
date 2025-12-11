@@ -1,7 +1,10 @@
 import { SolvePath } from '@/lib/types/solve-path';
+import { DifficultyLevel } from '@/lib/types/difficulty';
 
 export interface PuzzleState {
   puzzleId: string | null;
+  difficulty: DifficultyLevel | null;
+  puzzleDate: string | null;
   puzzle: number[][] | null;
   userEntries: number[][];
   selectedCell: { row: number; col: number } | null;
@@ -17,7 +20,7 @@ export interface PuzzleState {
 }
 
 export interface PuzzleActions {
-  setPuzzle: (id: string, puzzle: number[][]) => void;
+  setPuzzle: (id: string, puzzle: number[][], difficulty: DifficultyLevel, puzzleDate: string) => void;
   updateCell: (row: number, col: number, value: number) => void;
   setSelectedCell: (cell: { row: number; col: number } | null) => void;
   setElapsedTime: (seconds: number) => void;

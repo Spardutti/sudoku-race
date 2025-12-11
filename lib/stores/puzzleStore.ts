@@ -9,6 +9,8 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
   persist(
     (set) => ({
       puzzleId: null,
+      difficulty: null,
+      puzzleDate: null,
       puzzle: null,
       userEntries: createEmptyGrid(),
       selectedCell: null,
@@ -22,7 +24,7 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
       isPaused: false,
       pausedAt: null,
 
-      setPuzzle: (id: string, puzzle: number[][]) =>
+      setPuzzle: (id: string, puzzle: number[][], difficulty, puzzleDate) =>
         set((state) => {
 
           // If same puzzle, just update puzzle data without resetting timer state
@@ -30,9 +32,11 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
             return { puzzle };
           }
 
-    
+
           return {
             puzzleId: id,
+            difficulty,
+            puzzleDate,
             puzzle,
             userEntries: createEmptyGrid(),
             selectedCell: null,
@@ -102,13 +106,15 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
         }),
 
       resetPuzzle: () => {
-        
+
 
         if (typeof window !== 'undefined') {
           localStorage.removeItem('sudoku-race-puzzle-state');
         }
         return set(() => ({
           puzzleId: null,
+          difficulty: null,
+          puzzleDate: null,
           puzzle: null,
           userEntries: createEmptyGrid(),
           selectedCell: null,
@@ -208,6 +214,8 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
       name: 'sudoku-race-puzzle-state',
       partialize: (state) => ({
         puzzleId: state.puzzleId,
+        difficulty: state.difficulty,
+        puzzleDate: state.puzzleDate,
         userEntries: state.userEntries,
         selectedCell: state.selectedCell,
         elapsedTime: state.elapsedTime,

@@ -73,11 +73,11 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
     const storedPuzzleId = usePuzzleStore.getState().puzzleId;
 
     if (!storedPuzzleId || storedPuzzleId !== puzzle.id) {
-      setPuzzle(puzzle.id, puzzle.puzzle_data);
+      setPuzzle(puzzle.id, puzzle.puzzle_data, puzzle.difficulty, puzzle.puzzle_date);
     } else if (!usePuzzleStore.getState().puzzle) {
       usePuzzleStore.setState({ puzzle: puzzle.puzzle_data });
     }
-  }, [puzzle.id, puzzle.puzzle_data, setPuzzle, isLoading]);
+  }, [puzzle.id, puzzle.puzzle_data, puzzle.difficulty, puzzle.puzzle_date, setPuzzle, isLoading]);
   useAutoSave(!!userId);
   useTimer();
   useMigrationNotification();

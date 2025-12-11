@@ -6,6 +6,7 @@ import { CheckCircle2, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useMemo } from "react";
 import type { PuzzleStatus } from "@/actions/puzzle-completion-check";
 
 type DifficultyPickerProps = {
@@ -24,12 +25,51 @@ const DIFFICULTY_CONFIG: Record<DifficultyLevel, { estimatedTime: string }> = {
   },
 };
 
+function getGuestPuzzleStatus(): PuzzleStatus | null {
+  if (typeof window === "undefined") return null;
+
+  const guestState = localStorage.getItem("sudoku-race-puzzle-state");
+  if (!guestState) return null;
+
+  try {
+    const parsed = JSON.parse(guestState);
+    const { puzzleDate, difficulty, isCompleted, isStarted } = parsed.state || {};
+
+    if (!puzzleDate || !difficulty) return null;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    if (puzzleDate !== today) return null;
+
+    if (!ACTIVE_DIFFICULTY_LEVELS.includes(difficulty)) return null;
+
+    return {
+      difficulty,
+      status: isCompleted ? "completed" : (isStarted ? "in-progress" : "not-started"),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function DifficultyPicker({ puzzleStatuses }: DifficultyPickerProps) {
   const t = useTranslations("puzzle.difficultyPicker");
   const params = useParams();
 
+  const mergedStatuses = useMemo(() => {
+    const guestStatus = getGuestPuzzleStatus();
+
+    if (!guestStatus) return puzzleStatuses;
+
+    const existingStatus = puzzleStatuses.find((s) => s.difficulty === guestStatus.difficulty);
+
+    if (existingStatus) return puzzleStatuses;
+
+    return [...puzzleStatuses, guestStatus];
+  }, [puzzleStatuses]);
+
   const getStatus = (difficulty: DifficultyLevel) => {
-    return puzzleStatuses.find((s) => s.difficulty === difficulty)?.status || "not-started";
+    return mergedStatuses.find((s) => s.difficulty === difficulty)?.status || "not-started";
   };
 
   return (
