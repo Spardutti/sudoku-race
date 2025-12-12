@@ -33,6 +33,18 @@ describe("share-text utilities", () => {
       expect(buildShareUrl("clipboard")).toContain("utm_source=share");
       expect(buildShareUrl("clipboard")).toContain("utm_medium=clipboard");
     });
+
+    it("includes difficulty in URL path when provided", () => {
+      expect(buildShareUrl("twitter", "easy")).toContain("/puzzle/easy");
+      expect(buildShareUrl("whatsapp", "medium")).toContain("/puzzle/medium");
+      expect(buildShareUrl("clipboard", "hard")).toContain("/puzzle/hard");
+    });
+
+    it("omits difficulty path when not provided", () => {
+      const url = buildShareUrl("twitter");
+      expect(url).not.toContain("/puzzle/easy");
+      expect(url).not.toContain("/puzzle/medium");
+    });
   });
 
   describe("generateShareText", () => {
@@ -45,7 +57,7 @@ describe("share-text utilities", () => {
       });
 
       expect(result).toContain("I ranked #23");
-      expect(result).toContain("Sudoku Daily #42");
+      expect(result).toContain("Sudoku Race Medium #42");
       expect(result).toContain("⏱️ 12:34");
       expect(result).toContain("https://sudokurace.com");
     });
@@ -159,7 +171,6 @@ describe("share-text utilities", () => {
   describe("getPuzzleUrlWithUTM", () => {
     it("generates URL with UTM parameters for each channel", () => {
       const twitterUrl = getPuzzleUrlWithUTM("twitter");
-      expect(twitterUrl).toContain("/puzzle");
       expect(twitterUrl).toContain("utm_source=share");
       expect(twitterUrl).toContain("utm_medium=twitter");
 
@@ -169,13 +180,26 @@ describe("share-text utilities", () => {
       const clipboardUrl = getPuzzleUrlWithUTM("clipboard");
       expect(clipboardUrl).toContain("utm_medium=clipboard");
     });
+
+    it("includes difficulty in URL path when provided", () => {
+      expect(getPuzzleUrlWithUTM("twitter", "easy")).toContain("/puzzle/easy");
+      expect(getPuzzleUrlWithUTM("whatsapp", "medium")).toContain("/puzzle/medium");
+      expect(getPuzzleUrlWithUTM("clipboard", "hard")).toContain("/puzzle/hard");
+    });
+
+    it("omits difficulty path when not provided", () => {
+      const url = getPuzzleUrlWithUTM("twitter");
+      expect(url).not.toContain("/puzzle/easy");
+      expect(url).not.toContain("/puzzle/medium");
+    });
   });
 
 
   describe("getPuzzleUrl", () => {
-    it("returns puzzle URL", () => {
+    it("returns base URL", () => {
       const result = getPuzzleUrl();
-      expect(result).toContain("/puzzle");
+      expect(result).toBeTruthy();
+      expect(typeof result).toBe("string");
     });
   });
 });

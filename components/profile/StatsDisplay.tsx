@@ -7,10 +7,18 @@ import { formatTime } from "@/lib/utils/formatTime";
 import { useTranslations } from "next-intl";
 
 interface StatsDisplayProps {
-  stats: {
-    totalPuzzlesSolved: number;
+  easyStats: {
+    totalSolved: number;
     averageTime: number | null;
     bestTime: number | null;
+  };
+  mediumStats: {
+    totalSolved: number;
+    averageTime: number | null;
+    bestTime: number | null;
+  };
+  combinedStats: {
+    totalPuzzles: number;
   };
   streak: {
     currentStreak: number;
@@ -19,10 +27,10 @@ interface StatsDisplayProps {
   } | null;
 }
 
-export function StatsDisplay({ stats, streak }: StatsDisplayProps) {
+export function StatsDisplay({ easyStats, mediumStats, combinedStats, streak }: StatsDisplayProps) {
   const t = useTranslations("profile");
 
-  if (stats.totalPuzzlesSolved === 0) {
+  if (combinedStats.totalPuzzles === 0) {
     return (
       <Card className="p-6 space-y-4">
         <Typography variant="h2" className="text-2xl">
@@ -36,36 +44,79 @@ export function StatsDisplay({ stats, streak }: StatsDisplayProps) {
   }
 
   return (
-    <Card className="p-6 space-y-4">
+    <Card className="p-6 space-y-6">
       <Typography variant="h2" className="text-2xl">
         {t("stats")}
       </Typography>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <StatItem
-          label={t("totalPuzzlesSolved")}
-          value={stats.totalPuzzlesSolved}
-        />
-        <StatItem
-          label={t("currentStreak")}
-          value={streak?.currentStreak ?? 0}
-        />
-        <StatItem
-          label={t("perfectDayStreak")}
-          value={streak?.perfectDayStreak ?? 0}
-        />
-        <StatItem
-          label={t("longestStreak")}
-          value={streak?.longestStreak ?? 0}
-        />
-        <StatItem
-          label={t("averageTime")}
-          value={stats.averageTime ? formatTime(stats.averageTime) : "—"}
-        />
-        <StatItem
-          label={t("bestTime")}
-          value={stats.bestTime ? formatTime(stats.bestTime) : "—"}
-        />
+      {/* Difficulty-specific stats - side by side on desktop, stacked on mobile */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Easy Stats */}
+        <div className="space-y-3">
+          <Typography variant="h3" className="text-lg font-semibold border-b pb-2">
+            {t("easyStats")}
+          </Typography>
+          <div className="grid grid-cols-2 gap-3">
+            <StatItem
+              label={t("totalSolved")}
+              value={easyStats.totalSolved}
+            />
+            <StatItem
+              label={t("averageTime")}
+              value={easyStats.averageTime ? formatTime(easyStats.averageTime) : "—"}
+            />
+            <StatItem
+              label={t("bestTime")}
+              value={easyStats.bestTime ? formatTime(easyStats.bestTime) : "—"}
+            />
+          </div>
+        </div>
+
+        {/* Medium Stats */}
+        <div className="space-y-3">
+          <Typography variant="h3" className="text-lg font-semibold border-b pb-2">
+            {t("mediumStats")}
+          </Typography>
+          <div className="grid grid-cols-2 gap-3">
+            <StatItem
+              label={t("totalSolved")}
+              value={mediumStats.totalSolved}
+            />
+            <StatItem
+              label={t("averageTime")}
+              value={mediumStats.averageTime ? formatTime(mediumStats.averageTime) : "—"}
+            />
+            <StatItem
+              label={t("bestTime")}
+              value={mediumStats.bestTime ? formatTime(mediumStats.bestTime) : "—"}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Combined Stats */}
+      <div className="space-y-3">
+        <Typography variant="h3" className="text-lg font-semibold border-b pb-2">
+          {t("combinedStats")}
+        </Typography>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <StatItem
+            label={t("totalPuzzlesSolved")}
+            value={combinedStats.totalPuzzles}
+          />
+          <StatItem
+            label={t("currentStreak")}
+            value={streak?.currentStreak ?? 0}
+          />
+          <StatItem
+            label={t("perfectDayStreak")}
+            value={streak?.perfectDayStreak ?? 0}
+          />
+          <StatItem
+            label={t("longestStreak")}
+            value={streak?.longestStreak ?? 0}
+          />
+        </div>
       </div>
     </Card>
   );

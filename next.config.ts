@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vercel.live",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vercel.live http://127.0.0.1:54321 ws://127.0.0.1:54321",
               "worker-src 'self'",
               "manifest-src 'self'",
               "img-src 'self' data: https:",

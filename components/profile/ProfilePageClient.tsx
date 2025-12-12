@@ -30,7 +30,10 @@ interface ProfilePageClientProps {
     freezeAvailable: boolean;
     lastFreezeResetDate: string | null;
   } | null;
-  completionMap: Record<string, { time: number; completed: boolean }>;
+  completionMap: Record<string, {
+    easy?: { time: number; completed: boolean };
+    medium?: { time: number; completed: boolean };
+  }>;
   todayISO: string;
 }
 

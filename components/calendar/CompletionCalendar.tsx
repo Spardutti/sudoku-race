@@ -6,8 +6,13 @@ import { CalendarCell } from "./CalendarCell";
 import { getLast30Days, getCalendarGrid, dateToKey } from "@/lib/utils/calendar-utils";
 import { useTranslations, useLocale } from "next-intl";
 
+type CompletionEntry = {
+  easy?: { time: number; completed: boolean };
+  medium?: { time: number; completed: boolean };
+};
+
 interface CompletionCalendarProps {
-  completionMap: Record<string, { time: number; completed: boolean }>;
+  completionMap: Record<string, CompletionEntry>;
   todayISO: string;
 }
 
@@ -85,16 +90,18 @@ export function CompletionCalendar({
 
                   const dateKey = dateToKey(date);
                   const completion = completionMap[dateKey];
-                  const isCompleted = !!completion?.completed;
-                  const completionTime = completion?.time ?? null;
+                  const hasEasy = !!completion?.easy?.completed;
+                  const hasMedium = !!completion?.medium?.completed;
                   const isToday = dateKey === todayISO;
 
                   return (
                     <CalendarCell
                       key={dateKey}
                       date={date}
-                      isCompleted={isCompleted}
-                      completionTime={completionTime}
+                      hasEasy={hasEasy}
+                      hasMedium={hasMedium}
+                      easyTime={completion?.easy?.time ?? null}
+                      mediumTime={completion?.medium?.time ?? null}
                       isToday={isToday}
                     />
                   );

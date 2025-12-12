@@ -15,13 +15,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, difficulty } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata.puzzle' });
 
+  const difficultyLabel = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+  const title = `${t('title')} - ${difficultyLabel}`;
+
   return {
-    title: `${t('title')} - ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`,
+    title,
     description: t('description'),
     openGraph: {
-      title: `${t('title')} - ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`,
+      title,
       description: t('description'),
       type: "website",
+      images: [
+        {
+          url: "/og1200.png",
+          width: 1200,
+          height: 630,
+          alt: `Sudoku Race ${difficultyLabel} - Daily Sudoku puzzle`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: t('description'),
+      images: ["/og1200.png"],
     },
   };
 }

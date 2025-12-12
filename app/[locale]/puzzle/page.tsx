@@ -16,6 +16,20 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       title: t('title'),
       description: t('description'),
       type: "website",
+      images: [
+        {
+          url: "/og1200.png",
+          width: 1200,
+          height: 630,
+          alt: "Sudoku Race - Daily Sudoku puzzle",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t('title'),
+      description: t('description'),
+      images: ["/og1200.png"],
     },
   };
 }

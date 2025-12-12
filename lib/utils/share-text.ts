@@ -47,9 +47,10 @@ export function generateShareText({
   return shareText;
 }
 
-export function buildShareUrl(channel: "twitter" | "whatsapp" | "clipboard"): string {
+export function buildShareUrl(channel: "twitter" | "whatsapp" | "clipboard", difficulty?: 'easy' | 'medium' | 'hard'): string {
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://sudokurace.com";
-  return `${baseUrl}?utm_source=share&utm_medium=${channel}`;
+  const path = difficulty ? `/puzzle/${difficulty}` : '';
+  return `${baseUrl}${path}?utm_source=share&utm_medium=${channel}`;
 }
 
 /**
@@ -70,7 +71,7 @@ export function generateEmojiShareText(
   const timeStr = formatTimeForShare(completionTime);
 
   const url = channel
-    ? getPuzzleUrlWithUTM(channel)
+    ? getPuzzleUrlWithUTM(channel, difficulty)
     : puzzleUrl;
 
   const playText = locale === 'es' ? 'Juega el puzzle de hoy:' : 'Play today\'s puzzle:';
@@ -88,12 +89,13 @@ export function generateEmojiShareText(
   return `Sudoku Race${difficultyText} #${puzzleNumber}\n⏱️ ${timeStr}${streakText}\n\n${emojiGrid}\n\n${playText} ${url}`;
 }
 
-export function getPuzzleUrlWithUTM(channel: 'twitter' | 'whatsapp' | 'clipboard'): string {
+export function getPuzzleUrlWithUTM(channel: 'twitter' | 'whatsapp' | 'clipboard', difficulty?: 'easy' | 'medium' | 'hard'): string {
   const baseUrl = typeof window !== 'undefined'
     ? window.location.origin
     : '/';
 
-  return `${baseUrl}?utm_source=share&utm_medium=${channel}`;
+  const path = difficulty ? `/puzzle/${difficulty}` : '';
+  return `${baseUrl}${path}?utm_source=share&utm_medium=${channel}`;
 }
 
 
