@@ -76,4 +76,24 @@ describe("validateReturnUrl", () => {
     expect(validateReturnUrl("/en/admin")).toBe("/");
     expect(validateReturnUrl("/es/api/users")).toBe("/");
   });
+
+  it("should allow /puzzle with difficulty suffix (easy, medium)", () => {
+    expect(validateReturnUrl("/puzzle/easy")).toBe("/puzzle/easy");
+    expect(validateReturnUrl("/puzzle/medium")).toBe("/puzzle/medium");
+  });
+
+  it("should allow /puzzle/difficulty with query params", () => {
+    expect(validateReturnUrl("/puzzle/easy?debug=true")).toBe("/puzzle/easy?debug=true");
+    expect(validateReturnUrl("/puzzle/medium?showCompletion=true")).toBe("/puzzle/medium?showCompletion=true");
+  });
+
+  it("should allow /puzzle/difficulty with locale prefix", () => {
+    expect(validateReturnUrl("/en/puzzle/easy")).toBe("/en/puzzle/easy");
+    expect(validateReturnUrl("/es/puzzle/medium")).toBe("/es/puzzle/medium");
+  });
+
+  it("should allow /puzzle/difficulty with locale and query params", () => {
+    expect(validateReturnUrl("/en/puzzle/easy?debug=true")).toBe("/en/puzzle/easy?debug=true");
+    expect(validateReturnUrl("/es/puzzle/medium?showCompletion=true")).toBe("/es/puzzle/medium?showCompletion=true");
+  });
 });

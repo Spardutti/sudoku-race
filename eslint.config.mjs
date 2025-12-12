@@ -28,6 +28,8 @@ const eslintConfig = defineConfig([
     // Testing artifacts:
     "coverage/**",
     "jest.config.js",
+    "test-results/**",
+    "playwright-report/**",
   ]),
 ]);
 

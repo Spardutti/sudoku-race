@@ -30,7 +30,8 @@ export async function ProfileCalendar({ userId }: ProfileCalendarProps) {
     ?.reduce((acc, c) => {
       if (!c.completed_at || !c.puzzles || typeof c.puzzles !== 'object') return acc;
       const dateKey = dateToKey(new Date(c.completed_at));
-      const difficulty = (c.puzzles as { difficulty: string }).difficulty as 'easy' | 'medium';
+      const puzzleData = Array.isArray(c.puzzles) ? c.puzzles[0] : c.puzzles;
+      const difficulty = (puzzleData as { difficulty: string }).difficulty as 'easy' | 'medium';
 
       if (!acc[dateKey]) {
         acc[dateKey] = {};
