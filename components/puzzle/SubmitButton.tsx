@@ -36,6 +36,7 @@ export function SubmitButton({
       disabled={isDisabled || isLoading}
       className="w-full"
       aria-label={getAriaLabel()}
+      data-testid="submit-button"
     >
       {getButtonText()}
     </Button>

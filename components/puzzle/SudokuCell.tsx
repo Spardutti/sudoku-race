@@ -37,6 +37,8 @@ export const SudokuCell = React.memo<SudokuCellProps>(function SudokuCell({
       type="button"
       role="gridcell"
       aria-label={ariaLabel}
+      aria-readonly={isClue}
+      data-testid={`sudoku-cell-${row}-${col}`}
       className={cn(
         "w-full aspect-square flex items-center justify-center",
         "text-lg font-sans border border-gray-300",

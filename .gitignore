@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/playwright/.cache/
 
 # next.js
 /.next/
@@ -50,3 +53,4 @@ public/swe-worker*
 
 .claude
 bmad
+.bmad

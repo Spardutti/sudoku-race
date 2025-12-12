@@ -17,15 +17,20 @@ import { createSolvedGrid } from '../support/fixtures/factories/puzzle.factory';
 test.describe('Sudoku Completion - Guest User', () => {
   test.beforeEach(async ({ page }) => {
     // GIVEN: Guest user navigates to puzzle page
-    await page.goto('/puzzle');
+    await page.goto('/puzzle/easy');
 
     // Wait for puzzle to load
     await page.waitForSelector('[data-testid="sudoku-grid"]');
+
+    // Close "How to Play" modal if visible
+    const howToPlayButton = page.locator('text="Got it!"');
+    if (await howToPlayButton.isVisible()) {
+      await howToPlayButton.click();
+    }
   });
 
   test('should display completion modal with time when puzzle is completed', async ({ page }) => {
-    // GIVEN: Puzzle is loaded and started
-    await page.click('[data-testid="start-puzzle-button"]');
+    // GIVEN: Puzzle is loaded and started (auto-started)
 
     // WHEN: User completes the puzzle with correct solution
     const solvedGrid = createSolvedGrid();
@@ -40,7 +45,6 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should display hypothetical rank for guest user', async ({ page }) => {
     // GIVEN: Puzzle is completed by guest user
-    await page.click('[data-testid="start-puzzle-button"]');
     const solvedGrid = createSolvedGrid();
     await fillSudokuGrid(page, solvedGrid);
     await page.click('[data-testid="submit-button"]');
@@ -53,7 +57,6 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should display sign-in prompt for guest user', async ({ page }) => {
     // GIVEN: Puzzle is completed by guest user
-    await page.click('[data-testid="start-puzzle-button"]');
     const solvedGrid = createSolvedGrid();
     await fillSudokuGrid(page, solvedGrid);
     await page.click('[data-testid="submit-button"]');
@@ -66,7 +69,6 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should display emoji grid visualization in share preview', async ({ page }) => {
     // GIVEN: Puzzle is completed
-    await page.click('[data-testid="start-puzzle-button"]');
     const solvedGrid = createSolvedGrid();
     await fillSudokuGrid(page, solvedGrid);
     await page.click('[data-testid="submit-button"]');
@@ -79,7 +81,6 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should copy share text to clipboard when copy button is clicked', async ({ page, context }) => {
     // GIVEN: Puzzle is completed
-    await page.click('[data-testid="start-puzzle-button"]');
     const solvedGrid = createSolvedGrid();
     await fillSudokuGrid(page, solvedGrid);
     await page.click('[data-testid="submit-button"]');
@@ -101,7 +102,6 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should open Twitter share when Twitter button is clicked', async ({ page, context }) => {
     // GIVEN: Puzzle is completed
-    await page.click('[data-testid="start-puzzle-button"]');
     const solvedGrid = createSolvedGrid();
     await fillSudokuGrid(page, solvedGrid);
     await page.click('[data-testid="submit-button"]');
@@ -120,7 +120,6 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should open WhatsApp share when WhatsApp button is clicked', async ({ page, context }) => {
     // GIVEN: Puzzle is completed
-    await page.click('[data-testid="start-puzzle-button"]');
     const solvedGrid = createSolvedGrid();
     await fillSudokuGrid(page, solvedGrid);
     await page.click('[data-testid="submit-button"]');
@@ -139,7 +138,6 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should close completion modal when close button is clicked', async ({ page }) => {
     // GIVEN: Completion modal is displayed
-    await page.click('[data-testid="start-puzzle-button"]');
     const solvedGrid = createSolvedGrid();
     await fillSudokuGrid(page, solvedGrid);
     await page.click('[data-testid="submit-button"]');
@@ -173,8 +171,8 @@ async function fillSudokuGrid(page: Page, solvedGrid: number[][]): Promise<void>
         // Click cell to select it
         await cell.click();
 
-        // Fill value using number pad or keyboard
-        await page.click(`[data-testid="number-pad-${value}"]`);
+        // Use keyboard to enter value (NumberPad hidden on desktop)
+        await page.keyboard.press(value.toString());
       }
     }
   }

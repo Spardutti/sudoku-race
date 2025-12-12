@@ -180,7 +180,8 @@ async function fillSudokuGrid(page: Page, solvedGrid: number[][]): Promise<void>
       if (isReadOnly !== 'true') {
         const value = solvedGrid[row][col];
         await cell.click();
-        await page.click(`[data-testid="number-pad-${value}"]`);
+        // Use keyboard to enter value (NumberPad hidden on desktop)
+        await page.keyboard.press(value.toString());
       }
     }
   }

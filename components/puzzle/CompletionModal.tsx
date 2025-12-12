@@ -252,7 +252,7 @@ export function CompletionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg" data-testid="completion-modal">
         <DialogHeader>
           <DialogTitle className="text-center font-serif text-2xl sm:text-3xl font-bold text-gray-900">
             {t('congratulations')}
@@ -261,7 +261,7 @@ export function CompletionModal({
 
         <div className="text-center mb-1 sm:mb-6">
           <p className="mb-0 sm:mb-2 text-sm sm:text-base text-gray-600">{t('yourTime')}</p>
-          <p className="font-mono text-3xl sm:text-4xl font-bold text-gray-900">
+          <p className="font-mono text-3xl sm:text-4xl font-bold text-gray-900" data-testid="completion-time">
             {formatTime(completionTime)}
           </p>
         </div>

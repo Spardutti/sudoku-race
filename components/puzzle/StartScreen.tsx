@@ -25,6 +25,7 @@ export function StartScreen({ puzzleNumber, onStart }: StartScreenProps) {
           onClick={onStart}
           size="lg"
           aria-label="Start puzzle timer"
+          data-testid="start-puzzle-button"
         >
           {t('startButton')}
         </Button>

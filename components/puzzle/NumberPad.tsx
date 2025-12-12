@@ -54,6 +54,7 @@ export const NumberPad = React.memo<NumberPadProps>(function NumberPad({
               onClick={() => handleNumberClick(num)}
               disabled={!selectedCell}
               aria-label={`Number ${num}`}
+              data-testid={`number-pad-${num}`}
               className={cn(
                 "min-w-11 min-h-11 h-10",
                 "landscape:min-h-10 landscape:h-8",
