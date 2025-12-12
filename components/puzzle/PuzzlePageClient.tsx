@@ -295,6 +295,7 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
               onNumberChange={handleNumberChange}
               pencilMarks={pencilMarks}
               isBlurred={!isStarted || isPaused}
+              solution={puzzle.solution}
             />
           </div>
         </section>

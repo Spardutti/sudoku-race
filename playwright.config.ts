@@ -1,8 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 
-// Load environment variables from .env file
-dotenv.config();
+// Load test environment variables from .env.test
+dotenv.config({ path: '.env.test' });
 
 /**
  * Playwright configuration for sudoku-race E2E tests

@@ -6,35 +6,41 @@ Detailed task breakdown for making E2E tests pass (RED → GREEN).
 
 ---
 
-## Task 1: Basic Completion Flow
+## Task 1: Basic Completion Flow ✅
 
-**Test:** `tests/e2e/sudoku-completion-guest.spec.ts:18`
+**Test:** `tests/e2e/sudoku-completion-guest.spec.ts:32`
 
 **Goal:** Guest user completes puzzle and sees completion time
 
 ### Subtasks
 
-- [ ] Add `data-testid="sudoku-grid"` to SudokuGrid component
-- [ ] Add `data-testid="start-puzzle-button"` to StartScreen component
-- [ ] Add `data-testid="sudoku-cell-{row}-{col}"` to each SudokuCell
-- [ ] Add `aria-readonly` attribute to cells (true for givens, false for editable)
-- [ ] Add `data-testid="number-pad-{value}"` to NumberPad buttons (1-9)
-- [ ] Add `data-testid="submit-button"` to SubmitButton component
-- [ ] Add `data-testid="completion-modal"` to CompletionModal Dialog
-- [ ] Add `data-testid="completion-time"` to completion time display
-- [ ] Ensure completion time format is MM:SS
-- [ ] Run test: `npm run test:e2e tests/e2e/sudoku-completion-guest.spec.ts:18`
+- [x] Add `data-testid="sudoku-grid"` to SudokuGrid component
+- [x] Add `data-testid="start-puzzle-button"` to StartScreen component
+- [x] Add `data-testid="sudoku-cell-{row}-{col}"` to each SudokuCell
+- [x] Add `aria-readonly` attribute to cells (true for givens, false for editable)
+- [x] Add `data-testid="number-pad-{value}"` to NumberPad buttons (1-9)
+- [x] Add `data-testid="submit-button"` to SubmitButton component
+- [x] Add `data-testid="completion-modal"` to CompletionModal Dialog
+- [x] Add `data-testid="completion-time"` to completion time display
+- [x] Ensure completion time format is MM:SS (already formatted)
+- [x] Update test to use keyboard input instead of NumberPad (hidden on desktop)
+- [x] Update test to close "How to Play" modal in beforeEach
+- [ ] Run test: `npm run test:e2e tests/e2e/sudoku-completion-guest.spec.ts:32`
 - [ ] ✅ Test passes
 
-**Files to modify:**
-- `components/puzzle/SudokuGrid.tsx`
-- `components/puzzle/SudokuCell.tsx`
-- `components/puzzle/StartScreen.tsx`
-- `components/puzzle/NumberPad.tsx`
-- `components/puzzle/SubmitButton.tsx`
-- `components/puzzle/CompletionModal.tsx`
+**Files modified:**
+- `components/puzzle/SudokuGrid.tsx:132` - Added data-testid
+- `components/puzzle/SudokuCell.tsx:40-41` - Added aria-readonly + data-testid
+- `components/puzzle/StartScreen.tsx:28` - Added data-testid
+- `components/puzzle/NumberPad.tsx:57` - Added data-testid
+- `components/puzzle/SubmitButton.tsx:39` - Added data-testid
+- `components/puzzle/CompletionModal.tsx:255,264` - Added data-testids
+- `components/ui/dialog.tsx:46` - Added close button data-testid
+- `tests/e2e/sudoku-completion-guest.spec.ts` - Updated for keyboard input
 
-**Effort:** 2-3 hours
+**Commit:** `e1b8a57`
+
+**Status:** Data-testids complete. Tests blocked by missing completion modal features (Tasks 2-8).
 
 ---
 

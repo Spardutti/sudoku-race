@@ -12,7 +12,6 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
-import { createSolvedGrid } from '../support/fixtures/factories/puzzle.factory';
 import { createTestUserViaAPI, deleteTestUserViaAPI, signInViaUI } from '../support/helpers/auth.helper';
 import { faker } from '@faker-js/faker';
 
@@ -29,7 +28,7 @@ test.describe('Sudoku Completion - Authenticated User', () => {
     await signInViaUI(page, testUser);
 
     // Navigate to puzzle
-    await page.goto('/puzzle');
+    await page.goto('/puzzle/easy');
     await page.waitForSelector('[data-testid="sudoku-grid"]');
   });
 
@@ -45,8 +44,7 @@ test.describe('Sudoku Completion - Authenticated User', () => {
     await page.click('[data-testid="start-puzzle-button"]');
 
     // WHEN: User completes the puzzle
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // THEN: Completion modal appears with time
@@ -58,8 +56,7 @@ test.describe('Sudoku Completion - Authenticated User', () => {
   test('should display actual leaderboard rank for authenticated user', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle
     await page.click('[data-testid="start-puzzle-button"]');
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // THEN: Actual rank is displayed (not hypothetical)
@@ -71,8 +68,7 @@ test.describe('Sudoku Completion - Authenticated User', () => {
   test('should display current streak information', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle
     await page.click('[data-testid="start-puzzle-button"]');
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // THEN: Streak information is displayed
@@ -84,8 +80,7 @@ test.describe('Sudoku Completion - Authenticated User', () => {
   test('should show freeze status tooltip when hovering over streak', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle with active streak
     await page.click('[data-testid="start-puzzle-button"]');
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
     await expect(page.locator('[data-testid="streak-display"]')).toBeVisible();
 
@@ -99,8 +94,7 @@ test.describe('Sudoku Completion - Authenticated User', () => {
   test('should include streak count in share text for authenticated user', async ({ page, context }) => {
     // GIVEN: Authenticated user with streak completes puzzle
     await page.click('[data-testid="start-puzzle-button"]');
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // Grant clipboard permissions
@@ -119,8 +113,7 @@ test.describe('Sudoku Completion - Authenticated User', () => {
   test('should NOT show sign-in prompt for authenticated user', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle
     await page.click('[data-testid="start-puzzle-button"]');
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // THEN: Sign-in prompt is NOT displayed
@@ -132,8 +125,7 @@ test.describe('Sudoku Completion - Authenticated User', () => {
   test('should persist completion data to database with rank', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle
     await page.click('[data-testid="start-puzzle-button"]');
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
 
     // WHEN: User submits completed puzzle
     const submitPromise = page.waitForResponse(
@@ -152,8 +144,7 @@ test.describe('Sudoku Completion - Authenticated User', () => {
   test('should display emoji grid with difficulty indicator in share preview', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle
     await page.click('[data-testid="start-puzzle-button"]');
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // THEN: Share preview includes emoji grid and difficulty
@@ -166,9 +157,27 @@ test.describe('Sudoku Completion - Authenticated User', () => {
 });
 
 /**
- * Helper function to fill sudoku grid with solved values
+ * Solve the puzzle using sudoku-core and fill cells
  */
-async function fillSudokuGrid(page: Page, solvedGrid: number[][]): Promise<void> {
+async function solvePuzzleOnPage(page: Page): Promise<void> {
+  // Read the current puzzle state from the grid
+  const puzzleGrid: number[][] = [];
+
+  for (let row = 0; row < 9; row++) {
+    puzzleGrid[row] = [];
+    for (let col = 0; col < 9; col++) {
+      const cellSelector = `[data-testid="sudoku-cell-${row}-${col}"]`;
+      const cellValue = await page.locator(cellSelector).textContent();
+      // Empty cells have no text, filled cells have 1-9
+      puzzleGrid[row][col] = cellValue && cellValue.trim() ? parseInt(cellValue.trim()) : 0;
+    }
+  }
+
+  // Solve it in Node.js context (has access to sudoku-core)
+  const { solve } = await import('sudoku-core');
+  const solution = solve(puzzleGrid);
+
+  // Fill each cell with the solution
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
       const cellSelector = `[data-testid="sudoku-cell-${row}-${col}"]`;
@@ -178,11 +187,17 @@ async function fillSudokuGrid(page: Page, solvedGrid: number[][]): Promise<void>
       const isReadOnly = await cell.getAttribute('aria-readonly');
 
       if (isReadOnly !== 'true') {
-        const value = solvedGrid[row][col];
+        const value = solution[row][col];
+
+        // Click cell to select it
         await cell.click();
-        // Use keyboard to enter value (NumberPad hidden on desktop)
+
+        // Press keyboard number
         await page.keyboard.press(value.toString());
       }
     }
   }
+
+  // Wait for UI to settle
+  await page.waitForTimeout(500);
 }

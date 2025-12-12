@@ -12,6 +12,7 @@ export interface SudokuGridProps {
   onNumberChange: (row: number, col: number, value: number) => void;
   pencilMarks?: Record<string, number[]>;
   isBlurred?: boolean;
+  solution?: number[][];
 }
 
 export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
@@ -21,6 +22,7 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
   onCellSelect,
   pencilMarks = {},
   isBlurred = false,
+  solution,
 }) {
   const gridRef = React.useRef<HTMLDivElement>(null);
 
@@ -130,6 +132,7 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
       role="grid"
       aria-label="Sudoku puzzle grid"
       data-testid="sudoku-grid"
+      {...(process.env.NODE_ENV !== 'production' && solution ? { 'data-solution': JSON.stringify(solution) } : {})}
       className={cn(
         "grid grid-cols-9 grid-rows-9",
         "w-full sm:max-w-[540px] mx-auto box-border",

@@ -12,9 +12,9 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
-import { createSolvedGrid } from '../support/fixtures/factories/puzzle.factory';
 
 test.describe('Sudoku Completion - Guest User', () => {
+
   test.beforeEach(async ({ page }) => {
     // GIVEN: Guest user navigates to puzzle page
     await page.goto('/puzzle/easy');
@@ -33,8 +33,7 @@ test.describe('Sudoku Completion - Guest User', () => {
     // GIVEN: Puzzle is loaded and started (auto-started)
 
     // WHEN: User completes the puzzle with correct solution
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // THEN: Completion modal appears with completion time
@@ -45,8 +44,7 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should display hypothetical rank for guest user', async ({ page }) => {
     // GIVEN: Puzzle is completed by guest user
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // THEN: Hypothetical rank is displayed
@@ -57,8 +55,7 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should display sign-in prompt for guest user', async ({ page }) => {
     // GIVEN: Puzzle is completed by guest user
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // THEN: Sign-in prompt is displayed with benefits
@@ -69,8 +66,7 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should display emoji grid visualization in share preview', async ({ page }) => {
     // GIVEN: Puzzle is completed
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // THEN: Emoji grid is displayed in share preview
@@ -81,8 +77,7 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should copy share text to clipboard when copy button is clicked', async ({ page, context }) => {
     // GIVEN: Puzzle is completed
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // Grant clipboard permissions
@@ -102,8 +97,7 @@ test.describe('Sudoku Completion - Guest User', () => {
 
   test('should open Twitter share when Twitter button is clicked', async ({ page, context }) => {
     // GIVEN: Puzzle is completed
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // WHEN: User clicks Twitter share button
@@ -112,16 +106,15 @@ test.describe('Sudoku Completion - Guest User', () => {
       page.click('[data-testid="twitter-share-button"]'),
     ]);
 
-    // THEN: Twitter share window opens with correct URL
+    // THEN: Twitter share window opens with correct URL (Twitter/X)
     await popup.waitForLoadState();
-    expect(popup.url()).toContain('twitter.com/intent/tweet');
+    expect(popup.url()).toMatch(/(?:twitter\.com\/intent\/tweet|x\.com\/intent\/post)/);
     await popup.close();
   });
 
   test('should open WhatsApp share when WhatsApp button is clicked', async ({ page, context }) => {
     // GIVEN: Puzzle is completed
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
     // WHEN: User clicks WhatsApp share button
@@ -131,15 +124,14 @@ test.describe('Sudoku Completion - Guest User', () => {
     ]);
 
     // THEN: WhatsApp share window opens with correct URL
-    await popup.waitForLoadState();
-    expect(popup.url()).toContain('wa.me');
+    await popup.waitForLoadState('domcontentloaded', { timeout: 5000 });
+    expect(popup.url()).toMatch(/(?:wa\.me|api\.whatsapp\.com)/);
     await popup.close();
   });
 
   test('should close completion modal when close button is clicked', async ({ page }) => {
     // GIVEN: Completion modal is displayed
-    const solvedGrid = createSolvedGrid();
-    await fillSudokuGrid(page, solvedGrid);
+    await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
     await expect(page.locator('[data-testid="completion-modal"]')).toBeVisible();
 
@@ -152,28 +144,40 @@ test.describe('Sudoku Completion - Guest User', () => {
 });
 
 /**
- * Helper function to fill sudoku grid with solved values
- *
- * Fills all empty cells in the grid with values from the solved grid.
+ * Solve the puzzle using solution from DB (via data-solution attribute)
  */
-async function fillSudokuGrid(page: Page, solvedGrid: number[][]): Promise<void> {
+async function solvePuzzleOnPage(page: Page): Promise<void> {
+  // Get solution from data-solution attribute (already fetched from DB)
+  const gridElement = page.locator('[data-testid="sudoku-grid"]');
+  const solutionAttr = await gridElement.getAttribute('data-solution');
+
+  if (!solutionAttr) {
+    throw new Error('Solution not found in grid data attribute');
+  }
+
+  const solution: number[][] = JSON.parse(solutionAttr);
+
+  // Fill each cell with the solution
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
       const cellSelector = `[data-testid="sudoku-cell-${row}-${col}"]`;
       const cell = page.locator(cellSelector);
 
-      // Check if cell is editable (not a given number)
+      // Check if cell is editable
       const isReadOnly = await cell.getAttribute('aria-readonly');
 
       if (isReadOnly !== 'true') {
-        const value = solvedGrid[row][col];
+        const value = solution[row][col];
 
         // Click cell to select it
         await cell.click();
 
-        // Use keyboard to enter value (NumberPad hidden on desktop)
+        // Press keyboard number
         await page.keyboard.press(value.toString());
       }
     }
   }
+
+  // Wait for UI to settle
+  await page.waitForTimeout(500);
 }

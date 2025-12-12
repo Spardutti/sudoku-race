@@ -23,7 +23,6 @@
     "db:push": "supabase db push --linked",
     "migration:new": "supabase migration new",
     "puzzle:seed": "tsx scripts/seed-puzzle.ts",
-    "puzzle:seed:multiple": "tsx scripts/seed-multiple-puzzles.ts",
     "puzzle:seed:multi": "tsx scripts/seed-multi-difficulty.ts"
   },
   "dependencies": {

@@ -269,7 +269,7 @@ export function CompletionModal({
         {shareText && (
           <div className="mb-1 sm:mb-6">
             <p className="mb-1 sm:mb-2 text-xs sm:text-sm text-gray-600">{t('previewShareText')}</p>
-            <div className="rounded-md border border-gray-200 bg-gray-50 p-2 sm:p-3">
+            <div className="rounded-md border border-gray-200 bg-gray-50 p-2 sm:p-3" data-testid="share-preview">
               <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs text-gray-700">
                 {shareText}
               </pre>
@@ -283,6 +283,7 @@ export function CompletionModal({
               onClick={handleTwitterShare}
               className="flex-1 h-9 sm:h-10"
               aria-label="Share puzzle results on Twitter"
+              data-testid="twitter-share-button"
             >
               <Twitter className="mr-2 h-4 w-4" />
               Twitter
@@ -291,6 +292,7 @@ export function CompletionModal({
               onClick={handleWhatsAppShare}
               className="flex-1 h-9 sm:h-10"
               aria-label="Share puzzle results via WhatsApp"
+              data-testid="whatsapp-share-button"
             >
               <MessageCircle className="mr-2 h-4 w-4" />
               WhatsApp
@@ -299,6 +301,7 @@ export function CompletionModal({
               onClick={handleCopyToClipboard}
               className="flex-1 h-9 sm:h-10"
               aria-label="Copy puzzle results to clipboard"
+              data-testid="copy-clipboard-button"
             >
               {copyError ? (
                 <>
@@ -353,8 +356,8 @@ export function CompletionModal({
             )}
           </div>
         ) : (
-          <div className="rounded-md border-2 border-gray-200 bg-gray-50 p-3 sm:p-4">
-            <p className="mb-2 sm:mb-3 text-base sm:text-lg font-semibold text-gray-900">
+          <div className="rounded-md border-2 border-gray-200 bg-gray-50 p-3 sm:p-4" data-testid="sign-in-prompt">
+            <p className="mb-2 sm:mb-3 text-base sm:text-lg font-semibold text-gray-900" data-testid="hypothetical-rank-message">
               {isLoadingRank
                 ? t('calculatingRank')
                 : guestRank !== null
@@ -373,7 +376,7 @@ export function CompletionModal({
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                <Button onClick={() => setShowAuthButtons(true)} className="w-full">{t('signIn')}</Button>
+                <Button onClick={() => setShowAuthButtons(true)} className="w-full" data-testid="sign-in-button">{t('signIn')}</Button>
                 <Button onClick={onClose} variant="secondary" className="w-full">
                   {t('maybeLater')}
                 </Button>
