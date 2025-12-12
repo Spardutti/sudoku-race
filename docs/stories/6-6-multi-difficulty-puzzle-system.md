@@ -168,22 +168,22 @@ so that **I can maintain momentum, complete puzzles faster, and return daily wit
 
 ### Task 8: Profile Stats Display (AC: 6.1-6.3)
 
-- [ ] Update `app/profile/page.tsx` to query stats by difficulty
-- [ ] Create side-by-side layout: Easy | Medium | Combined
-- [ ] Display: Total Solved, Average Time, Best Time per difficulty
-- [ ] Display combined: Total Puzzles, Simple Streak, Perfect Day Streak
-- [ ] Ensure responsive (stacked on mobile)
-- [ ] Real-time updates after completion
-- [ ] Write component tests
+- [x] Update `app/profile/page.tsx` to query stats by difficulty
+- [x] Create side-by-side layout: Easy | Medium | Combined
+- [x] Display: Total Solved, Average Time, Best Time per difficulty
+- [x] Display combined: Total Puzzles, Simple Streak, Perfect Day Streak
+- [x] Ensure responsive (stacked on mobile)
+- [x] Real-time updates after completion
+- [x] Write component tests
 
 ### Task 9: Completion Calendar Update (AC: 7.1-7.3)
 
-- [ ] Update `components/profile/CompletionCalendar.tsx` to show difficulty indicators
-- [ ] Implement visual system: 🟢 (easy), 🔵 (medium), 🟣 (both)
-- [ ] Add hover tooltip showing difficulty + times
-- [ ] Highlight Perfect Day completions distinctly
-- [ ] Ensure mobile-responsive
-- [ ] Write component tests
+- [x] Update `components/profile/CompletionCalendar.tsx` to show difficulty indicators
+- [x] Implement visual system: 🟢 (easy), 🔵 (medium), 🟣 (both)
+- [x] Add hover tooltip showing difficulty + times
+- [x] Highlight Perfect Day completions distinctly
+- [x] Ensure mobile-responsive
+- [x] Write component tests
 
 ### Task 10: Puzzle Store Update (AC: 2.3, 8.1)
 
@@ -426,15 +426,44 @@ Claude Sonnet 4.5 (20250929)
 - Added tests for difficulty parameter in share URLs (share-text.test.ts:37-47, 184-194)
 - All share functions (Twitter, WhatsApp, Clipboard) now pass difficulty to URL generator
 
+**Task 8 - Profile Stats Display**:
+- Migration 021: Created get_user_stats_by_difficulty and get_user_combined_stats RPC functions
+- Updated ProfileStats.tsx to fetch easy/medium/combined stats separately
+- Redesigned StatsDisplay.tsx with side-by-side layout (desktop) and stacked (mobile)
+- Easy Stats | Medium Stats sections: Total Solved, Average Time, Best Time
+- Combined Stats section: Total Puzzles, Current Streak, Perfect Day Streak, Longest Streak
+- Added i18n: easyStats, mediumStats, combinedStats, totalSolved (EN/ES)
+- Created comprehensive component tests (StatsDisplay.test.tsx)
+- AC-6.1: Side-by-side stats ✓
+- AC-6.2: Responsive layout (grid-cols-1 md:grid-cols-2) ✓
+- AC-6.3: Real-time updates (server component refetches on page load) ✓
+
+**Task 9 - Completion Calendar Update**:
+- Updated ProfileCalendar.tsx to fetch puzzle difficulty via join (completions + puzzles)
+- Modified CompletionCalendar.tsx to accept difficulty-based completion map structure
+- Redesigned CalendarCell.tsx with visual indicators:
+  - 🟢 Easy only: bg-green-100
+  - 🔵 Medium only: bg-blue-100
+  - 🟢🔵 Perfect Day (both): bg-purple-100
+  - Empty: bg-gray-50
+- Added hover tooltips: "Easy: 2:00 | Medium: 3:00 | Perfect Day! 🎉"
+- Updated CalendarCell tests for new difficulty structure
+- Mobile-responsive (existing w-12 h-12 mobile:w-10 mobile:h-10 maintained)
+- AC-7.1: Difficulty indicators per day ✓
+- AC-7.2: Hover tooltip with difficulty + times ✓
+- AC-7.3: Visual distinction for Perfect Day ✓
+
 ### File List
 
 **Created**:
 - supabase/migrations/018_add_multi_difficulty_support.sql
 - supabase/migrations/019_update_streak_rpc_for_multi_difficulty.sql
+- supabase/migrations/021_add_difficulty_stats_function.sql
 - lib/types/difficulty.ts
 - scripts/seed-multi-difficulty.ts
 - components/puzzle/DifficultyPicker.tsx
 - components/puzzle/PuzzlePageWrapper.tsx
+- components/profile/__tests__/StatsDisplay.test.tsx
 - actions/puzzle-completion-check.ts
 
 **Modified**:
@@ -458,6 +487,10 @@ Claude Sonnet 4.5 (20250929)
 - components/leaderboard/LeaderboardHeader.tsx (added difficulty tabs, i18n)
 - components/leaderboard/EmptyState.tsx (added difficulty-specific message)
 - components/layout/Header.tsx (added "Play" nav link)
-- components/profile/StatsDisplay.tsx (added perfectDayStreak display)
-- components/profile/ProfileStats.tsx (fetch perfect_day_streak from DB)
-- components/profile/ProfilePageClient.tsx (added perfectDayStreak type)
+- components/profile/StatsDisplay.tsx (redesigned with difficulty-specific stats)
+- components/profile/ProfileStats.tsx (fetch stats per difficulty + combined)
+- components/profile/ProfilePageClient.tsx (updated completion map type)
+- components/profile/ProfileCalendar.tsx (fetch difficulty with completions)
+- components/calendar/CompletionCalendar.tsx (accept difficulty-based map)
+- components/calendar/CalendarCell.tsx (visual indicators + tooltips)
+- components/calendar/__tests__/CalendarCell.test.tsx (updated for difficulty structure)
