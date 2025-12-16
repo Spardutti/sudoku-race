@@ -16,6 +16,31 @@ const eslintConfig = defineConfig([
       // React Compiler rules - help identify code that prevents optimization
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
+
+      // Code quality standards
+      "max-lines": [
+        "error",
+        {
+          max: 200,
+          skipBlankLines: true,
+          skipComments: true,
+        },
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+      "@typescript-eslint/no-explicit-any": "error",
+      "func-style": ["error", "expression"],
+      "prefer-arrow-callback": "error",
+      "no-promise-executor-return": "error",
+      "no-async-promise-executor": "error",
+      "prefer-promise-reject-errors": "error",
+      complexity: ["error", 20],
     },
   },
   // Override default ignores of eslint-config-next.
