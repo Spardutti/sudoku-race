@@ -6,7 +6,7 @@ import { CheckCircle2, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import type { PuzzleStatus } from "@/actions/puzzle-completion-check";
 
 type DifficultyPickerProps = {
@@ -63,8 +63,15 @@ function getGuestPuzzleStatus(): PuzzleStatus | null {
 export function DifficultyPicker({ puzzleStatuses }: DifficultyPickerProps) {
   const t = useTranslations("puzzle.difficultyPicker");
   const params = useParams();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const mergedStatuses = useMemo(() => {
+    if (!isClient) return puzzleStatuses;
+
     const guestStatus = getGuestPuzzleStatus();
 
     if (!guestStatus) return puzzleStatuses;
@@ -74,7 +81,7 @@ export function DifficultyPicker({ puzzleStatuses }: DifficultyPickerProps) {
     if (existingStatus) return puzzleStatuses;
 
     return [...puzzleStatuses, guestStatus];
-  }, [puzzleStatuses]);
+  }, [puzzleStatuses, isClient]);
 
   const getPuzzleStatus = (difficulty: DifficultyLevel): PuzzleStatus => {
     return mergedStatuses.find((s) => s.difficulty === difficulty) || {
