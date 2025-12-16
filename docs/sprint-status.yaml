@@ -121,3 +121,6 @@ development_status:
   BF-2-guest-auth-state-loss: review # docs/stories/BF-2-guest-auth-state-loss.md
   BF-3-stale-puzzle-persist-across-days: review # docs/stories/BF-3-stale-puzzle-persist-across-days.md
   BF-4-login-redirect-preserve-location: review # docs/stories/BF-4-login-redirect-preserve-location.md
+
+  # Technical Debt & Improvements
+  TECH-1-supabase-database-linter-fixes: backlog # docs/stories/TECH-1-supabase-database-linter-fixes.md

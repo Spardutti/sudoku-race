@@ -113,8 +113,6 @@ export function CompletionModal({
     }
   }, [emojiGrid, shareText, puzzleNumber, completionTime, locale, streakData, difficulty]);
 
-  const guestRank = hypotheticalRank ?? null;
-
   const handleCopyToClipboard = async () => {
     if (!shareText || !emojiGrid) return;
 
@@ -326,7 +324,7 @@ export function CompletionModal({
         {isAuthenticated ? (
           <div className="rounded-md bg-gray-50 p-3 sm:p-4 text-center">
             <p className="text-xs sm:text-sm text-gray-600">{t('yourRankLabel')}</p>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900">
+            <p className="text-xl sm:text-2xl font-bold text-gray-900" data-testid="user-rank">
               {typeof rank === 'number' && rank > 0 ? `#${rank}` : t('calculating')}
             </p>
             {process.env.NODE_ENV !== 'production' && (
@@ -338,11 +336,11 @@ export function CompletionModal({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2 cursor-help">
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2 cursor-help" data-testid="streak-display">
                       {t('dayStreak', { count: streakData.currentStreak })} 🔥
                     </p>
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent data-testid="freeze-tooltip">
                     <p>
                       {streakData.freezeWasUsed
                         ? t('freezeUsedProtect')
@@ -360,8 +358,8 @@ export function CompletionModal({
             <p className="mb-2 sm:mb-3 text-base sm:text-lg font-semibold text-gray-900" data-testid="hypothetical-rank-message">
               {isLoadingRank
                 ? t('calculatingRank')
-                : guestRank !== null
-                  ? t('niceTime', { rank: guestRank })
+                : hypotheticalRank !== null
+                  ? t('niceTime', { rank: hypotheticalRank })
                   : t('signInToClaim')}
             </p>
             <p className="mb-3 sm:mb-4 text-xs text-gray-500">

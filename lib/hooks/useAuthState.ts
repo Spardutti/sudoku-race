@@ -65,15 +65,21 @@ export function useAuthState({ initialUser }: UseAuthStateProps = {}): AuthState
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    supabase.auth.getSession().catch((error) => {
-      logger.error("Failed to get auth session", error);
-      Sentry.captureException(error, {
-        level: "error",
-        tags: { context: "useAuthState" },
+    // Initialize auth state on mount
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        logger.error("Failed to get auth session", error);
+        Sentry.captureException(error, {
+          level: "error",
+          tags: { context: "useAuthState" },
+        });
+        setUser(null);
+        setIsLoading(false);
       });
-      setUser(null);
-      setIsLoading(false);
-    });
 
     return () => {
       subscription.unsubscribe();

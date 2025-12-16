@@ -30,6 +30,12 @@ test.describe('Sudoku Completion - Authenticated User', () => {
     // Navigate to puzzle
     await page.goto('/puzzle/easy');
     await page.waitForSelector('[data-testid="sudoku-grid"]');
+
+    // Close "How to Play" modal if visible
+    const howToPlayButton = page.locator('text="Got it!"');
+    if (await howToPlayButton.isVisible()) {
+      await howToPlayButton.click();
+    }
   });
 
   test.afterEach(async () => {
@@ -40,8 +46,7 @@ test.describe('Sudoku Completion - Authenticated User', () => {
   });
 
   test('should display completion modal with time when authenticated user completes puzzle', async ({ page }) => {
-    // GIVEN: Authenticated user starts puzzle
-    await page.click('[data-testid="start-puzzle-button"]');
+    // GIVEN: Puzzle is loaded and started (auto-started)
 
     // WHEN: User completes the puzzle
     await solvePuzzleOnPage(page);
@@ -55,7 +60,6 @@ test.describe('Sudoku Completion - Authenticated User', () => {
 
   test('should display actual leaderboard rank for authenticated user', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle
-    await page.click('[data-testid="start-puzzle-button"]');
     await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
@@ -67,7 +71,6 @@ test.describe('Sudoku Completion - Authenticated User', () => {
 
   test('should display current streak information', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle
-    await page.click('[data-testid="start-puzzle-button"]');
     await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
@@ -79,7 +82,6 @@ test.describe('Sudoku Completion - Authenticated User', () => {
 
   test('should show freeze status tooltip when hovering over streak', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle with active streak
-    await page.click('[data-testid="start-puzzle-button"]');
     await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
     await expect(page.locator('[data-testid="streak-display"]')).toBeVisible();
@@ -93,7 +95,6 @@ test.describe('Sudoku Completion - Authenticated User', () => {
 
   test('should include streak count in share text for authenticated user', async ({ page, context }) => {
     // GIVEN: Authenticated user with streak completes puzzle
-    await page.click('[data-testid="start-puzzle-button"]');
     await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
@@ -112,7 +113,6 @@ test.describe('Sudoku Completion - Authenticated User', () => {
 
   test('should NOT show sign-in prompt for authenticated user', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle
-    await page.click('[data-testid="start-puzzle-button"]');
     await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
@@ -124,7 +124,6 @@ test.describe('Sudoku Completion - Authenticated User', () => {
 
   test('should persist completion data to database with rank', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle
-    await page.click('[data-testid="start-puzzle-button"]');
     await solvePuzzleOnPage(page);
 
     // WHEN: User submits completed puzzle
@@ -143,7 +142,6 @@ test.describe('Sudoku Completion - Authenticated User', () => {
 
   test('should display emoji grid with difficulty indicator in share preview', async ({ page }) => {
     // GIVEN: Authenticated user completes puzzle
-    await page.click('[data-testid="start-puzzle-button"]');
     await solvePuzzleOnPage(page);
     await page.click('[data-testid="submit-button"]');
 
@@ -157,25 +155,18 @@ test.describe('Sudoku Completion - Authenticated User', () => {
 });
 
 /**
- * Solve the puzzle using sudoku-core and fill cells
+ * Solve the puzzle using solution from DB (via data-solution attribute)
  */
 async function solvePuzzleOnPage(page: Page): Promise<void> {
-  // Read the current puzzle state from the grid
-  const puzzleGrid: number[][] = [];
+  // Get solution from data-solution attribute (already fetched from DB)
+  const gridElement = page.locator('[data-testid="sudoku-grid"]');
+  const solutionAttr = await gridElement.getAttribute('data-solution');
 
-  for (let row = 0; row < 9; row++) {
-    puzzleGrid[row] = [];
-    for (let col = 0; col < 9; col++) {
-      const cellSelector = `[data-testid="sudoku-cell-${row}-${col}"]`;
-      const cellValue = await page.locator(cellSelector).textContent();
-      // Empty cells have no text, filled cells have 1-9
-      puzzleGrid[row][col] = cellValue && cellValue.trim() ? parseInt(cellValue.trim()) : 0;
-    }
+  if (!solutionAttr) {
+    throw new Error('Solution not found in grid data attribute');
   }
 
-  // Solve it in Node.js context (has access to sudoku-core)
-  const { solve } = await import('sudoku-core');
-  const solution = solve(puzzleGrid);
+  const solution: number[][] = JSON.parse(solutionAttr);
 
   // Fill each cell with the solution
   for (let row = 0; row < 9; row++) {

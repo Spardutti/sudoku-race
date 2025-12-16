@@ -8,14 +8,13 @@
  * Story: 6.6 Multi-Difficulty Puzzle System
  */
 
-// Load environment variables from .env.local
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
-import { generate, solve, analyze } from "sudoku-core";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/types/database";
-import { ACTIVE_DIFFICULTY_LEVELS, type DifficultyLevel } from "@/lib/types/difficulty";
+import { ACTIVE_DIFFICULTY_LEVELS } from "@/lib/types/difficulty";
+import { generatePuzzlesForDate, addDays } from "@/lib/sudoku/puzzle-generator";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -27,83 +26,6 @@ if (!supabaseUrl || !supabaseServiceKey) {
 }
 
 const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey);
-
-function boardTo9x9Array(board: (number | null)[]): number[][] {
-  const grid: number[][] = [];
-
-  for (let i = 0; i < 9; i++) {
-    const row: number[] = [];
-    for (let j = 0; j < 9; j++) {
-      const value = board[i * 9 + j];
-      row.push(value === null ? 0 : value);
-    }
-    grid.push(row);
-  }
-
-  return grid;
-}
-
-function addDays(dateStr: string, days: number): string {
-  const date = new Date(dateStr);
-  date.setDate(date.getDate() + days);
-  return date.toISOString().split("T")[0];
-}
-
-async function seedPuzzleForDateAndDifficulty(
-  puzzleDate: string,
-  difficulty: DifficultyLevel
-): Promise<boolean> {
-  try {
-    const board = generate(difficulty);
-
-    const analysis = analyze(board);
-
-    if (!analysis.hasUniqueSolution) {
-      console.log(`    ⚠️  Regenerating ${difficulty} puzzle (no unique solution)...`);
-      const retryBoard = generate(difficulty);
-      const retryAnalysis = analyze(retryBoard);
-      if (!retryAnalysis.hasUniqueSolution) {
-        throw new Error("Failed to generate valid puzzle after retry");
-      }
-    }
-
-    const solvingResult = solve(board);
-
-    if (!solvingResult.solved || !solvingResult.board) {
-      throw new Error("Failed to solve generated puzzle");
-    }
-
-    const puzzle_data = boardTo9x9Array(board);
-    const solution = boardTo9x9Array(solvingResult.board);
-
-    const { data, error } = await supabase
-      .from("puzzles")
-      .insert({
-        puzzle_date: puzzleDate,
-        puzzle_data,
-        solution,
-        difficulty,
-      })
-      .select("id, puzzle_date, difficulty")
-      .single();
-
-    if (error) {
-      if (error.code === "23505") {
-        console.log(`    ⚠️  ${difficulty} puzzle already exists for ${puzzleDate} (skipped)`);
-        return false;
-      }
-
-      throw error;
-    }
-
-    const emptyCells = board.filter((cell) => cell === null).length;
-    console.log(`    ✅ ${difficulty}: ${emptyCells} empty cells (ID: ${data.id})`);
-    return true;
-  } catch (error) {
-    console.error(`    ❌ Failed to seed ${difficulty} puzzle for ${puzzleDate}:`, error);
-    throw error;
-  }
-}
 
 async function seedMultiDifficultyPuzzles() {
   const args = process.argv.slice(2);
@@ -125,12 +47,20 @@ async function seedMultiDifficultyPuzzles() {
     const puzzleDate = addDays(startDate, i);
     console.log(`\n[${i + 1}/${count}] Generating puzzles for ${puzzleDate}...`);
 
-    for (const difficulty of ACTIVE_DIFFICULTY_LEVELS) {
-      const seeded = await seedPuzzleForDateAndDifficulty(puzzleDate, difficulty);
-      if (seeded) {
-        stats.seeded++;
-      } else {
+    const results = await generatePuzzlesForDate(supabase, puzzleDate);
+
+    for (const result of results) {
+      if (!result.success) {
+        console.error(`    ❌ ${result.difficulty}: ${result.error}`);
+        throw new Error(`Failed to generate ${result.difficulty} puzzle for ${puzzleDate}`);
+      }
+
+      if (result.alreadyExists) {
+        console.log(`    ⚠️  ${result.difficulty} puzzle already exists (skipped)`);
         stats.skipped++;
+      } else {
+        console.log(`    ✅ ${result.difficulty} (ID: ${result.puzzleId})`);
+        stats.seeded++;
       }
     }
   }

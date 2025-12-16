@@ -14,10 +14,10 @@ export interface TestUser {
 }
 
 /**
- * Sign in a user via UI
+ * Sign in a user via API and set session in browser
  *
- * Navigates to login page and submits credentials.
- * Waits for successful navigation to confirm authentication.
+ * Creates an authenticated session programmatically for E2E tests.
+ * This bypasses OAuth and uses Supabase cookies for SSR.
  */
 export async function signInViaUI(
   page: Page,
@@ -26,18 +26,53 @@ export async function signInViaUI(
 ): Promise<void> {
   const { waitForNavigation = true } = options;
 
-  await page.goto('/login');
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // Fill credentials
-  await page.fill('[data-testid="email-input"]', user.email);
-  await page.fill('[data-testid="password-input"]', user.password);
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY required');
+  }
 
-  // Submit
-  await page.click('[data-testid="login-button"]');
+  // Sign in via Supabase Auth API to get session
+  const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': supabaseAnonKey,
+    },
+    body: JSON.stringify({
+      email: user.email,
+      password: user.password,
+    }),
+  });
 
-  // Wait for navigation to dashboard or home
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to sign in: ${error}`);
+  }
+
+  const sessionData = await response.json();
+
+  // Set Supabase session cookies
+  const domain = new URL(supabaseUrl).hostname;
+  const cookieBase = `sb-${domain.split('.')[0]}`;
+
+  await page.context().addCookies([
+    {
+      name: `${cookieBase}-auth-token`,
+      value: JSON.stringify(sessionData),
+      domain: 'localhost',
+      path: '/',
+      httpOnly: false,
+      secure: false,
+      sameSite: 'Lax',
+    },
+  ]);
+
+  // Navigate to the app
   if (waitForNavigation) {
-    await page.waitForURL(/\/(dashboard|puzzle)/);
+    await page.goto('/');
+    await page.waitForTimeout(1500); // Wait for auth state to settle
   }
 }
 

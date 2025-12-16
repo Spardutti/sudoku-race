@@ -25,8 +25,8 @@ Detailed task breakdown for making E2E tests pass (RED → GREEN).
 - [x] Ensure completion time format is MM:SS (already formatted)
 - [x] Update test to use keyboard input instead of NumberPad (hidden on desktop)
 - [x] Update test to close "How to Play" modal in beforeEach
-- [ ] Run test: `npm run test:e2e tests/e2e/sudoku-completion-guest.spec.ts:32`
-- [ ] ✅ Test passes
+- [x] Run test: `npm run test:e2e tests/e2e/sudoku-completion-guest.spec.ts:32`
+- [x] ✅ Test passes
 
 **Files modified:**
 - `components/puzzle/SudokuGrid.tsx:132` - Added data-testid
