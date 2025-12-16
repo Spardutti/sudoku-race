@@ -10,6 +10,7 @@ export type PuzzleStatus = {
   difficulty: DifficultyLevel;
   status: "not-started" | "in-progress" | "completed";
   completionTime?: number;
+  elapsedTime?: number;
 };
 
 export async function getTodayPuzzleStatuses(): Promise<Result<PuzzleStatus[], string>> {
@@ -28,7 +29,7 @@ export async function getTodayPuzzleStatuses(): Promise<Result<PuzzleStatus[], s
 
     const { data, error } = await supabase
       .from("completions")
-      .select("puzzle_id, completed_at, completion_time_seconds, puzzles!inner(difficulty, puzzle_date)")
+      .select("puzzle_id, completed_at, completion_time_seconds, started_at, puzzles!inner(difficulty, puzzle_date)")
       .eq("user_id", userId)
       .eq("puzzles.puzzle_date", today);
 
@@ -48,10 +49,18 @@ export async function getTodayPuzzleStatuses(): Promise<Result<PuzzleStatus[], s
       const puzzleData = item.puzzles as unknown as { difficulty: DifficultyLevel };
       const isCompleted = item.completed_at !== null;
 
+      let elapsedTime: number | undefined;
+      if (!isCompleted && item.started_at) {
+        const startedAt = new Date(item.started_at);
+        const now = new Date();
+        elapsedTime = Math.floor((now.getTime() - startedAt.getTime()) / 1000);
+      }
+
       return {
         difficulty: puzzleData.difficulty,
         status: isCompleted ? "completed" : "in-progress",
         completionTime: item.completion_time_seconds ?? undefined,
+        elapsedTime,
       };
     });
 

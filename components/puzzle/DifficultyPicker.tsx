@@ -25,6 +25,12 @@ const DIFFICULTY_CONFIG: Record<DifficultyLevel, { estimatedTime: string }> = {
   },
 };
 
+function formatTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+}
+
 function getGuestPuzzleStatus(): PuzzleStatus | null {
   if (typeof window === "undefined") return null;
 
@@ -33,7 +39,7 @@ function getGuestPuzzleStatus(): PuzzleStatus | null {
 
   try {
     const parsed = JSON.parse(guestState);
-    const { puzzleDate, difficulty, isCompleted, isStarted } = parsed.state || {};
+    const { puzzleDate, difficulty, isCompleted, isStarted, completionTime, elapsedTime } = parsed.state || {};
 
     if (!puzzleDate || !difficulty) return null;
 
@@ -46,6 +52,8 @@ function getGuestPuzzleStatus(): PuzzleStatus | null {
     return {
       difficulty,
       status: isCompleted ? "completed" : (isStarted ? "in-progress" : "not-started"),
+      completionTime: isCompleted ? completionTime : undefined,
+      elapsedTime: isStarted && !isCompleted ? elapsedTime : undefined,
     };
   } catch {
     return null;
@@ -68,8 +76,11 @@ export function DifficultyPicker({ puzzleStatuses }: DifficultyPickerProps) {
     return [...puzzleStatuses, guestStatus];
   }, [puzzleStatuses]);
 
-  const getStatus = (difficulty: DifficultyLevel) => {
-    return mergedStatuses.find((s) => s.difficulty === difficulty)?.status || "not-started";
+  const getPuzzleStatus = (difficulty: DifficultyLevel): PuzzleStatus => {
+    return mergedStatuses.find((s) => s.difficulty === difficulty) || {
+      difficulty,
+      status: "not-started",
+    };
   };
 
   return (
@@ -86,8 +97,14 @@ export function DifficultyPicker({ puzzleStatuses }: DifficultyPickerProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {ACTIVE_DIFFICULTY_LEVELS.map((difficulty) => {
-            const status = getStatus(difficulty);
+            const puzzleStatus = getPuzzleStatus(difficulty);
+            const status = puzzleStatus.status;
             const config = DIFFICULTY_CONFIG[difficulty];
+            const timeSeconds = status === "completed"
+              ? puzzleStatus.completionTime
+              : status === "in-progress"
+                ? puzzleStatus.elapsedTime
+                : undefined;
 
             return (
               <Link
@@ -124,17 +141,27 @@ export function DifficultyPicker({ puzzleStatuses }: DifficultyPickerProps) {
                   </p>
 
                   {status === "completed" && (
-                    <div className="pt-2">
+                    <div className="pt-2 flex items-center gap-2">
                       <span className="inline-block px-3 py-1 bg-green-50 text-green-700 text-xs font-medium border border-green-200">
                         {t("completed")}
                       </span>
+                      {timeSeconds !== undefined && (
+                        <span className="text-xs font-mono text-gray-600">
+                          ⏱️ {formatTime(timeSeconds)}
+                        </span>
+                      )}
                     </div>
                   )}
                   {status === "in-progress" && (
-                    <div className="pt-2">
+                    <div className="pt-2 flex items-center gap-2">
                       <span className="inline-block px-3 py-1 bg-orange-50 text-orange-700 text-xs font-medium border border-orange-200">
                         {t("inProgress")}
                       </span>
+                      {timeSeconds !== undefined && (
+                        <span className="text-xs font-mono text-gray-600">
+                          ⏱️ {formatTime(timeSeconds)}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
