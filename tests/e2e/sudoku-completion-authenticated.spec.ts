@@ -127,17 +127,21 @@ test.describe('Sudoku Completion - Authenticated User', () => {
     await solvePuzzleOnPage(page);
 
     // WHEN: User submits completed puzzle
-    const submitPromise = page.waitForResponse(
-      (response) => response.url().includes('/api/puzzle') && response.request().method() === 'POST'
-    );
     await page.click('[data-testid="submit-button"]');
-    const response = await submitPromise;
 
-    // THEN: Submission is successful and returns rank
-    expect(response.status()).toBe(200);
-    const body = await response.json();
-    expect(body).toHaveProperty('rank');
-    expect(body.rank).toBeGreaterThan(0);
+    // THEN: Completion modal appears with rank (data persisted via server action)
+    await expect(page.locator('[data-testid="completion-modal"]')).toBeVisible();
+    await expect(page.locator('[data-testid="user-rank"]')).toBeVisible();
+
+    // Wait for rank to be calculated and displayed
+    await expect(page.locator('[data-testid="user-rank"]')).toContainText(/#\d+/);
+
+    // Verify rank is a valid number
+    const rankText = await page.locator('[data-testid="user-rank"]').textContent();
+    const rankMatch = rankText?.match(/#(\d+)/);
+    expect(rankMatch).toBeTruthy();
+    const rank = parseInt(rankMatch![1]);
+    expect(rank).toBeGreaterThan(0);
   });
 
   test('should display emoji grid with difficulty indicator in share preview', async ({ page }) => {

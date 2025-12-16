@@ -143,11 +143,33 @@ export async function createTestUserViaAPI(
   }
 
   const data = await response.json();
+  const userId = data.id;
+
+  const publicUserResponse = await fetch(`${supabaseUrl}/rest/v1/users`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${serviceRoleKey}`,
+      apikey: serviceRoleKey,
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify({
+      id: userId,
+      email,
+      username: email.split('@')[0],
+      oauth_provider: 'test',
+    }),
+  });
+
+  if (!publicUserResponse.ok) {
+    const errorText = await publicUserResponse.text();
+    console.warn(`Failed to create public user entry: ${errorText}`);
+  }
 
   return {
     email,
     password,
-    id: data.id,
+    id: userId,
   };
 }
 
