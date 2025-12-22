@@ -20,6 +20,7 @@ interface PuzzleCompletedViewProps {
   puzzleNumber: number;
   rank?: number;
   streakData?: StreakData;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export function PuzzleCompletedView({
@@ -32,6 +33,7 @@ export function PuzzleCompletedView({
   puzzleNumber,
   rank,
   streakData,
+  difficulty,
 }: PuzzleCompletedViewProps) {
   const t = useTranslations("puzzle");
   const searchParams = useSearchParams();
@@ -92,6 +94,7 @@ export function PuzzleCompletedView({
         solvePath={solvePath}
         puzzleNumber={puzzleNumber}
         streakData={streakData}
+        difficulty={difficulty}
       />
     </div>
   );

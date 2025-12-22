@@ -41,6 +41,18 @@ const eslintConfig = defineConfig([
       "no-async-promise-executor": "error",
       "prefer-promise-reject-errors": "error",
       complexity: ["error", 20],
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["../*", "./*"],
+              message:
+                "Use absolute imports with @/ instead of relative paths (../ or ./)",
+            },
+          ],
+        },
+      ],
     },
   },
   // Override default ignores of eslint-config-next.

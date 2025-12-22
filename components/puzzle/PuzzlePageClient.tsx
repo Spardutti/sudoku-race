@@ -35,9 +35,10 @@ const CompletionModal = dynamic(
 type PuzzlePageClientProps = {
   puzzle: Puzzle;
   initialCompletionStatus?: { isCompleted: boolean; completionTime?: number; rank?: number };
+  serverUserId?: string | null;
 };
 
-export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePageClientProps) {
+export function PuzzlePageClient({ puzzle, initialCompletionStatus, serverUserId }: PuzzlePageClientProps) {
   const searchParams = useSearchParams();
   const userEntries = usePuzzleStore((state) => state.userEntries);
   const selectedCell = usePuzzleStore((state) => state.selectedCell);
@@ -61,7 +62,7 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
 
   const isOnline = useNetworkStatus();
   const { user } = useAuthState();
-  const userId = user?.id || null;
+  const userId = serverUserId ?? user?.id ?? null;
   const alreadyCompleted = initialCompletionStatus?.isCompleted || false;
   const previousCompletionTime = initialCompletionStatus?.completionTime ?? null;
   const previousRank = initialCompletionStatus?.rank;
@@ -251,6 +252,7 @@ export function PuzzlePageClient({ puzzle, initialCompletionStatus }: PuzzlePage
         puzzleNumber={puzzle.puzzle_number}
         rank={previousRank}
         streakData={streakData}
+        difficulty={difficulty ?? undefined}
       />
     );
   }

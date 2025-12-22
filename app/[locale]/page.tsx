@@ -72,7 +72,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
 
         {/* CTA */}
         <div className="pt-4 space-y-2">
-          <Button variant="primary" size="lg" asChild className="w-full md:w-auto md:min-w-[300px]">
+          <Button variant="primary" size="lg" asChild className="w-full md:w-auto md:min-w-[300px]" data-testid="play-button">
             <Link href={`/${locale}/puzzle`}>
               {t('cta')}
             </Link>

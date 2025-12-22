@@ -68,8 +68,11 @@ export default async function PuzzleDifficultyPage({ params }: Props) {
     );
   }
 
+  const { getCurrentUserId } = await import("@/lib/auth/get-current-user");
+  const serverUserId = await getCurrentUserId();
+
   const completionCheck = await checkPuzzleCompletion(result.data.id);
   const completionData = completionCheck.success ? completionCheck.data : { isCompleted: false };
 
-  return <PuzzlePageClient puzzle={result.data} initialCompletionStatus={completionData} />;
+  return <PuzzlePageClient puzzle={result.data} initialCompletionStatus={completionData} serverUserId={serverUserId} />;
 }
