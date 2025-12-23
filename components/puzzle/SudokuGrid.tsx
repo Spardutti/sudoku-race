@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { SudokuCell } from "./SudokuCell";
+import { SudokuCell } from "@/components/puzzle/SudokuCell";
 
 export interface SudokuGridProps {
   puzzle: number[][];
@@ -13,9 +13,10 @@ export interface SudokuGridProps {
   pencilMarks?: Record<string, number[]>;
   isBlurred?: boolean;
   solution?: number[][];
+  lockedCells?: Record<string, boolean>;
 }
 
-export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
+export const SudokuGrid = React.memo<SudokuGridProps>(({
   puzzle,
   userEntries,
   selectedCell,
@@ -23,7 +24,8 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
   pencilMarks = {},
   isBlurred = false,
   solution,
-}) {
+  lockedCells = {},
+}) => {
   const gridRef = React.useRef<HTMLDivElement>(null);
 
   const getCellValue = React.useCallback(
@@ -118,13 +120,14 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
             isSelected={isSelectedCell(row, col)}
             onSelect={() => handleCellSelect(row, col)}
             pencilMarks={pencilMarks[key]}
+            isLocked={lockedCells[key] || false}
           />
         );
       }
     }
 
     return cells;
-  }, [getCellValue, isClueCell, isSelectedCell, handleCellSelect, pencilMarks]);
+  }, [getCellValue, isClueCell, isSelectedCell, handleCellSelect, pencilMarks, lockedCells]);
 
   return (
     <div
@@ -148,3 +151,5 @@ export const SudokuGrid = React.memo<SudokuGridProps>(function SudokuGrid({
     </div>
   );
 });
+
+SudokuGrid.displayName = 'SudokuGrid';

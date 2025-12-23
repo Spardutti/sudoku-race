@@ -17,6 +17,8 @@ export interface PuzzleState {
   isStarted: boolean;
   isPaused: boolean;
   pausedAt: number | null;
+  lockMode: boolean;
+  lockedCells: Record<string, boolean>;
 }
 
 export interface PuzzleActions {
@@ -37,4 +39,7 @@ export interface PuzzleActions {
   startPuzzle: () => void;
   pausePuzzle: () => void;
   resumePuzzle: () => void;
+  toggleLockMode: () => void;
+  toggleCellLock: (row: number, col: number) => void;
+  resetUnlockedCells: () => void;
 }

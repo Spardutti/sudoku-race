@@ -3,7 +3,7 @@
 **Story ID**: FE.1
 **Category**: Feature Enhancement (Standalone)
 **Story Key**: FE-1-puzzle-reset-lock-numbers
-**Status**: ready-for-dev
+**Status**: ready-for-review
 **Created**: 2025-12-23
 
 ---
@@ -153,67 +153,67 @@
 
 ### Task 1: Extend Puzzle Store
 
-- [ ] Add to `PuzzleState`: `lockMode: boolean`, `lockedCells: Record<string, boolean>`
-- [ ] Add actions: `toggleLockMode`, `toggleCellLock(row, col)`, `resetUnlockedCells`
-- [ ] Modify `updateCell` to prevent editing locked cells
-- [ ] Add lockedCells to persistence config
+- [x] Add to `PuzzleState`: `lockMode: boolean`, `lockedCells: Record<string, boolean>`
+- [x] Add actions: `toggleLockMode`, `toggleCellLock(row, col)`, `resetUnlockedCells`
+- [x] Modify `updateCell` to prevent editing locked cells
+- [x] Add lockedCells to persistence config
 - [ ] Test store actions
 
 **File**: `lib/stores/puzzleStore.ts`
 
 ### Task 2: Create Lock Toggle Button
 
-- [ ] Create `components/puzzle/LockToggle.tsx`
-- [ ] Lock icon with active/inactive styles
-- [ ] ARIA labels and keyboard support
+- [x] Create `components/puzzle/LockToggle.tsx`
+- [x] Lock icon with active/inactive styles
+- [x] ARIA labels and keyboard support
 - [ ] Test rendering and toggle behavior
 
 ### Task 3: Grid Rendering for Locked Cells
 
-- [ ] Modify `components/puzzle/SudokuCell.tsx`
-- [ ] Add `isLocked` prop to cell rendering
-- [ ] Apply locked styles: bg-blue-50, font-semibold
+- [x] Modify `components/puzzle/SudokuCell.tsx`
+- [x] Add `isLocked` prop to cell rendering
+- [x] Apply locked styles: bg-blue-50, font-semibold
 - [ ] Test locked vs unlocked vs clue cells
 
 ### Task 4: Lock/Unlock Interaction
 
-- [ ] Update `SudokuGrid.tsx` to handle lock toggle clicks
-- [ ] Add `onCellLockToggle` callback
-- [ ] Implement 'L' key listener in `lib/hooks/useKeyboardInput.ts`
-- [ ] Prevent edits to locked cells (show toast or silent ignore)
+- [x] Update `SudokuGrid.tsx` to handle lock toggle clicks
+- [x] Add `onCellLockToggle` callback
+- [x] Implement 'L' key listener in `lib/hooks/useKeyboardInput.ts`
+- [x] Prevent edits to locked cells (show toast or silent ignore)
 
 ### Task 5: Reset Button Component
 
-- [ ] Create `components/puzzle/ResetButton.tsx`
-- [ ] Reset icon (lucide-react `RotateCcw`)
-- [ ] Confirmation dialog using Radix Dialog
-- [ ] Wire to `resetUnlockedCells` action
-- [ ] Handle edge case: no unlocked cells (show toast)
+- [x] Create `components/puzzle/ResetButton.tsx`
+- [x] Reset icon (lucide-react `RotateCcw`)
+- [x] Confirmation dialog using Radix Dialog
+- [x] Wire to `resetUnlockedCells` action
+- [x] Handle edge case: no unlocked cells (show toast)
 
 ### Task 6: Reset Logic Implementation
 
-- [ ] Implement `resetUnlockedCells` in store
-- [ ] Clear userEntries where `!lockedCells[key]`
-- [ ] Clear pencil marks in unlocked cells only
-- [ ] Preserve: locked cells, clues, timer
+- [x] Implement `resetUnlockedCells` in store
+- [x] Clear userEntries where `!lockedCells[key]`
+- [x] Clear pencil marks in unlocked cells only
+- [x] Preserve: locked cells, clues, timer
 - [ ] Test edge cases: all locked, all unlocked, mixed
 
 ### Task 7: Integrate Lock Toggle
 
-- [ ] Add `LockToggle` to `PuzzleHeader.tsx`
-- [ ] Position near NoteModeToggle
-- [ ] Connect to store
+- [x] Add `LockToggle` to `PuzzleHeader.tsx`
+- [x] Position near NoteModeToggle
+- [x] Connect to store
 
 ### Task 8: Integrate Reset Button
 
-- [ ] Add `ResetButton` to `PuzzleHeader.tsx`
-- [ ] Position near submit button
+- [x] Add `ResetButton` to `PuzzleHeader.tsx`
+- [x] Position near submit button
 - [ ] Test UX flow: lock cells → reset → verify
 
 ### Task 9: Server Actions for Lock State
 
-- [ ] Add `lockedCells` field to `saveProgress` in `actions/puzzle.ts`
-- [ ] Add `lockedCells` to `loadProgress` response
+- [x] Add `lockedCells` field to `saveProgress` in `actions/puzzle.ts`
+- [x] Add `lockedCells` to `loadProgress` response
 - [ ] Test database persistence
 
 ### Task 10: Unit Tests
@@ -398,17 +398,46 @@ Task sequence: Store → Lock Toggle → Grid Rendering → Lock Interaction →
 
 ### Completion Notes
 
-Story created in collaboration with user (Spardutti). User requirements captured. Architecture patterns aligned with existing codebase (Zustand, Supabase). Ready for implementation.
+**Implementation completed by Dev Agent (Amelia) - 2025-12-23**
 
-**Key Context for Developer:**
-- User frustrated by manual cell clearing after errors
-- Wants to preserve confident numbers while retrying
-- Lock + Reset are tightly coupled (single story)
-- Visual clarity critical (locked cells must stand out)
-- Persistence required (cross-device, cross-session)
+All core functionality implemented:
+- ✅ Store extended with lockMode, lockedCells, toggleLockMode, toggleCellLock, resetUnlockedCells
+- ✅ LockToggle component created with keyboard support (L key)
+- ✅ ResetButton component with confirmation dialog
+- ✅ SudokuCell updated with locked cell styling (bg-blue-50, font-semibold)
+- ✅ SudokuGrid passes lockedCells to cells
+- ✅ PuzzleHeader integrates both components
+- ✅ Server actions updated for lock state persistence
+- ✅ LocalStorage persistence configured
+- ⚠️ Unit tests pending (per user request)
+
+**Technical Notes:**
+- Locked cells prevent editing (updateCell returns early)
+- Reset preserves locked cells, clues, and timer
+- 'L' key: toggles lock mode when no cell selected, toggles cell lock when in lock mode with filled cell selected
+- Confirmation dialog prevents accidental resets
+- Build passed successfully
+
+### File List
+
+**Created:**
+- components/puzzle/LockToggle.tsx
+- components/puzzle/ResetButton.tsx
+
+**Modified:**
+- lib/stores/puzzleStore.ts
+- lib/stores/puzzleStore.types.ts
+- components/puzzle/SudokuCell.tsx
+- components/puzzle/SudokuGrid.tsx
+- components/puzzle/PuzzleHeader.tsx
+- components/puzzle/PuzzlePageClient.tsx
+- lib/hooks/useKeyboardInput.ts
+- lib/hooks/useAutoSave.ts
+- actions/puzzle-progress.ts
 
 ### Change Log
 
 - **2025-12-23**: Story created by SM agent (Bob) in yolo mode. User: Spardutti. Requirements elicited via discussion. Marked as ready-for-dev.
+- **2025-12-23**: Implementation completed by Dev Agent (Amelia). All tasks 1-9 complete. Tests pending per user request. Ready for manual testing and translation keys.
 
 ---

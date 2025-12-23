@@ -2,17 +2,32 @@
 
 import { format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import { NoteModeToggle } from "./NoteModeToggle";
+import { NoteModeToggle } from "@/components/puzzle/NoteModeToggle";
+import { LockToggle } from "@/components/puzzle/LockToggle";
+import { ResetButton } from "@/components/puzzle/ResetButton";
 import { useTranslations, useLocale } from "next-intl";
 
 type PuzzleHeaderProps = {
   puzzleDate: string;
   puzzleNumber?: number;
   noteMode?: boolean;
-  onToggleNoteMode?: () => void;
+  onToggleNoteModeAction?: () => void;
+  lockMode?: boolean;
+  onToggleLockModeAction?: () => void;
+  onResetUnlockedAction?: () => void;
+  hasUnlockedCells?: boolean;
 };
 
-export function PuzzleHeader({ puzzleDate, puzzleNumber, noteMode = false, onToggleNoteMode }: PuzzleHeaderProps) {
+export const PuzzleHeader = ({
+  puzzleDate,
+  puzzleNumber,
+  noteMode = false,
+  onToggleNoteModeAction,
+  lockMode = false,
+  onToggleLockModeAction,
+  onResetUnlockedAction,
+  hasUnlockedCells = false,
+}: PuzzleHeaderProps) => {
   const t = useTranslations('puzzle');
   const locale = useLocale();
   const dateLocale = locale === "es" ? es : enUS;
@@ -26,9 +41,17 @@ export function PuzzleHeader({ puzzleDate, puzzleNumber, noteMode = false, onTog
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-black">
           {t('title')}
         </h1>
-        {onToggleNoteMode && (
-          <NoteModeToggle noteMode={noteMode} onToggle={onToggleNoteMode} />
-        )}
+        <div className="flex items-center gap-2">
+          {onToggleNoteModeAction && (
+            <NoteModeToggle noteMode={noteMode} onToggle={onToggleNoteModeAction} />
+          )}
+          {onToggleLockModeAction && (
+            <LockToggle lockMode={lockMode} onToggle={onToggleLockModeAction} />
+          )}
+          {onResetUnlockedAction && (
+            <ResetButton onReset={onResetUnlockedAction} hasUnlockedCells={hasUnlockedCells} />
+          )}
+        </div>
       </div>
       <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-4 text-gray-600">
         <time dateTime={puzzleDate} className="text-sm md:text-base capitalize">

@@ -29,13 +29,14 @@ import { logger } from "@/lib/utils/logger";
  * useAutoSave(!!session?.user)
  * ```
  */
-export function useAutoSave(isAuthenticated: boolean) {
+export const useAutoSave = (isAuthenticated: boolean) => {
   const puzzleId = usePuzzleStore((state) => state.puzzleId);
   const userEntries = usePuzzleStore((state) => state.userEntries);
   const elapsedTime = usePuzzleStore((state) => state.elapsedTime);
   const isCompleted = usePuzzleStore((state) => state.isCompleted);
   const pencilMarks = usePuzzleStore((state) => state.pencilMarks);
   const solvePath = usePuzzleStore((state) => state.solvePath);
+  const lockedCells = usePuzzleStore((state) => state.lockedCells);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSaveRef = useRef<string>("");
@@ -51,6 +52,7 @@ export function useAutoSave(isAuthenticated: boolean) {
       isCompleted,
       pencilMarks,
       solvePath,
+      lockedCells,
     });
 
     if (currentState === lastSaveRef.current) {
@@ -69,13 +71,14 @@ export function useAutoSave(isAuthenticated: boolean) {
           elapsedTime,
           isCompleted,
           pencilMarks,
-          solvePath
+          solvePath,
+          lockedCells
         );
 
         if (result.success) {
           lastSaveRef.current = currentState;
-          
-        } 
+
+        }
       } catch (error) {
         logger.error("Auto-save exception, localStorage fallback active", error as Error, {
           puzzleId,
@@ -88,5 +91,5 @@ export function useAutoSave(isAuthenticated: boolean) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [isAuthenticated, puzzleId, userEntries, elapsedTime, isCompleted, pencilMarks, solvePath]);
-}
+  }, [isAuthenticated, puzzleId, userEntries, elapsedTime, isCompleted, pencilMarks, solvePath, lockedCells]);
+};

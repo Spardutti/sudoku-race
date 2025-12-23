@@ -9,20 +9,41 @@ export interface UseKeyboardInputProps {
   isClueCell: (row: number, col: number) => boolean;
   noteMode?: boolean;
   onToggleNoteMode?: () => void;
+  lockMode?: boolean;
+  onToggleLockMode?: () => void;
+  onToggleCellLock?: (row: number, col: number) => void;
+  isCellFilled?: (row: number, col: number) => boolean;
 }
 
-export function useKeyboardInput({
+export const useKeyboardInput = ({
   selectedCell,
   onNumberChange,
   isClueCell,
   noteMode = false,
   onToggleNoteMode,
-}: UseKeyboardInputProps): void {
+  lockMode = false,
+  onToggleLockMode,
+  onToggleCellLock,
+  isCellFilled,
+}: UseKeyboardInputProps): void => {
   useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent): void {
+    const handleKeyDown = (e: KeyboardEvent): void => {
       if (e.key === "n" || e.key === "N") {
         e.preventDefault();
         onToggleNoteMode?.();
+        return;
+      }
+
+      if (e.key === "l" || e.key === "L") {
+        e.preventDefault();
+        if (lockMode && selectedCell && onToggleCellLock && isCellFilled) {
+          const { row, col } = selectedCell;
+          if (isCellFilled(row, col)) {
+            onToggleCellLock(row, col);
+          }
+        } else {
+          onToggleLockMode?.();
+        }
         return;
       }
 
@@ -42,12 +63,22 @@ export function useKeyboardInput({
         e.preventDefault();
         onNumberChange(row, col, 0);
       }
-    }
+    };
 
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedCell, onNumberChange, isClueCell, noteMode, onToggleNoteMode]);
-}
+  }, [
+    selectedCell,
+    onNumberChange,
+    isClueCell,
+    noteMode,
+    onToggleNoteMode,
+    lockMode,
+    onToggleLockMode,
+    onToggleCellLock,
+    isCellFilled,
+  ]);
+};

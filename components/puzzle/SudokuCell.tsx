@@ -11,9 +11,10 @@ interface SudokuCellProps {
   isSelected: boolean;
   onSelect: () => void;
   pencilMarks?: number[];
+  isLocked?: boolean;
 }
 
-export const SudokuCell = React.memo<SudokuCellProps>(function SudokuCell({
+export const SudokuCell = React.memo<SudokuCellProps>(({
   row,
   col,
   value,
@@ -21,7 +22,8 @@ export const SudokuCell = React.memo<SudokuCellProps>(function SudokuCell({
   isSelected,
   onSelect,
   pencilMarks,
-}) {
+  isLocked = false,
+}) => {
   const ariaLabel = React.useMemo(() => {
     const position = `Row ${row + 1}, Column ${col + 1}`;
     const valueText =
@@ -47,6 +49,8 @@ export const SudokuCell = React.memo<SudokuCellProps>(function SudokuCell({
         "cursor-pointer",
         isClue
           ? "text-neutral bg-gray-100"
+          : isLocked
+          ? "text-primary bg-blue-50 font-semibold hover:bg-blue-100"
           : "text-primary bg-white hover:bg-gray-50",
         isSelected && isClue && "ring-2 ring-red-600 ring-inset z-10",
         isSelected &&
@@ -75,3 +79,5 @@ export const SudokuCell = React.memo<SudokuCellProps>(function SudokuCell({
     </button>
   );
 });
+
+SudokuCell.displayName = 'SudokuCell';

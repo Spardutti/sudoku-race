@@ -23,6 +23,8 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
       isStarted: false,
       isPaused: false,
       pausedAt: null,
+      lockMode: false,
+      lockedCells: {},
 
       setPuzzle: (id: string, puzzle: number[][], difficulty, puzzleDate) =>
         set((state) => {
@@ -49,16 +51,23 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
             isStarted: false,
             isPaused: false,
             pausedAt: null,
+            lockMode: false,
+            lockedCells: {},
           };
         }),
 
       updateCell: (row: number, col: number, value: number) =>
         set((state) => {
+          const key = `${row}-${col}`;
+
+          if (state.lockedCells[key]) {
+            return state;
+          }
+
           const newEntries = state.userEntries.map((r, i) =>
             i === row ? r.map((c, j) => (j === col ? value : c)) : r
           );
 
-          const key = `${row}-${col}`;
           let newPencilMarks = { ...state.pencilMarks };
 
           if (value !== 0) {
@@ -127,6 +136,8 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           isStarted: false,
           isPaused: false,
           pausedAt: null,
+          lockMode: false,
+          lockedCells: {},
         }));
       },
 
@@ -209,6 +220,56 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
             pausedAt: null,
           };
         }),
+
+      toggleLockMode: () => set((state) => ({ lockMode: !state.lockMode })),
+
+      toggleCellLock: (row: number, col: number) =>
+        set((state) => {
+          const key = `${row}-${col}`;
+          const cellValue = state.userEntries[row][col];
+          const isClue = state.puzzle?.[row][col] !== 0;
+
+          if (cellValue === 0 || isClue) {
+            return state;
+          }
+
+          const newLockedCells = { ...state.lockedCells };
+          if (newLockedCells[key]) {
+            delete newLockedCells[key];
+          } else {
+            newLockedCells[key] = true;
+          }
+
+          return { lockedCells: newLockedCells };
+        }),
+
+      resetUnlockedCells: () =>
+        set((state) => {
+          const newEntries = state.userEntries.map((row, r) =>
+            row.map((val, c) => {
+              const key = `${r}-${c}`;
+              const isClue = state.puzzle?.[r][c] !== 0;
+              const isLocked = state.lockedCells[key];
+              return isClue || isLocked ? val : 0;
+            })
+          );
+
+          const newPencilMarks = Object.entries(state.pencilMarks).reduce(
+            (acc, [key, marks]) => {
+              if (state.lockedCells[key]) {
+                acc[key] = marks;
+              }
+              return acc;
+            },
+            {} as Record<string, number[]>
+          );
+
+          return {
+            userEntries: newEntries,
+            pencilMarks: newPencilMarks,
+            selectedCell: null,
+          };
+        }),
     }),
     {
       name: 'sudoku-race-puzzle-state',
@@ -227,6 +288,8 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
         isStarted: state.isStarted,
         isPaused: state.isPaused,
         pausedAt: state.pausedAt,
+        lockMode: state.lockMode,
+        lockedCells: state.lockedCells,
       }),
     }
   )

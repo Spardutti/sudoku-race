@@ -5,65 +5,13 @@ import { logger } from "@/lib/utils/logger";
 import type { Result } from "@/lib/types/result";
 import type { TimerEvent } from "@/lib/types/timer";
 import type { SolvePath } from "@/lib/types/solve-path";
-import * as Sentry from "@sentry/nextjs";
 import { getCurrentUserId } from "@/lib/auth/get-current-user";
-
-function getCurrentPauseState(events: TimerEvent[]): {
-  isPaused: boolean;
-  pausedAt: string | null;
-} {
-  if (!events || events.length === 0) {
-    return { isPaused: false, pausedAt: null };
-  }
-
-  const lastPauseResumeEvent = [...events].reverse().find(
-    (e) => e.type === "pause" || e.type === "resume"
-  );
-
-  if (!lastPauseResumeEvent) {
-    return { isPaused: false, pausedAt: null };
-  }
-
-  return {
-    isPaused: lastPauseResumeEvent.type === "pause",
-    pausedAt:
-      lastPauseResumeEvent.type === "pause"
-        ? lastPauseResumeEvent.timestamp
-        : null,
-  };
-}
-
-function calculateActiveTimeFromEvents(
-  events: TimerEvent[],
-  startedAt: string
-): number {
-  if (!events || events.length === 0) {
-    const start = new Date(startedAt);
-    const now = new Date();
-    return Math.floor((now.getTime() - start.getTime()) / 1000);
-  }
-
-  let totalActive = 0;
-  let lastStart: Date | null = new Date(startedAt);
-
-  for (const event of events) {
-    if (event.type === "start" || event.type === "resume") {
-      lastStart = new Date(event.timestamp);
-    } else if (event.type === "pause") {
-      if (lastStart) {
-        totalActive += new Date(event.timestamp).getTime() - lastStart.getTime();
-        lastStart = null;
-      }
-    }
-  }
-
-  if (lastStart) {
-    const now = new Date();
-    totalActive += now.getTime() - lastStart.getTime();
-  }
-
-  return Math.floor(totalActive / 1000);
-}
+import {
+  getCurrentPauseState,
+  calculateElapsedTime,
+  extractCompletionData,
+} from "@/lib/utils/timer-helpers";
+import { handleSaveError, handleLoadError } from "@/lib/utils/progress-errors";
 
 export type PuzzleProgress = {
   userEntries?: number[][];
@@ -74,16 +22,18 @@ export type PuzzleProgress = {
   pausedAt?: number | null;
   pencilMarks?: Record<string, number[]>;
   solvePath?: SolvePath;
+  lockedCells?: Record<string, boolean>;
 };
 
-export async function saveProgress(
+export const saveProgress = async (
   puzzleId: string,
   userEntries: number[][],
   elapsedTime: number,
   isCompleted: boolean,
   pencilMarks?: Record<string, number[]>,
-  solvePath?: SolvePath
-): Promise<Result<void, string>> {
+  solvePath?: SolvePath,
+  lockedCells?: Record<string, boolean>
+): Promise<Result<void, string>> => {
   try {
     const userId = await getCurrentUserId();
 
@@ -110,6 +60,7 @@ export async function saveProgress(
         userEntries: number[][];
         pencilMarks: Record<string, number[]>;
         solvePath?: SolvePath;
+        lockedCells?: Record<string, boolean>;
       };
       completion_time_seconds: number;
       is_complete: boolean;
@@ -121,7 +72,8 @@ export async function saveProgress(
       completion_data: {
         userEntries,
         pencilMarks: pencilMarks || {},
-        solvePath: solvePath || []
+        solvePath: solvePath || [],
+        lockedCells: lockedCells || {}
       },
       completion_time_seconds: elapsedTime,
       is_complete: isCompleted,
@@ -166,27 +118,13 @@ export async function saveProgress(
       data: undefined,
     };
   } catch (error) {
-    const saveError = error as Error;
-
-    logger.error("Exception saving puzzle progress", saveError, {
-      puzzleId,
-      action: "saveProgress",
-    });
-
-    Sentry.captureException(saveError, {
-      extra: { puzzleId, action: "saveProgress" },
-    });
-
-    return {
-      success: false,
-      error: "Failed to save progress. Please try again.",
-    };
+    return handleSaveError(error, puzzleId);
   }
-}
+};
 
-export async function loadProgress(
+export const loadProgress = async (
   puzzleId: string
-): Promise<Result<PuzzleProgress | null, string>> {
+): Promise<Result<PuzzleProgress | null, string>> => {
   try {
     const userId = await getCurrentUserId();
 
@@ -232,41 +170,36 @@ export async function loadProgress(
       };
     }
 
-    const completionData = data.completion_data as {
-      userEntries?: number[][];
-      pencilMarks?: Record<string, number[]>;
-      solvePath?: SolvePath;
-    } | null;
-    const userEntries = completionData?.userEntries;
-    const pencilMarks = completionData?.pencilMarks;
-    const solvePath = completionData?.solvePath;
-
+    const completionData = extractCompletionData(data.completion_data);
     const timerEvents = (data.timer_events || []) as TimerEvent[];
 
-    let elapsedTime = 0;
-    if (data.is_complete) {
-      elapsedTime = data.completion_time_seconds || 0;
-    } else if (data.started_at) {
-      elapsedTime = calculateActiveTimeFromEvents(timerEvents, data.started_at);
-    }
+    const elapsedTime = calculateElapsedTime(
+      data.is_complete,
+      data.completion_time_seconds,
+      data.started_at,
+      timerEvents
+    );
 
     const pauseState = getCurrentPauseState(timerEvents);
     const pausedAtTimestamp = pauseState.pausedAt ? new Date(pauseState.pausedAt).getTime() : null;
 
     const resultData = {
-      userEntries: userEntries && userEntries.length > 0 ? userEntries : undefined,
+      userEntries: completionData?.userEntries && completionData.userEntries.length > 0
+        ? completionData.userEntries
+        : undefined,
       elapsedTime,
       isCompleted: data.is_complete || false,
       isPaused: pauseState.isPaused,
       pausedAt: pausedAtTimestamp,
-      pencilMarks: pencilMarks || {},
-      solvePath: solvePath || [],
+      pencilMarks: completionData?.pencilMarks || {},
+      solvePath: completionData?.solvePath || [],
+      lockedCells: completionData?.lockedCells || {},
     };
 
     logger.info("Puzzle progress loaded", {
       userId,
       puzzleId,
-      hasUserEntries: !!userEntries && userEntries.length > 0,
+      hasUserEntries: !!completionData?.userEntries && completionData.userEntries.length > 0,
       elapsedTime,
       isComplete: data.is_complete,
       isPaused: pauseState.isPaused,
@@ -279,20 +212,6 @@ export async function loadProgress(
       data: resultData,
     };
   } catch (error) {
-    const loadError = error as Error;
-
-    logger.error("Exception loading puzzle progress", loadError, {
-      puzzleId,
-      action: "loadProgress",
-    });
-
-    Sentry.captureException(loadError, {
-      extra: { puzzleId, action: "loadProgress" },
-    });
-
-    return {
-      success: false,
-      error: "Failed to load progress. Please try again.",
-    };
+    return handleLoadError(error, puzzleId);
   }
-}
+};
