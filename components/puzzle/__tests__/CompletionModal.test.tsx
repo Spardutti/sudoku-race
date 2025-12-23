@@ -1,6 +1,6 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { CompletionModal } from "../CompletionModal";
+import { CompletionModal } from "@/components/puzzle/CompletionModal";
 import { getHypotheticalRank } from "@/actions/leaderboard";
 import { generateEmojiGrid } from "@/lib/utils/emoji-grid";
 
@@ -9,6 +9,24 @@ jest.mock("@/components/auth/AuthButtons", () => ({
   AuthButtons: () => <div data-testid="auth-buttons">Mock Auth Buttons</div>,
 }));
 jest.mock("@/lib/utils/emoji-grid");
+jest.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
+  useLocale: () => "en",
+}));
+jest.mock("@/components/puzzle/ShareButtons", () => ({
+  ShareButtons: ({ puzzleId, puzzleNumber, completionTime, emojiGrid, rank, difficulty }: {
+    puzzleId: string;
+    puzzleNumber: number;
+    completionTime: number;
+    emojiGrid: string;
+    rank?: number;
+    difficulty?: string;
+  }) => (
+    <div data-testid="share-buttons">
+      Mock ShareButtons: {puzzleId}, #{puzzleNumber}, {completionTime}s, {emojiGrid}, rank={rank}, difficulty={difficulty}
+    </div>
+  ),
+}));
 
 const mockGetHypotheticalRank = getHypotheticalRank as jest.MockedFunction<
   typeof getHypotheticalRank
@@ -427,7 +445,7 @@ describe("CompletionModal", () => {
       expect(shareTextElement.textContent).toContain("⏱️ 12:34");
     });
 
-    it("should display share buttons", async () => {
+    it("should render ShareButtons component with correct props", async () => {
       render(
         <CompletionModal
           isOpen={true}
@@ -439,47 +457,18 @@ describe("CompletionModal", () => {
           puzzle={mockPuzzle}
           solvePath={mockSolvePath}
           puzzleNumber={5}
+          difficulty="medium"
         />
       );
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Share puzzle results on Twitter/i })).toBeInTheDocument();
-      });
-
-      expect(screen.getByRole("button", { name: /Share puzzle results via WhatsApp/i })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /Copy puzzle results to clipboard/i })).toBeInTheDocument();
-    });
-
-    it("should handle copy to clipboard", async () => {
-      Object.assign(navigator, {
-        clipboard: {
-          writeText: jest.fn().mockResolvedValue(undefined),
-        },
-      });
-
-      render(
-        <CompletionModal
-          isOpen={true}
-          completionTime={180}
-          puzzleId="2025-01-05"
-          rank={42}
-          isAuthenticated={true}
-          onClose={jest.fn()}
-          puzzle={mockPuzzle}
-          solvePath={mockSolvePath}
-          puzzleNumber={5}
-        />
-      );
-
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /Copy puzzle results to clipboard/i })).toBeInTheDocument();
-      });
-
-      const copyButton = screen.getByRole("button", { name: /Copy puzzle results to clipboard/i });
-      fireEvent.click(copyButton);
-
-      await waitFor(() => {
-        expect(screen.getByText("Copied!")).toBeInTheDocument();
+        const shareButtons = screen.getByTestId("share-buttons");
+        expect(shareButtons).toBeInTheDocument();
+        expect(shareButtons.textContent).toContain("2025-01-05");
+        expect(shareButtons.textContent).toContain("#5");
+        expect(shareButtons.textContent).toContain("180s");
+        expect(shareButtons.textContent).toContain("rank=42");
+        expect(shareButtons.textContent).toContain("difficulty=medium");
       });
     });
 
