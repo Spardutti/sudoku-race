@@ -44,6 +44,12 @@
     "numbers": "Números",
     "pencilMarks": "Marcas de Lápiz",
     "pencilMarksActive": "Marcas de Lápiz Activas",
+    "lockMode": "Modo Bloqueo",
+    "lockModeActive": "Modo bloqueo activo",
+    "reset": "Reiniciar",
+    "resetUnlocked": "Reiniciar celdas desbloqueadas",
+    "resetUnlockedConfirm": "¿Reiniciar Celdas Desbloqueadas?",
+    "resetUnlockedDescription": "Esto eliminará todas las celdas desbloqueadas mientras conserva los números bloqueados y las pistas.",
     "difficultyPicker": {
       "title": "Elige Tu Desafío",
       "subtitle": "Selecciona una dificultad para comenzar el sudoku de hoy",

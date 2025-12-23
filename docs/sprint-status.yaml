@@ -102,7 +102,7 @@ development_status:
   6-3-personal-statistics-dashboard: done
   6-4-completion-history-calendar-view: done # docs/stories/6-4-completion-history-calendar-view.md
   6-5-engagement-hooks-notifications-post-mvp-prep: backlog
-  6-6-multi-difficulty-puzzle-system: ready-for-dev # docs/stories/6-6-multi-difficulty-puzzle-system.md
+  6-6-multi-difficulty-puzzle-system: done # docs/stories/6-6-multi-difficulty-puzzle-system.md
   epic-6-retrospective: optional
 
   # Epic 7: Internationalization & Localization (1 story - NEW)
@@ -113,14 +113,14 @@ development_status:
   # Epic 8: Marketing & Growth (2 stories - NEW)
   epic-8: backlog
   8-1-minimal-landing-page: done # docs/stories/8-1-minimal-landing-page.md
-  8-2-progressive-web-app-pwa: review # docs/stories/8-2-progressive-web-app-pwa.md
+  8-2-progressive-web-app-pwa: done # docs/stories/8-2-progressive-web-app-pwa.md
   epic-8-retrospective: optional
 
   # Bug Fixes (Standalone)
-  BF-1-puzzle-state-sync-cross-device: review # docs/stories/BF-1-puzzle-state-sync-cross-device.md
-  BF-2-guest-auth-state-loss: review # docs/stories/BF-2-guest-auth-state-loss.md
-  BF-3-stale-puzzle-persist-across-days: review # docs/stories/BF-3-stale-puzzle-persist-across-days.md
-  BF-4-login-redirect-preserve-location: review # docs/stories/BF-4-login-redirect-preserve-location.md
+  BF-1-puzzle-state-sync-cross-device: done # docs/stories/BF-1-puzzle-state-sync-cross-device.md
+  BF-2-guest-auth-state-loss: done # docs/stories/BF-2-guest-auth-state-loss.md
+  BF-3-stale-puzzle-persist-across-days: done # docs/stories/BF-3-stale-puzzle-persist-across-days.md
+  BF-4-login-redirect-preserve-location: done # docs/stories/BF-4-login-redirect-preserve-location.md
 
   # Technical Debt & Improvements
   TECH-1-supabase-database-linter-fixes: backlog # docs/stories/TECH-1-supabase-database-linter-fixes.md

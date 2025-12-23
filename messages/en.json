@@ -44,6 +44,12 @@
     "numbers": "Numbers",
     "pencilMarks": "Pencil Marks",
     "pencilMarksActive": "Pencil Marks Active",
+    "lockMode": "Lock Mode",
+    "lockModeActive": "Lock mode active",
+    "reset": "Reset",
+    "resetUnlocked": "Reset unlocked cells",
+    "resetUnlockedConfirm": "Reset Unlocked Cells?",
+    "resetUnlockedDescription": "This will clear all unlocked cells while preserving locked numbers and clues.",
     "difficultyPicker": {
       "title": "Choose Your Challenge",
       "subtitle": "Select a difficulty to start today's sudoku",
