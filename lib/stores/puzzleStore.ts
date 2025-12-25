@@ -161,7 +161,11 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           };
         }),
 
-      toggleNoteMode: () => set((state) => ({ noteMode: !state.noteMode })),
+      toggleNoteMode: () =>
+        set((state) => ({
+          noteMode: !state.noteMode,
+          lockMode: !state.noteMode ? false : state.lockMode,
+        })),
 
       addPencilMark: (row: number, col: number, value: number) =>
         set((state) => {
@@ -221,7 +225,11 @@ export const usePuzzleStore = create<PuzzleState & PuzzleActions>()(
           };
         }),
 
-      toggleLockMode: () => set((state) => ({ lockMode: !state.lockMode })),
+      toggleLockMode: () =>
+        set((state) => ({
+          lockMode: !state.lockMode,
+          noteMode: !state.lockMode ? false : state.noteMode,
+        })),
 
       toggleCellLock: (row: number, col: number) =>
         set((state) => {
